@@ -5,8 +5,8 @@
 [[ -z "$PS1" ]] && return
 
 # basherk specific
-basherk_ver=1.0.5-beta
-basherk_date="1 December 2016"
+basherk_ver=1.0.6-beta
+basherk_date="20 January 2017"
 basherk_src=${BASH_SOURCE[0]}
 basherk_dir=$(dirname "$basherk_src")
 
@@ -40,7 +40,9 @@ shopt -s histappend                     # append to history, don't overwrite
 shopt -s cdspell                        # autocorrect for cd
 
 # Source git completion
-. ~/.git-completion.bash
+if [ -f ~/.git-completion.bash ]; then
+        . ~/.git-completion.bash
+fi
 
 os="$(uname)"
 host="$(hostname)"
