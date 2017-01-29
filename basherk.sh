@@ -150,7 +150,6 @@ function ipdrop() {
 alias cp='cp -iv' # interactive and verbose
 alias mv='mv -iv'
 alias rm='rm -iv'
-alias rmdir='rmdir -iv'
 alias df='df -h' # human readable
 alias mkdir='mkdir -pv' # Make parent directories as needed and be verbose
 
