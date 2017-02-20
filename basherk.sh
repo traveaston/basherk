@@ -203,6 +203,31 @@ alias unstage='git reset -q HEAD --'
 alias discard='git checkout --'
 alias nevermind='git reset --hard HEAD && git clean -d -f'
 
+# commit
+# wrapper function for git commit
+# counts characters, checks spelling and asks to commit
+
+function commit() {
+    message="$1"
+    len=$(cchar -a "$message")
+
+    [[ $len > 50 ]] && {
+        echo "${RED}$len characters long${D}"
+        return
+    } || echo "${GREEN}$len characters long${D}"
+
+    echo
+    echo "${BLUE}Spell check:${D}"
+    echo "$message" | aspell -a
+
+    echo "${PINK}git commit -m \"$message\"${D}"
+    read -p "Commit using this message? [y/N] " commit
+
+    [[ "$commit" == "y" ]] && {
+        git commit -m "$message"
+    } || echo "Aborted"
+}
+
 # Directory traversing
 alias ..="cd .."
 alias ..2="cd ../.."
