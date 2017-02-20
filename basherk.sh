@@ -52,7 +52,7 @@ host="$(hostname)"
 
 # Functions that require defining first
 [[ $os == "macOS" ]] && alias la='ls -aGhl'
-[[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahl --color=auto'
+[[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahGl --color=auto'
 function cd() { command cd "$1" && pwd && la; }
 function pause() { read -p "$*"; }
 
