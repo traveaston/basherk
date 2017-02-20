@@ -126,7 +126,7 @@ function sshl() {
         eval `keychain --eval --agents ssh $keyfile`
     fi
 
-    STATUS="$(ssh-add -l 2>&1)";
+    STATUS="$(ssh-add -l 2>&1)"
     if [[ "${STATUS}" == "Could not open a connection to your authentication agent." ]]; then
         # ssh-add ~/.ssh/$keyfile
         echo "TODO fix"
@@ -254,24 +254,14 @@ function cchar() {
 
 # Compare torrent hashes or any 2 strings
 function compare() {
-    str1=$1;
-    str2=$2;
+    str1=$1
+    str2=$2
 
     # die if no string to compare
     [[ -z "$1" ]] && exit
 
     [[ "$str1" == "$str2" ]] && echo "${GREEN}2 strings match${D}" ||
     echo "${RED}Strings don't match${D}"
-}
-
-# Change webroot for apache
-function apache_wr() {
-    webroot=$1
-
-    rm -f /var/www/html
-    ln -s $webroot /var/www/html
-
-    service apache2 restart
 }
 
 # Fix shitty find command
@@ -395,9 +385,9 @@ function ubash() {
             clear
             echo "If you're not root, ${PINK}sudo cp ~/.bashrc /root/.bashrc && sudo su${D}"
         }
-        basherk;
-        echo "bashrc updated / re-sourced";
-        lastmod "$basherk_src";
+        basherk
+        echo "bashrc updated / re-sourced"
+        lastmod "$basherk_src"
         return
     elif [[ $1 == *@* ]]; then
         pos=$(strpos $1 '@')
