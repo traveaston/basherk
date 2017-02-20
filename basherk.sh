@@ -201,6 +201,7 @@ alias stage='git add -p'
 alias staged='git diff --staged'
 alias unstage='git reset -q HEAD --'
 alias discard='git checkout --'
+alias discardpatch='git checkout -p'
 alias nevermind='git reset --hard HEAD && git clean -d -f'
 
 # commit
