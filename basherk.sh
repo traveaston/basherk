@@ -217,16 +217,13 @@ function cchar() {
     while getopts "a:" opt; do
         case $opt in
             a)
-                str=$OPTARG
-                echo ${#str} >&2
+                echo ${#OPTARG}
                 return
                 ;;
         esac
     done
 
-    str=$1;
-    len=${#str};
-    echo string is ${RED}$len ${D}characters long;
+    echo "string is ${RED}${#1}${D} characters long"
 }
 
 # Compare torrent hashes or any 2 strings
