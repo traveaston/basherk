@@ -212,6 +212,18 @@ alias ..5="cd ../../../../.."
 
 # Count characters in a string
 function cchar() {
+    local OPTIND
+
+    while getopts "a:" opt; do
+        case $opt in
+            a)
+                str=$OPTARG
+                echo ${#str} >&2
+                return
+                ;;
+        esac
+    done
+
     str=$1;
     len=${#str};
     echo string is ${RED}$len ${D}characters long;
