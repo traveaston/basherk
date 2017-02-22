@@ -35,7 +35,7 @@ export GREP_OPTIONS='--color=auto'
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
 export HISTFILESIZE=100000              # 100kb max history size
-export HISTIGNORE=clear:countsize:df:f:find:gd:gds:gdsw:gdw:gl:gla:gs:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall
+export HISTIGNORE=clear:countsize:df:f:find:gd:staged:gdsw:gdw:gl:gla:gs:stashes:graph:graphall:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall:"* --version"
 shopt -s histappend                     # append to history, don't overwrite
 shopt -s cdspell                        # autocorrect for cd
 
@@ -58,10 +58,7 @@ function pause() { read -p "$*"; }
 
 [[ $os =~ ^(macOS|Windows)$ ]] && {
     alias gitale='cd ~/.dev/repos/ale && graphall -10 && tcommits && gs'
-    alias gitblk='cd ~/.dev/repos/blockt && rvm use ruby-2.3.1 && graphall -10 && tcommits && gs'
-    alias gitcz='cd ~/.dev/repos/czechmeight && graphall -10 && tcommits && gs'
     alias gitpd='cd ~/.dev/repos/phonedirectory && graphall -10 && tcommits && gs'
-    alias gitynab='cd ~/.dev/repos/toolkit-for-ynab && graphall -10 && tcommits && gs'
     alias gitr='cd ~/.dev/repos'
 }
 
@@ -184,16 +181,13 @@ fi
 alias gb='git branch -a'
 alias gd='git diff'
 alias gdom='git diff origin/master'
-alias gds='staged'
 alias gdw='git diff --color-words'
 alias gdsw='git diff --staged --color-words'
-alias gfa='git fetch --all'
-alias gl='graph'
+alias gl='echo please use graph'
 alias gla='graphall'
 alias gnb='git checkout -b'
 alias gs='git status'
-alias gsl='git stash list'
-alias gsp='git status --porcelain'
+alias stashes='git stash list'
 alias gitsquashlast='git rebase -i HEAD~2'
 alias graph="git log --graph -14 --format=format:'%Cgreen%h%Creset - %<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d'"
 alias graphall="git log --graph -20 --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
@@ -202,7 +196,7 @@ alias staged='git diff --staged'
 alias unstage='git reset -q HEAD --'
 alias discard='git checkout --'
 alias discardpatch='git checkout -p'
-alias nevermind='git reset --hard HEAD && git clean -d -f'
+alias nevermind='echo "You will have to ${RED}git reset --hard HEAD && git clean -d -f${D} but it removes untracked things like vendor"'
 
 # commit
 # wrapper function for git commit
