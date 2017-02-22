@@ -35,7 +35,7 @@ export GREP_OPTIONS='--color=auto'
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
 export HISTFILESIZE=100000              # 100kb max history size
-export HISTIGNORE=clear:countsize:df:f:find:gd:staged:gdsw:gdw:gl:gla:gs:stashes:graph:graphall:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall:"* --version"
+export HISTIGNORE=clear:countsize:df:f:find:gd:gds:staged:gdsw:gdw:gl:gla:gs:stashes:graph:graphall:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall:"* --version"
 shopt -s histappend                     # append to history, don't overwrite
 shopt -s cdspell                        # autocorrect for cd
 
@@ -182,9 +182,10 @@ fi
 alias gb='git branch -a'
 alias gd='git diff'
 alias gdom='git diff origin/master'
+alias gds='staged'
 alias gdw='git diff --color-words'
 alias gdsw='git diff --staged --color-words'
-alias gl='echo please use graph'
+alias gl='graph'
 alias gla='graphall'
 alias gnb='git checkout -b'
 alias gs='git status'
