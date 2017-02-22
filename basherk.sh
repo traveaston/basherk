@@ -428,6 +428,13 @@ function notify() {
     echo $notification
 }
 
+function set_title() {
+    t='echo -ne "\033]0;TITLE_HERE\007";'
+
+    t=${t/TITLE_HERE/$1}
+    export PROMPT_COMMAND=$t
+}
+
 function iTermSH() {
     [[ $os == "macOS" ]] && {
         # Help iTerm2 Semantic History by echoing current dir
