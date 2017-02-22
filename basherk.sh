@@ -111,9 +111,7 @@ function sshl() {
         keyfile="id_ed25519"
         echo "Loading ${GREEN}ed25519${D} identity file"
     elif [[ -f ~/.ssh/id_rsa ]]; then
-        echo "${RED}WARNING: You're using an insecure algorithm (rsa)"
-        echo "Upgrade to ed25519 with at least a 32 character password"
-        echo "${GREEN}usage: ssh-keygen -o -a 100 -t ed25519${D}"
+        echo "${RED}WARNING: RSA is an insecure algorithm, upgrade to ed25519${D}"
         echo "Loading ${RED}rsa${D} identity file"
         keyfile="id_rsa"
     else
