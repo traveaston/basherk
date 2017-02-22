@@ -158,7 +158,7 @@ alias catid='echo "chmod 640 ~/.ssh/authorized_keys, chmod 700 ~/.ssh" && cat ~/
 alias countsize='du -sch'
 alias fexplain='echo && type f && echo && type ff'
 alias fuck='sudo $(history -p \!\!)' # Redo last command as sudo
-alias now='date +"%T %d/%m/%Y"'
+alias now='date +"%c"'
 alias pwf='printf '%s' "${PWD##*/}"'
 alias socksproxy='echo "ssh -D 12345 -f -C -q -N root@$cz" &&
 echo "-D 12345 : This does the dynamic stuff and makes it behave as a SOCKS server." &&
