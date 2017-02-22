@@ -94,7 +94,10 @@ case $os in
         ;;
     Windows)
         # ~/.dev is symlinked to /mnt/c/Dropbox/Web Development
-        alias yum='apt-get'
+        function yum() {
+            [[ $1 == "search" ]] && apt-cache "$@" || apt-get "$@"
+        }
+
         alias elp='tail -f /c/xMAMP/logs/phperror.log'
         alias suho='vi /mnt/c/Windows/System32/drivers/etc/hosts'
         ;;
