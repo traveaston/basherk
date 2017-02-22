@@ -272,7 +272,7 @@ function f() {
         echo "    ."
         echo "    [path] e.g. /etc/"
         echo "    path (will systematically search \$PATH)"
-        echo "    in (uses pdsearch to search in file contents)"
+        echo "    in (uses searchcontents to search in file contents)"
         echo "    commits (uses git grep to search through all committed code)"
     } || {
         location=$1
@@ -281,7 +281,7 @@ function f() {
         sudo=$3
 
         if [[ $location == "path" ]]; then $sudo find ${PATH//:/ } -maxdepth 1 -name "$file" -print | hlp "$file"
-        elif [[ $location == "in" ]]; then pdsearch "$2" $3 $4
+        elif [[ $location == "in" ]]; then searchcontents "$2" $3 $4
         elif [[ $location == "commits" ]]; then git grep "$file" $(git rev-list --all)
         else {
             echo "searching $location for $file"
@@ -335,7 +335,7 @@ function lastmod(){
     fi
 }
 
-function pdsearch() {
+function searchcontents() {
     if [[ "$1" != "" ]]; then
         echo "searching $(pwf) for '$1' (ignoring binary files, .git/, vendor/)"
         grepString="grep -"
@@ -348,9 +348,9 @@ function pdsearch() {
 
         echo "$count matches"
     else
-        echo "usage: pdsearch string [bool caseInsensitive?] [bool excludeJS?]"
-        echo "       pdsearch 'string with spaces' [1|0] [1|0]"
-        echo "       pdsearch '\$pecial' [1|0] [1|0]"
+        echo "usage: searchcontents string [bool caseInsensitive?] [bool excludeJS?]"
+        echo "       searchcontents 'string with spaces' [1|0] [1|0]"
+        echo "       searchcontents '\$pecial' [1|0] [1|0]"
     fi
 }
 
@@ -414,7 +414,7 @@ function hlp()
         grep -E "$1|$"
     else
         echo "usage: command -params | hlp 'highlightstring'"
-        echo "For acceptable highlightstring values, see ${RED}pdsearch"
+        echo "For acceptable highlightstring values, see ${RED}searchcontents"
     fi
 }
 
