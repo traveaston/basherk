@@ -57,8 +57,8 @@ function cd() { command cd "$1" && pwd && la; }
 function pause() { read -p "$*"; }
 
 [[ $os =~ ^(macOS|Windows)$ ]] && {
-    alias gitale='cd ~/.dev/repos/ale && graphall -10 && tcommits && gs'
-    alias gitpd='cd ~/.dev/repos/phonedirectory && graphall -10 && tcommits && gs'
+    alias gitale='cd ~/.dev/repos/ale && gitwelcome'
+    alias gitpd='cd ~/.dev/repos/phonedirectory && gitwelcome'
     alias gitr='cd ~/.dev/repos'
 }
 
@@ -99,6 +99,7 @@ case $os in
 esac
 
 alias gitwd='cd /var/www/html'
+alias gitwelcome='graphall -10 && tcommits && gs'
 
 exists() {
     command -v "$1" >/dev/null 2>&1
