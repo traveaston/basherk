@@ -218,7 +218,7 @@ function commit() {
     echo "${BLUE}Spell check:${D}"
     echo "$message" | aspell -a
 
-    echo "${PINK}git commit -m \"$message\"${D}"
+    echo "git commit -m ${PINK}\"$message\"${D}"
     read -p "Commit using this message? [y/N] " commit
 
     [[ "$commit" == "y" ]] && {
