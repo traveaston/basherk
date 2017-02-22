@@ -95,7 +95,10 @@ case $os in
     Windows)
         # ~/.dev is symlinked to /mnt/c/Dropbox/Web Development
         function yum() {
-            [[ $1 == "search" ]] && apt-cache "$@" || apt-get "$@"
+            if [[ $1 == "search" ]]; then apt-cache "$@"
+            elif [[ $1 == "provides" ]]; then apt-file ${@/provides/search}
+            else apt-get "$@"
+            fi
         }
 
         alias elp='tail -f /c/xMAMP/logs/phperror.log'
