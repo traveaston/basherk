@@ -73,8 +73,9 @@ case $os in
         alias ls='ls -G'
         alias tailf='tail -f'
 
-        alias el='now && tail -f /private/var/log/apache2/error_log'
+        alias el='now && tail -f /usr/local/var/log/apache2/error_log'
         alias elm='now && tail -f /var/log/mysql.log'
+        alias elmnd='now && tail -f /usr/local/var/log/mysqlnd.log'
 
         alias fcache='sudo dscacheutil -flushcache'
         alias suho='sudo sublime /etc/hosts'
