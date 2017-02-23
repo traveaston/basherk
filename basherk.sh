@@ -97,6 +97,7 @@ case $os in
         function yum() {
             if [[ $1 == "search" ]]; then apt-cache "$@"
             elif [[ $1 == "provides" ]]; then apt-file ${@/provides/search}
+            elif [[ $1 == "info" ]]; then apt-cache ${@/info/show}
             else apt-get "$@"
             fi
         }
