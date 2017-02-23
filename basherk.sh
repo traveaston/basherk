@@ -425,6 +425,22 @@ function hlp()
     fi
 }
 
+function nmap_scan() {
+    local ip=$1
+    local sudo=$2
+
+    echo $sudo scanning ${PINK}$ip${D}
+    $sudo nmap -sn -PE $ip/24
+}
+
+function scanip() {
+    nmap_scan $1 $2
+}
+
+function scansubnet() {
+    nmap_scan 192.168.$1.1 $2
+}
+
 function notify() {
     notification=$'\e]9;'
     notification+=$1
