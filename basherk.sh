@@ -361,21 +361,6 @@ function searchcontents() {
     fi
 }
 
-function pdtemp() {
-    if [[ "$1" != "" ]]; then
-        echo "searching $(pwf) for '$1'"
-        grepString="grep -inr \"$1\" * --exclude-dir=\".git\""
-
-        eval $grepString
-        count=$(eval $grepString | wc -l)
-
-        echo "$count matches"
-    else
-        echo "usage: pdtemp string"
-        echo "       pdtemp 'string with spaces, \$special_chars or #other'"
-    fi
-}
-
 function h() {
     [[ -z "$1" ]] && history || history | grep "$@"
 }
