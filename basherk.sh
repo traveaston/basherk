@@ -116,31 +116,29 @@ exists() {
 }
 
 function sshl() {
-    if [[ -f ~/.ssh/id_ed25519 ]]; then
-        keyfile="id_ed25519"
-        echo "Loading ${GREEN}ed25519${D} identity file"
-    elif [[ -f ~/.ssh/id_rsa ]]; then
-        echo "${RED}WARNING: RSA is an insecure algorithm, upgrade to ed25519${D}"
-        echo "Loading ${RED}rsa${D} identity file"
-        keyfile="id_rsa"
-    else
-        echo "No ssh identity found."
-        return 1
-    fi
+    local start=false
+    local STATUS="$(ssh-add -l 2>&1)"
+    [[ "$STATUS" == "Could not open a connection to your authentication agent." ]] && start=true
+    [[ "$STATUS" == "Error connecting to agent: Connection refused" ]] && start=true
 
-    if exists keychain; then
-        eval `keychain --eval --agents ssh $keyfile`
-    fi
+    [[ $start == true ]] && eval `keychain --eval` && STATUS="$(ssh-add -l 2>&1)"
 
-    STATUS="$(ssh-add -l 2>&1)"
-    if [[ "${STATUS}" == "Could not open a connection to your authentication agent." ]]; then
-        # ssh-add ~/.ssh/$keyfile
-        echo "TODO fix"
-    elif [[ "${STATUS}" == "The agent has no identities." ]]; then
-        echo "WARNING: IT'S SAYING IS HAS NO IDENTITIES"
+    if [[ "$STATUS" == "The agent has no identities." ]]; then
+        if [[ -f ~/.ssh/id_ed25519 ]]; then
+            echo "Loading ${GREEN}ed25519${D} identity file"
+            keyfile="id_ed25519"
+        elif [[ -f ~/.ssh/id_rsa ]]; then
+            echo "${RED}WARNING: RSA is an insecure algorithm, upgrade to ed25519${D}"
+            echo "Loading ${RED}rsa${D} identity file"
+            keyfile="id_rsa"
+        else
+            echo "No ssh identity found."
+            return 1
+        fi
+
         ssh-add ~/.ssh/$keyfile
     else
-        echo "${STATUS}"
+        echo "$STATUS"
     fi
 }
 export -f sshl
