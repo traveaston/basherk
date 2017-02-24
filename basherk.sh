@@ -54,8 +54,6 @@ host="$(hostname)"
 # Functions that require defining first
 [[ $os == "macOS" ]] && alias la='ls -aGhl'
 [[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahGl --color=auto'
-function cd() { command cd "$1" && pwd && la; }
-function pause() { read -p "$*"; }
 
 [[ $os =~ ^(macOS|Windows)$ ]] && {
     alias gitale='cd ~/.dev/repos/ale && gitwelcome'
@@ -110,45 +108,6 @@ esac
 
 alias gitwd='cd /var/www/html'
 alias gitwelcome='graphall -10 && tcommits && gs'
-
-exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-function sshl() {
-    local start=false
-    local STATUS="$(ssh-add -l 2>&1)"
-    [[ "$STATUS" == "Could not open a connection to your authentication agent." ]] && start=true
-    [[ "$STATUS" == "Error connecting to agent: Connection refused" ]] && start=true
-
-    [[ $start == true ]] && eval `keychain --eval` && STATUS="$(ssh-add -l 2>&1)"
-
-    if [[ "$STATUS" == "The agent has no identities." ]]; then
-        if [[ -f ~/.ssh/id_ed25519 ]]; then
-            echo "Loading ${GREEN}ed25519${D} identity file"
-            keyfile="id_ed25519"
-        elif [[ -f ~/.ssh/id_rsa ]]; then
-            echo "${RED}WARNING: RSA is an insecure algorithm, upgrade to ed25519${D}"
-            echo "Loading ${RED}rsa${D} identity file"
-            keyfile="id_rsa"
-        else
-            echo "No ssh identity found."
-            return 1
-        fi
-
-        ssh-add ~/.ssh/$keyfile
-    else
-        echo "$STATUS"
-    fi
-}
-export -f sshl
-
-# start ssh agent(keychain or legacy) and list ssh keys
-sshl
-
-function ipdrop() {
-    iptables -A INPUT -s $1 -j DROP
-}
 
 # Redefine builtin commands
 alias cp='cp -iv' # interactive and verbose
@@ -206,10 +165,43 @@ alias discard='git checkout --'
 alias discardpatch='git checkout -p'
 alias nevermind='echo "You will have to ${RED}git reset --hard HEAD && git clean -d -f${D} but it removes untracked things like vendor"'
 
+# Instructions / remider aliases
+alias gitdeleteremotebranch='echo "to delete remote branch, ${PINK}git push origin :<branchName>"'
+alias gitprune='echo "git remote prune origin" will automatically prune all branches that no longer exist'
+alias gitrebase='echo usage: git checkout ${GREEN}branch${D} &&
+                 echo "       git rebase ${PINK}base${D}" &&
+                 echo &&
+                 echo "   eg: git checkout ${GREEN}develop${D}" &&
+                 echo "       git rebase ${PINK}master${D}" &&
+                 echo &&
+                 echo "Rebase ${GREEN}branch${D} onto ${PINK}base${D}, which can be any kind of commit reference:" &&
+                 echo "an ID, branch name, tag or relative reference to HEAD."'
+alias gitundocommit='echo "git reset --soft HEAD^"'
+alias tcommits='echo "Total commits for ${GREEN}$(git_repo_name): ${PINK}$(git log --oneline --all | wc -l)"${D}'
+
+# Count characters in a string
+function cchar() {
+    local OPTIND
+
+    while getopts "a:" opt; do
+        case $opt in
+            a)
+                echo ${#OPTARG}
+                return
+                ;;
+        esac
+    done
+
+    echo "string is ${RED}${#1}${D} characters long"
+}
+
+function cd() {
+    command cd "$1" && pwd && la
+}
+
 # commit
 # wrapper function for git commit
 # counts characters, checks spelling and asks to commit
-
 function commit() {
     message="$1"
     len=$(cchar -a "$message")
@@ -231,29 +223,6 @@ function commit() {
     } || echo "Aborted"
 }
 
-# Directory traversing
-alias ..="cd .."
-alias ..2="cd ../.."
-alias ..3="cd ../../.."
-alias ..4="cd ../../../.."
-alias ..5="cd ../../../../.."
-
-# Count characters in a string
-function cchar() {
-    local OPTIND
-
-    while getopts "a:" opt; do
-        case $opt in
-            a)
-                echo ${#OPTARG}
-                return
-                ;;
-        esac
-    done
-
-    echo "string is ${RED}${#1}${D} characters long"
-}
-
 # Compare torrent hashes or any 2 strings
 function compare() {
     str1=$1
@@ -264,6 +233,10 @@ function compare() {
 
     [[ "$str1" == "$str2" ]] && echo "${GREEN}2 strings match${D}" ||
     echo "${RED}Strings don't match${D}"
+}
+
+exists() {
+    command -v "$1" >/dev/null 2>&1
 }
 
 # Fix shitty find command
@@ -295,49 +268,63 @@ function f() {
     }
 }
 
+function h() {
+    [[ -z "$1" ]] && history || history | grep "$@"
+}
+
+# Highlight Pattern
+# Works like grep except it shows all lines
+function hlp()
+{
+    if [[ "$1" != "" ]]; then
+        grep -E "$1|$"
+    else
+        echo "usage: command -params | hlp 'highlightstring'"
+        echo "For acceptable highlightstring values, see ${RED}searchcontents"
+    fi
+}
+
+function ipdrop() {
+    iptables -A INPUT -s $1 -j DROP
+}
+
+function lastmod(){
+    if [[ $os == "macOS" ]]; then echo "Last modified" $(( $(date +%s) - $(stat -f%c "$1") )) "seconds ago"
+    else echo "Last modified" $(( $(date +%s) - $(date +%s -r "$1") )) "seconds ago"
+    fi
+}
+
 # mkdir and cd into it
 function mkcd() {
     mkdir $1
     cd $1
 }
 
-function strpos() {
-    [[ -z $1 ]] && echo "usage: strpos haystack needle" || {
-        x="${1%%$2*}"
-        [[ $x = $1 ]] && echo -1 || echo ${#x}
-    }
+function notify() {
+    notification=$'\e]9;'
+    notification+=$1
+    notification+=$'\007'
+    echo $notification
 }
 
-# Instructions / remider aliases
-alias gitdeleteremotebranch='echo "to delete remote branch, ${PINK}git push origin :<branchName>"'
-alias gitprune='echo "git remote prune origin" will automatically prune all branches that no longer exist'
-alias gitrebase='echo usage: git checkout ${GREEN}branch${D} &&
-                 echo "       git rebase ${PINK}base${D}" &&
-                 echo &&
-                 echo "   eg: git checkout ${GREEN}develop${D}" &&
-                 echo "       git rebase ${PINK}master${D}" &&
-                 echo &&
-                 echo "Rebase ${GREEN}branch${D} onto ${PINK}base${D}, which can be any kind of commit reference:" &&
-                 echo "an ID, branch name, tag or relative reference to HEAD."'
-alias gitundocommit='echo "git reset --soft HEAD^"'
-alias scp='scpwarn && scp'
-alias scpwarn='echo ${RED}scp is inferior to rsync${D} &&
-               echo use ${GREEN}rsync -ahvz${D} in place of ${RED}scp${D} &&
-               echo'
-alias sshcp='scpwarn &&
-             echo usage: rsync -ahvz ${GREEN}localfile${D} ${PINK}user${D}@${ORANGE}host${D}:${CYAN}remotefile${D} &&
-             echo &&
-             echo usage: scp ${GREEN}localfile${D} ${PINK}user${D}@${ORANGE}host${D}:${CYAN}remotefile${D} &&
-             echo "   eg: scp ${GREEN}index.php${D} ${PINK}root${D}@${ORANGE}fne${D}:${CYAN}/var/www/html/index.php${D}" &&
-             echo &&
-             echo usage: scp ${PINK}user${D}@${ORANGE}host${D}:${CYAN}remotefile${D} ${GREEN}localfile${D} &&
-             echo "   eg: scp ${PINK}root${D}@${ORANGE}fne${D}:${CYAN}/var/www/html/index.php${D} ${GREEN}index.php${D}"'
-alias tcommits='echo "Total commits for ${GREEN}$(git_repo_name): ${PINK}$(git log --oneline --all | wc -l)"${D}'
+function pause() {
+    read -p "$*"
+}
 
-function lastmod(){
-    if [[ $os == "macOS" ]]; then echo "Last modified" $(( $(date +%s) - $(stat -f%c "$1") )) "seconds ago"
-    else echo "Last modified" $(( $(date +%s) - $(date +%s -r "$1") )) "seconds ago"
-    fi
+function scan_nmap() {
+    local ip=$1
+    local sudo=$2
+
+    echo $sudo scanning ${PINK}$ip${D}
+    $sudo nmap -sn -PE $ip/24
+}
+
+function scanip() {
+    scan_nmap $1 $2
+}
+
+function scansubnet() {
+    scan_nmap 192.168.$1.1 $2
 }
 
 function searchcontents() {
@@ -359,8 +346,49 @@ function searchcontents() {
     fi
 }
 
-function h() {
-    [[ -z "$1" ]] && history || history | grep "$@"
+function set_title() {
+    t='echo -ne "\033]0;TITLE_HERE\007";'
+
+    t=${t/TITLE_HERE/$1}
+    export PROMPT_COMMAND=$t
+}
+
+function sshl() {
+    local start=false
+    local STATUS="$(ssh-add -l 2>&1)"
+    [[ "$STATUS" == "Could not open a connection to your authentication agent." ]] && start=true
+    [[ "$STATUS" == "Error connecting to agent: Connection refused" ]] && start=true
+
+    [[ $start == true ]] && eval `keychain --eval` && STATUS="$(ssh-add -l 2>&1)"
+
+    if [[ "$STATUS" == "The agent has no identities." ]]; then
+        if [[ -f ~/.ssh/id_ed25519 ]]; then
+            echo "Loading ${GREEN}ed25519${D} identity file"
+            keyfile="id_ed25519"
+        elif [[ -f ~/.ssh/id_rsa ]]; then
+            echo "${RED}WARNING: RSA is an insecure algorithm, upgrade to ed25519${D}"
+            echo "Loading ${RED}rsa${D} identity file"
+            keyfile="id_rsa"
+        else
+            echo "No ssh identity found."
+            return 1
+        fi
+
+        ssh-add ~/.ssh/$keyfile
+    else
+        echo "$STATUS"
+    fi
+}
+export -f sshl
+
+# start ssh agent(keychain or legacy) and list ssh keys
+sshl
+
+function strpos() {
+    [[ -z $1 ]] && echo "usage: strpos haystack needle" || {
+        x="${1%%$2*}"
+        [[ $x = $1 ]] && echo -1 || echo ${#x}
+    }
 }
 
 function ubash() {
@@ -395,49 +423,6 @@ function ubash() {
     }
 }
 
-# Highlight Pattern
-# Works like grep except it shows all lines
-# Usage: command | hlp 'pattern'
-function hlp()
-{
-    if [[ "$1" != "" ]]; then
-        grep -E "$1|$"
-    else
-        echo "usage: command -params | hlp 'highlightstring'"
-        echo "For acceptable highlightstring values, see ${RED}searchcontents"
-    fi
-}
-
-function nmap_scan() {
-    local ip=$1
-    local sudo=$2
-
-    echo $sudo scanning ${PINK}$ip${D}
-    $sudo nmap -sn -PE $ip/24
-}
-
-function scanip() {
-    nmap_scan $1 $2
-}
-
-function scansubnet() {
-    nmap_scan 192.168.$1.1 $2
-}
-
-function notify() {
-    notification=$'\e]9;'
-    notification+=$1
-    notification+=$'\007'
-    echo $notification
-}
-
-function set_title() {
-    t='echo -ne "\033]0;TITLE_HERE\007";'
-
-    t=${t/TITLE_HERE/$1}
-    export PROMPT_COMMAND=$t
-}
-
 function iTermSH() {
     [[ $os == "macOS" ]] && {
         # Help iTerm2 Semantic History by echoing current dir
@@ -457,15 +442,15 @@ function echo_working_dir() {
     echo $CURRENTDIR
 }
 Response=""
+function git_branch {
+    git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+}
 function git_dirty {
     # [[ $(git status --porcelain 2> /dev/null | grep '?') != "" ]] && Response+="?"
     # [[ $(git status --porcelain 2> /dev/null | grep 'M') != "" ]] && Response+="!"
     # echo $Response
     echo ""
     # Running git status on huge repos takes ages, making every command take much longer than expected
-}
-function git_branch {
-    git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
 }
 function git_in_repo {
     [[ $(git_branch) != "" ]] && echo "on"
