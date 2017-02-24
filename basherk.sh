@@ -88,7 +88,6 @@ case $os in
     Linux)
         alias cdnet='cd /etc/sysconfig/network-scripts/'
         alias el='now && tailf /var/log/httpd/error_log'
-        alias gitm='cd /var/lib/mysql'
         ;;
     Windows)
         # ~/.dev is symlinked to /mnt/c/Dropbox/Web Development
@@ -118,19 +117,10 @@ alias mkdir='mkdir -pv' # Make parent directories as needed and be verbose
 
 # General aliases
 alias back='cd "$OLDPWD"'
-alias catid='echo "chmod 640 ~/.ssh/authorized_keys, chmod 700 ~/.ssh" && cat ~/.ssh/id_rsa.pub'
 alias countsize='du -sch'
-alias fexplain='echo && type f && echo && type ff'
 alias fuck='sudo $(history -p \!\!)' # Redo last command as sudo
 alias now='date +"%c"'
 alias pwf='printf '%s' "${PWD##*/}"'
-alias socksproxy='echo "ssh -D 12345 -f -C -q -N root@$cz" &&
-echo "-D 12345 : This does the dynamic stuff and makes it behave as a SOCKS server." &&
-echo "-f : This will fork the process into the background after you type your password." &&
-echo "-C : Turns on compression." &&
-echo "-q : Quiet mode. Since this is just a tunnel we can make it quiet." &&
-echo "-N : Tells it no commands will be sent. (the -f will complain if we don’t specify this)" &&
-ssh -D 12345 -f -C -q -N root@$cz'
 alias vollist='echo && echo pvs && pvs && echo && echo vgs && vgs && echo && echo lvs && lvs'
 alias voldisp='echo && echo pvdisplay && pvdisplay && echo && echo vgdisplay && vgdisplay && echo && echo lvdisplay && lvdisplay'
 
@@ -168,10 +158,7 @@ alias nevermind='echo "You will have to ${RED}git reset --hard HEAD && git clean
 # Instructions / remider aliases
 alias gitdeleteremotebranch='echo "to delete remote branch, ${PINK}git push origin :<branchName>"'
 alias gitprune='echo "git remote prune origin" will automatically prune all branches that no longer exist'
-alias gitrebase='echo usage: git checkout ${GREEN}branch${D} &&
-                 echo "       git rebase ${PINK}base${D}" &&
-                 echo &&
-                 echo "   eg: git checkout ${GREEN}develop${D}" &&
+alias gitrebase='echo "usage: git checkout ${GREEN}develop${D}" &&
                  echo "       git rebase ${PINK}master${D}" &&
                  echo &&
                  echo "Rebase ${GREEN}branch${D} onto ${PINK}base${D}, which can be any kind of commit reference:" &&
@@ -200,7 +187,7 @@ function cd() {
 }
 
 # commit
-# wrapper function for git commit
+# wrapper for git commit
 # counts characters, checks spelling and asks to commit
 function commit() {
     message="$1"
@@ -223,19 +210,15 @@ function commit() {
     } || echo "Aborted"
 }
 
-# Compare torrent hashes or any 2 strings
+# Compare 2 strings
 function compare() {
-    str1=$1
-    str2=$2
-
-    # die if no string to compare
     [[ -z "$1" ]] && exit
 
-    [[ "$str1" == "$str2" ]] && echo "${GREEN}2 strings match${D}" ||
+    [[ "$1" == "$2" ]] && echo "${GREEN}2 strings match${D}" ||
     echo "${RED}Strings don't match${D}"
 }
 
-exists() {
+function exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
@@ -273,14 +256,14 @@ function h() {
 }
 
 # Highlight Pattern
-# Works like grep except it shows all lines
+# Works like grep but shows all lines
 function hlp()
 {
     if [[ "$1" != "" ]]; then
         grep -E "$1|$"
     else
         echo "usage: command -params | hlp 'highlightstring'"
-        echo "For acceptable highlightstring values, see ${RED}searchcontents"
+        echo "For acceptable highlightstring values, see ${RED}searchcontents${D}"
     fi
 }
 
@@ -442,17 +425,17 @@ function echo_working_dir() {
     echo $CURRENTDIR
 }
 Response=""
-function git_branch {
+function git_branch() {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
 }
-function git_dirty {
+function git_dirty() {
     # [[ $(git status --porcelain 2> /dev/null | grep '?') != "" ]] && Response+="?"
     # [[ $(git status --porcelain 2> /dev/null | grep 'M') != "" ]] && Response+="!"
     # echo $Response
     echo ""
     # Running git status on huge repos takes ages, making every command take much longer than expected
 }
-function git_in_repo {
+function git_in_repo() {
     [[ $(git_branch) != "" ]] && echo "on"
 }
 function git_repo_name() {
