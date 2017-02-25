@@ -129,9 +129,6 @@ alias travmysql='mysql -u trav -p'
 alias mysql_shutdown='mysqladmin -u trav -p shutdown'
 alias elmd='now && tailf /var/log/mysqld.log'
 alias ipas='ip addr show | hlp "inet .*/"'
-if exists tmux; then
-    alias attach='tmux attach'
-fi
 
 # Git aliases
 alias gb='git branch -a'
