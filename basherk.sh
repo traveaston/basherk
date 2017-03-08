@@ -436,7 +436,11 @@ function echo_working_dir() {
     CURRENTDIR=$1
     if [[ $(git_in_repo) == "on" ]]; then
         PWD=$(pwd)
-        CURRENTDIR=${PWD/$(git_root)/$(git_repo_name) repo}
+        REPO=$(git_repo_name)
+
+        # replace repo name in pwd with colon, then strip everything before
+        # the colon using sed before prepending the repo name again
+        CURRENTDIR="$REPO repo$(echo ${PWD/$REPO/:} | sed 's/.*://')"
     fi
 
     echo $CURRENTDIR
