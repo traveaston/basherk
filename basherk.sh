@@ -471,11 +471,9 @@ function git_branch() {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
 }
 function git_dirty() {
-    # [[ $(git status --porcelain 2> /dev/null | grep '?') != "" ]] && Response+="?"
-    # [[ $(git status --porcelain 2> /dev/null | grep 'M') != "" ]] && Response+="!"
-    # echo $Response
-    echo ""
-    # Running git status on huge repos takes ages, making every command take much longer than expected
+    [[ $(git status --porcelain 2> /dev/null | grep '?') != "" ]] && Response+="?"
+    [[ $(git status --porcelain 2> /dev/null | grep 'M') != "" ]] && Response+="!"
+    echo $Response
 }
 function git_in_repo() {
     [[ $(git_branch) != "" ]] && echo "on"
