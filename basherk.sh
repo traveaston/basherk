@@ -239,6 +239,10 @@ function f() {
         echo "    path (will systematically search each folder in \$PATH)"
         echo "    in (search file contents)"
         echo "    commits (uses git grep to search through all committed code)"
+        echo
+        echo "f in string"
+        echo "f in 'string with spaces'"
+        echo "f in '\$pecial'"
     } || {
         if [[ $location == "path" ]]; then $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
         elif [[ $location == "in" ]]; then {
