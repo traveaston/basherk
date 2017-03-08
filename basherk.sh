@@ -433,17 +433,24 @@ function iTermSH() {
     }
 }
 function echo_working_dir() {
-    CURRENTDIR=$1
+    local dir=$1
     if [[ $(git_in_repo) == "on" ]]; then
         PWD=$(pwd)
         REPO=$(git_repo_name)
 
-        # replace repo name in pwd with colon, then strip everything before
-        # the colon using sed before prepending the repo name again
-        CURRENTDIR="$REPO repo$(echo ${PWD/$REPO/:} | sed 's/.*://')"
+        # replace repo with colon in path for use in sed
+        dir=${PWD/$REPO/:}
+
+        # since git_repo_name uses remote name, if there's no
+        # remote, we won't have a name to replace with. Also
+        # cancel if remote name doesn't match directory name
+        if [[ $dir == *":"* ]]; then
+            # strip everything before colon using sed and prepend repo name
+            dir="$REPO repo$(sed 's/.*://' <<< $dir)"
+        fi
     fi
 
-    echo $CURRENTDIR
+    echo $dir
 }
 Response=""
 function git_branch() {
