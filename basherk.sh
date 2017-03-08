@@ -222,6 +222,13 @@ function exists() {
 
 # Fix shitty find command
 function f() {
+    local location=$1
+    local search=$2
+    local sudo=$3
+    local args
+    local hl=${search/\*/}
+    hl=${hl/./\\.}
+
     [[ -z $1 ]] && {
         echo "search for files, commits or file contents"
         echo "usage: f location search [sudo]"
@@ -232,17 +239,25 @@ function f() {
         echo "    in (search file contents)"
         echo "    commits (uses git grep to search through all committed code)"
     } || {
-        location=$1
-        file=$2
-        sudo=""
-        sudo=$3
-
-        if [[ $location == "path" ]]; then $sudo find ${PATH//:/ } -maxdepth 1 -name "$file" -print | hlp "$file"
-        elif [[ $location == "in" ]]; then searchcontents "$2" $3 $4
-        elif [[ $location == "commits" ]]; then git grep "$file" $(git rev-list --all)
+        if [[ $location == "path" ]]; then $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
+        elif [[ $location == "in" ]]; then {
+            if [[ "$3" != "--old" ]]; then {
+                args="$@"
+                args=${args:3}
+                if exists rg; then
+                    rg $args
+                elif exists ag; then
+                    ag $args
+                else searchcontents $args
+                fi
+            } else {
+                searchcontents "$2" $4 $5
+            } fi
+        }
+        elif [[ $location == "commits" ]]; then git grep "$search" $(git rev-list --all)
         else {
-            echo "searching $location for $file"
-            $sudo find $location -name "$file" | hlp "$file"
+            echo "searching $location for $search"
+            $sudo find $location -name "$search" | hlp "$hl"
         } fi
     }
 }
