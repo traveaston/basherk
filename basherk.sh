@@ -105,7 +105,7 @@ case $os in
         ;;
 esac
 
-alias gitwd='cd /var/www/html'
+alias gitwd='cd /var/www/html && gs'
 alias gitwelcome='graphall -10 && tcommits && gs'
 
 # Redefine builtin commands
