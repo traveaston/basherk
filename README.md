@@ -1,8 +1,12 @@
 # basherk
 
 (Pronounced sort of how bashrc sounds phonetically)
+
 Handy aliases and functions to make your life in the terminal easier
-Essentially, [this](https://xkcd.com/1319/).
+
+Essentially:
+
+![alt text](https://imgs.xkcd.com/comics/automation.png "xkcd: Automation").
 
 ## Getting Started
 
@@ -12,9 +16,6 @@ Essentially, [this](https://xkcd.com/1319/).
 
 - [Git](https://git-scm.com/)
 
-```
-Give examples
-```
 
 ### Installing
 
@@ -34,48 +35,18 @@ until finished
 
 End with an example of getting some data out of the system or using it for a little demo
 
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
 ## Deployment
 
 Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* Dropwizard - Bla bla bla
-* Maven - Maybe
-* Atom - ergaerga
 
 ## Contributing
 
 Indentation: 4 spaces
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Trav Easton** - *Initial work*
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
