@@ -223,15 +223,13 @@ function exists() {
 # Fix shitty find command
 function f() {
     [[ -z $1 ]] && {
-        echo "search location for file name"
-        echo "usage: f location file [sudo]"
+        echo "search for files, commits or file contents"
+        echo "usage: f location search [sudo]"
         echo
         echo "locations:"
-        echo "    /"
-        echo "    ."
-        echo "    [path] e.g. /etc/"
-        echo "    path (will systematically search \$PATH)"
-        echo "    in (uses searchcontents to search in file contents)"
+        echo "    folders ( / . /usr )"
+        echo "    path (will systematically search each folder in \$PATH)"
+        echo "    in (search file contents)"
         echo "    commits (uses git grep to search through all committed code)"
     } || {
         location=$1
