@@ -292,6 +292,25 @@ function pause() {
     read -p "$*"
 }
 
+function rm () {
+    local HISTIGNORE="$HISTIGNORE:command rm *"
+    local arg process
+    local -a sanitized
+    command rm "$@"
+    process=true
+    for arg in "$@"; do
+    if [[ $process && $arg = -*f* ]]; then
+        sanitized+=("${arg//f/}")
+    elif [[ $arg == -- ]]; then
+        process=
+    else
+        sanitized+=("$arg")
+    fi
+
+    done
+    history -s rm "${sanitized[@]}"
+}
+
 function scan_nmap() {
     local ip=$1
     local sudo=$2
