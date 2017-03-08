@@ -142,6 +142,7 @@ alias gla='graphall'
 alias gnb='git checkout -b'
 alias gs='git status'
 alias stashes='git stash list'
+alias gsl='stashes'
 alias gitsquashlast='git rebase -i HEAD~2'
 alias graph="git log --graph -14 --format=format:'%Cgreen%h%Creset - %<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d'"
 alias graphall="git log --graph -20 --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
