@@ -487,13 +487,18 @@ function git_root() {
     git rev-parse --show-toplevel
 }
 
-export PS1='\n${PINK}\u \
-${D}at ${ORANGE}\h \
-${D}in ${GREEN}$(echo_working_dir "\w") \
-${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) \
-${D}$(iTermSH)\n$ '
-# Mail export PS1='\n${PINK}\u ${D}at ${ORANGE}\h ${D}in ${GREEN}\w${D}\n$ '
-# ESXi export PS1='\n\e[35;49m\u \e[37;49mat \e[33;49m\h \e[37;49min \e[32;49m\w\e[37;49m\n$ '
+# user at host
+prompt='\n${PINK}\u ${D}at ${ORANGE}\h '
+
+# working dir or repo name substitute
+prompt+='${D}in ${GREEN}$(echo_working_dir "\w") '
+
+if exists git; then prompt+='${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) '; fi
+
+prompt+='${D}$(iTermSH)\n$ '
+
+export PS1=$prompt
+
 
 # Set window title
 export PROMPT_COMMAND='echo -ne "\033]0;$USER at $(hostname) in ${PWD##*/}\007";'
