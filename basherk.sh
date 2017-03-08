@@ -187,11 +187,12 @@ function cd() {
 # wrapper for git commit
 # counts characters, checks spelling and asks to commit
 function commit() {
-    message="$1"
-    len=$(cchar -a "$message")
+    local message="$1"
+    local len=$(cchar -a "$message")
 
     [[ $len > 50 ]] && {
         echo "${RED}$len characters long${D}"
+        echo "truncated to 50: '${BLUE}${message:0:50}${D}'"
         return
     } || echo "${GREEN}$len characters long${D}"
 
