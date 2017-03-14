@@ -40,10 +40,14 @@ export HISTIGNORE=clear:countsize:df:f:find:gd:gds:staged:gdsw:gdw:gl:gla:gs:sta
 shopt -s histappend                     # append to history, don't overwrite
 shopt -s cdspell                        # autocorrect for cd
 
-# Source git completion
-if [ -f ~/.git-completion.bash ]; then
-        . ~/.git-completion.bash
-fi
+# Source all bash completion scripts
+[[ -d /usr/local/etc/bash_completion.d ]] && {
+    for f in /usr/local/etc/bash_completion.d/*; do source $f; done
+} || {
+    if [ -f ~/.git-completion.bash ]; then
+            . ~/.git-completion.bash
+    fi
+}
 
 os="$(uname)"
 host="$(hostname)"
