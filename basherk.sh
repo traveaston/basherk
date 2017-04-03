@@ -221,6 +221,18 @@ function compare() {
     echo "${RED}Strings don't match${D}"
 }
 
+# check256 $checksum $file
+function check256 {
+    local expect file actual
+
+    expect="$1"
+    file=$2
+    actual=$(sha256sum $file  | awk '{print $1}')
+
+    [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
+    echo "${RED}sha256 check failed${D}"
+}
+
 function exists() {
     command -v "$1" >/dev/null 2>&1
 }
