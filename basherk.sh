@@ -151,6 +151,7 @@ alias gsl='stashes'
 alias gitsquashlast='git rebase -i HEAD~2'
 alias graph="git log --graph -14 --format=format:'%Cgreen%h%Creset - %<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d'"
 alias graphall="git log --graph -20 --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
+alias latestcommits="git log --graph -20 --date-order --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
 alias stage='git add -p'
 alias staged='git diff --staged'
 alias unstage='git reset -q HEAD --'
