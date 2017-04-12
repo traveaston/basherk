@@ -285,6 +285,10 @@ function f() {
     }
 }
 
+function gitcd() {
+    command cd "$1" && gitwelcome
+}
+
 function h() {
     [[ -z "$1" ]] && history || history | grep "$@"
 }
