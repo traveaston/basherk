@@ -30,7 +30,7 @@ RED=$'\e[31;49m'
 
 alias basherk='. "$basherk_src"'
 
-export GREP_OPTIONS='--color=auto'
+alias grep='grep --color=auto'
 
 # history options
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
