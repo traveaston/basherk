@@ -157,6 +157,7 @@ alias staged='git diff --staged'
 alias unstage='git reset -q HEAD --'
 alias discard='git checkout --'
 alias discardpatch='git checkout -p'
+alias limbs='git log --all --graph --decorate --oneline --simplify-by-decoration'
 alias nevermind='echo "You will have to ${RED}git reset --hard HEAD && git clean -d -f${D} but it removes untracked things like vendor"'
 
 # Instructions / remider aliases
