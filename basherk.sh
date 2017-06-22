@@ -60,9 +60,9 @@ host="$(hostname)"
 [[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahl --color=auto'
 
 [[ $os =~ ^(macOS|Windows)$ ]] && {
-    alias gitale='cd ~/.dev/repos/ale && gitwelcome'
-    alias gitpd='cd ~/.dev/repos/phonedirectory && gitwelcome'
-    alias gitr='cd ~/.dev/repos'
+    alias gitale='cd ~/dev/repos/ale && gitwelcome'
+    alias gitpd='cd ~/dev/repos/phonedirectory && gitwelcome'
+    alias gitr='cd ~/dev/repos'
 }
 
 [[ $os =~ ^(Linux|Windows)$ ]] && {
@@ -95,7 +95,7 @@ case $os in
         alias el='now && tailf /var/log/httpd/error_log'
         ;;
     Windows)
-        # ~/.dev is symlinked to /mnt/c/Dropbox/Web Development
+        # ~/dev is symlinked to /mnt/c/Dropbox/Web Development
         function yum() {
             if [[ $1 == "search" ]]; then apt-cache "$@"
             elif [[ $1 == "provides" ]]; then apt-file ${@/provides/search}
