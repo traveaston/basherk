@@ -191,6 +191,10 @@ function cd() {
     command cd "$1" && pwd && la
 }
 
+function cdfile() {
+    cd $(dirname $1)
+}
+
 # commit
 # wrapper for git commit
 # counts characters, checks spelling and asks to commit
