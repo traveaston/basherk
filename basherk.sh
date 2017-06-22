@@ -57,7 +57,7 @@ host="$(hostname)"
 
 # Functions that require defining first
 [[ $os == "macOS" ]] && alias la='ls -aGhl'
-[[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahGl --color=auto'
+[[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahl --color=auto'
 
 [[ $os =~ ^(macOS|Windows)$ ]] && {
     alias gitale='cd ~/.dev/repos/ale && gitwelcome'
