@@ -128,6 +128,7 @@ alias now='date +"%c"'
 alias pwf='printf '%s' "${PWD##*/}"'
 alias vollist='echo && echo pvs && pvs && echo && echo vgs && vgs && echo && echo lvs && lvs'
 alias voldisp='echo && echo pvdisplay && pvdisplay && echo && echo vgdisplay && vgdisplay && echo && echo lvdisplay && lvdisplay'
+alias tm='ps -aef | grep'
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
