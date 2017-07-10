@@ -124,6 +124,7 @@ alias mkdir='mkdir -pv' # Make parent directories as needed and be verbose
 alias back='cd "$OLDPWD"'
 alias countsize='du -sch'
 alias fuck='sudo $(history -p \!\!)' # Redo last command as sudo
+alias lessf='less +F'
 alias now='date +"%c"'
 alias pwf='printf '%s' "${PWD##*/}"'
 alias vollist='echo && echo pvs && pvs && echo && echo vgs && vgs && echo && echo lvs && lvs'
