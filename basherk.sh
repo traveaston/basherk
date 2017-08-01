@@ -360,7 +360,7 @@ function maillog_search() {
 function mkcd() {
     [[ -z "$1" ]] && echo "make a directory and cd into it, must provide an argument" && return
 
-    mkdir $1
+    mkdir -pv $1
     cd $1
 }
 
