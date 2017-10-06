@@ -229,6 +229,14 @@ function compare() {
     echo "${RED}Strings don't match${D}"
 }
 
+# comparefiles $file1 $file2
+function comparefiles() {
+    check256 $1 $(check256 $2)
+
+    ls -ahl $1
+    ls -ahl $2
+}
+
 # check256 $file [$checksum]
 # show file checksum OR compare against expected checksum
 function check256() {
