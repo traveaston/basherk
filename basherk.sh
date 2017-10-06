@@ -60,8 +60,6 @@ host="$(hostname)"
 [[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahl --color=auto'
 
 [[ $os =~ ^(macOS|Windows)$ ]] && {
-    alias gitale='cd ~/dev/repos/ale && gitwelcome'
-    alias gitpd='cd ~/dev/repos/phonedirectory && gitwelcome'
     alias gitr='cd ~/dev/repos'
 }
 
@@ -93,6 +91,7 @@ case $os in
     Linux)
         alias cdnet='cd /etc/sysconfig/network-scripts/'
         alias el='now && tailf /var/log/httpd/error_log'
+        alias gitr='gitcd /var/www/html'
         ;;
     Windows)
         # ~/dev is symlinked to /mnt/c/Dropbox/Web Development
@@ -110,8 +109,7 @@ case $os in
         ;;
 esac
 
-alias gitwd='cd /var/www/html && gs'
-alias gitwelcome='graphall -10 && tcommits && gs'
+alias gitinfo='graphall -10 && tcommits && gs'
 
 # Redefine builtin commands
 alias cp='cp -iv' # interactive and verbose
@@ -294,7 +292,7 @@ function f() {
 }
 
 function gitcd() {
-    command cd "$1" && gitwelcome
+    command cd "$1" && gitinfo
 }
 
 function h() {
