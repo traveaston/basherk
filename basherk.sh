@@ -229,7 +229,8 @@ function compare() {
     echo "${RED}Strings don't match${D}"
 }
 
-# check256 $checksum $file
+# check256 $file [$checksum]
+# show file checksum OR compare against expected checksum
 function check256() {
     local actual expect file sha256
 
@@ -239,12 +240,14 @@ function check256() {
         sha256="shasum -a 256"
     } fi
 
-    expect="$1"
-    file=$2
+    file=$1
+    expect="$2"
     actual=$($sha256 $file | awk '{print $1}')
 
-    [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
-    echo "${RED}sha256 check failed${D}"
+    [[ -z "$expect" ]] && echo $actual || {
+        [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
+        echo "${RED}sha256 check failed${D}"
+    }
 }
 
 function exists() {
