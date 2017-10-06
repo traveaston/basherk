@@ -1,5 +1,5 @@
 # basherk
-# Replacement of .bashrc
+# supplement to .bashrc
 
 # If not running interactively, don't do anything
 [[ -z "$PS1" ]] && return
@@ -230,12 +230,12 @@ function compare() {
 }
 
 # check256 $checksum $file
-function check256 {
+function check256() {
     local expect file actual
 
     expect="$1"
     file=$2
-    actual=$(sha256sum $file  | awk '{print $1}')
+    actual=$(sha256sum $file | awk '{print $1}')
 
     [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
     echo "${RED}sha256 check failed${D}"
@@ -301,8 +301,7 @@ function h() {
 
 # Highlight Pattern
 # Works like grep but shows all lines
-function hlp()
-{
+function hlp() {
     if [[ "$1" != "" ]]; then
         grep -E "$1|$"
     else
@@ -315,7 +314,7 @@ function ipdrop() {
     iptables -A INPUT -s $1 -j DROP
 }
 
-function lastmod(){
+function lastmod() {
     if [[ $os == "macOS" ]]; then echo "Last modified" $(( $(date +%s) - $(stat -f%c "$1") )) "seconds ago"
     else echo "Last modified" $(( $(date +%s) - $(date +%s -r "$1") )) "seconds ago"
     fi
@@ -373,7 +372,7 @@ function pause() {
     read -p "$*"
 }
 
-function rm () {
+function rm() {
     local HISTIGNORE="$HISTIGNORE:command rm *"
     local arg process
     local -a sanitized
@@ -513,6 +512,7 @@ function iTermSH() {
         echo $d
     }
 }
+
 function echo_working_dir() {
     local dir=$1
     if [[ $(git_in_repo) == "on" ]]; then
