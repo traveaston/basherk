@@ -498,6 +498,16 @@ function tm() {
     ps -aef | \grep --color=always -E "UID|$search"
 }
 
+function tmucks() {
+    local STATUS="$(tmux attach 2>&1)"
+
+    # when there's already a tmux session, $() doesn't capture output,
+    # it just attaches, so we only need to check if it doesn't work
+    if [[ "$STATUS" == "no sessions" ]]; then {
+        tmux
+    } fi
+}
+
 function ubash() {
     if [[ -z "$1" ]]; then
         [[ $os == "Linux" ]] || [[ $host == "RODS_Z20T" ]] && {
