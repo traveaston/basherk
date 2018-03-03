@@ -534,7 +534,6 @@ function ubash() {
             http_only_hosts = 'no_https_1|no_https_2'
             wget https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -O "$basherk_src" $([[ $host =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
             clear
-            echo "If you're not root, ${PINK}sudo cp ~/.basherk /root/.basherk && sudo su${D}"
         }
         basherk
         echo "basherk updated"
@@ -554,8 +553,6 @@ function ubash() {
     [[ $uquiet == true ]] && rsync -az "$basherk_src" $user@"$host":~/.basherk || {
         rsync -avz "$basherk_src" $user@"$host":~/.basherk
         lastmod "$basherk_src"
-        echo "For servers with ${GREEN}no root${D} login, use this to ${GREEN}sudo ubash on root${D}"
-        echo "${PINK}sudo cp ~/.basherk /root/.basherk && sudo su${D}"
     }
 }
 
