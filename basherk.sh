@@ -127,7 +127,6 @@ alias now='date +"%c"'
 alias pwf='printf '%s' "${PWD##*/}"'
 alias vollist='echo && echo pvs && pvs && echo && echo vgs && vgs && echo && echo lvs && lvs'
 alias voldisp='echo && echo pvdisplay && pvdisplay && echo && echo vgdisplay && vgdisplay && echo && echo lvdisplay && lvdisplay'
-alias tm='ps -aef | grep'
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
@@ -486,6 +485,16 @@ function strpos() {
         x="${1%%$2*}"
         [[ $x = $1 ]] && echo -1 || echo ${#x}
     }
+}
+
+# tm process1 [process2, etc]
+function tm() {
+    # replace spaces between params with OR regex for highlighting
+    local search=$(echo "$@" | sed -e 's/ /\|/g')
+
+    # escape grep to ensure color=always
+    # grep for UID OR search to make the header show up
+    ps -aef | \grep --color=always -E "UID|$search"
 }
 
 function ubash() {
