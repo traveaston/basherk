@@ -1,12 +1,12 @@
 # basherk
-# supplement to .bashrc
+# .bashrc replacement
 
 # If not running interactively, don't do anything
 [[ -z "$PS1" ]] && return
 
 # basherk specific
-basherk_ver=124
-basherk_date="25 February 2017"
+basherk_ver=125
+basherk_date="4 March 2018"
 basherk_src=${BASH_SOURCE[0]}
 basherk_dir=$(dirname "$basherk_src")
 
