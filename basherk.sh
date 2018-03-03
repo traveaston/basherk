@@ -126,13 +126,13 @@ alias mkdir='mkdir -pv' # Make parent directories as needed and be verbose
 
 # General aliases
 alias back='cd "$OLDPWD"'
-alias countsize='du -sch'
 alias fuck='sudo $(history -p \!\!)' # Redo last command as sudo
 alias lessf='less +F'
 alias now='date +"%c"'
 alias pwf='printf '%s' "${PWD##*/}"'
 alias vollist='echo && echo pvs && pvs && echo && echo vgs && vgs && echo && echo lvs && lvs'
 alias voldisp='echo && echo pvdisplay && pvdisplay && echo && echo vgdisplay && vgdisplay && echo && echo lvdisplay && lvdisplay'
+alias weigh='du -sch'
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
