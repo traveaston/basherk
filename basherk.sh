@@ -545,6 +545,15 @@ function ubash() {
     }
 }
 
+# extend information provided by which
+function which() {
+    local app="$1"
+    local location="$(command which $app)"
+
+    echo $location # lol, i'm a bat
+    ls -ahl $location
+}
+
 function iTermSH() {
     [[ $os == "macOS" ]] && {
         # Help iTerm2 Semantic History by echoing current dir
