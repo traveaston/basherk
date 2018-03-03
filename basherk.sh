@@ -527,6 +527,7 @@ function tmucks() {
     } fi
 }
 
+# update basherk
 function ubash() {
     if [[ -z "$1" ]]; then
         [[ $os == "Linux" ]] || [[ $host == "RODS_Z20T" ]] && {
@@ -538,22 +539,27 @@ function ubash() {
         basherk
         echo "basherk updated"
         lastmod "$basherk_src"
-        return
-    elif [[ $1 == *@* ]]; then
-        pos=$(strpos $1 '@')
-        user=${1:0:pos}
-        ((pos++))
-        host=${1:pos}
-    else
-        user="root"
-        host=$1
-        [[ $uquiet != true ]] && echo "assuming ${RED}root@${D}$host"
-    fi
+    else {
+        # we're pushing our basherk to another machine
+        if [[ $1 == *@* ]]; then
+            # user@host has been specified
+            pos=$(strpos $1 '@')
+            user=${1:0:pos}
+            ((pos++))
+            host=${1:pos}
+        else
+            # only host has been specified
+            user="root"
+            host=$1
+            [[ $uquiet != true ]] && echo "assuming ${RED}root@${D}$host"
+        fi
 
-    [[ $uquiet == true ]] && rsync -az "$basherk_src" $user@"$host":~/.basherk || {
-        rsync -avz "$basherk_src" $user@"$host":~/.basherk
-        lastmod "$basherk_src"
+        [[ $uquiet == true ]] && rsync -az "$basherk_src" $user@"$host":~/.basherk || {
+            rsync -avz "$basherk_src" $user@"$host":~/.basherk
+            lastmod "$basherk_src"
+        }
     }
+    fi
 }
 
 # extend information provided by which
