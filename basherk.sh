@@ -5,7 +5,7 @@
 [[ -z "$PS1" ]] && return
 
 # basherk specific
-basherk_ver=125
+basherk_ver=126
 basherk_date="4 March 2018"
 basherk_src=${BASH_SOURCE[0]}
 basherk_dir=$(dirname "$basherk_src")
