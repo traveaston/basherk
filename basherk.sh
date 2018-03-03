@@ -532,12 +532,12 @@ function ubash() {
     if [[ -z "$1" ]]; then
         [[ $os == "Linux" ]] || [[ $host == "RODS_Z20T" ]] && {
             # if you get a certificate error from this, put your hostname inside the following bash regex
-            http_only_hosts = 'no_https_1|no_https_2'
+            http_only_hosts='no_https_1|no_https_2'
             wget https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -O "$basherk_src" $([[ $host =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
             clear
         }
         basherk
-        echo "basherk updated"
+        echo "basherk updated: version $basherk_ver ($basherk_date)"
         lastmod "$basherk_src"
     else {
         # we're pushing our basherk to another machine
@@ -551,11 +551,12 @@ function ubash() {
             # only host has been specified
             user="root"
             host=$1
-            [[ $uquiet != true ]] && echo "assuming ${RED}root@${D}$host"
+            [[ "$uquiet" != true ]] && echo "assuming ${RED}root@${D}$host"
         fi
 
-        [[ $uquiet == true ]] && rsync -az "$basherk_src" $user@"$host":~/.basherk || {
-            rsync -avz "$basherk_src" $user@"$host":~/.basherk
+        rsync -az "$basherk_src" $user@"$host":~/.basherk
+        [[ "$uquiet" != true ]] && {
+            echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
             lastmod "$basherk_src"
         }
     }
