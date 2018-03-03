@@ -538,7 +538,6 @@ function ubash() {
         }
         basherk
         echo "basherk updated: version $basherk_ver ($basherk_date)"
-        lastmod "$basherk_src"
     else {
         # we're pushing our basherk to another machine
         if [[ $1 == *@* ]]; then
@@ -555,10 +554,7 @@ function ubash() {
         fi
 
         rsync -az "$basherk_src" $user@"$host":~/.basherk
-        [[ "$uquiet" != true ]] && {
-            echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
-            lastmod "$basherk_src"
-        }
+        [[ "$uquiet" != true ]] && echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
     }
     fi
 }
