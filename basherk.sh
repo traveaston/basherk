@@ -532,12 +532,12 @@ function ubash() {
         [[ $os == "Linux" ]] || [[ $host == "RODS_Z20T" ]] && {
             # if you get a certificate error from this, put your hostname inside the following bash regex
             http_only_hosts = 'no_https_1|no_https_2'
-            wget https://www.dropbox.com/s/fub5enhubrerqwk/.bashrc?dl=0 -O "$basherk_src" $([[ $host =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
+            wget https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -O "$basherk_src" $([[ $host =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
             clear
-            echo "If you're not root, ${PINK}sudo cp ~/.bashrc /root/.bashrc && sudo su${D}"
+            echo "If you're not root, ${PINK}sudo cp ~/.basherk /root/.basherk && sudo su${D}"
         }
         basherk
-        echo "bashrc updated / re-sourced"
+        echo "basherk updated"
         lastmod "$basherk_src"
         return
     elif [[ $1 == *@* ]]; then
@@ -551,11 +551,11 @@ function ubash() {
         [[ $uquiet != true ]] && echo "assuming ${RED}root@${D}$host"
     fi
 
-    [[ $uquiet == true ]] && rsync -az "$basherk_src" $user@"$host":~/.bashrc || {
-        rsync -avz "$basherk_src" $user@"$host":~/.bashrc
+    [[ $uquiet == true ]] && rsync -az "$basherk_src" $user@"$host":~/.basherk || {
+        rsync -avz "$basherk_src" $user@"$host":~/.basherk
         lastmod "$basherk_src"
         echo "For servers with ${GREEN}no root${D} login, use this to ${GREEN}sudo ubash on root${D}"
-        echo "${PINK}sudo cp ~/.bashrc /root/.bashrc && sudo su${D}"
+        echo "${PINK}sudo cp ~/.basherk /root/.basherk && sudo su${D}"
     }
 }
 
