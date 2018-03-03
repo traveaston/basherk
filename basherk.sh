@@ -383,6 +383,19 @@ function mkcd() {
     cd "$@"
 }
 
+# movelink (move & link)
+# move a file to another location, and symbolic link it back to the original location
+function mvln() {
+    [[ -z "$1" ]] && echo "usage like native mv: mvln oldfile newfile" && return
+    [[ -z "$2" ]] && echo "Error: Must specify new location" && return
+
+    local old_location="$1"
+    local new_location="$2"
+
+    mv -iv "$old_location" "$new_location"
+    ln -s "$new_location" "$old_location"
+}
+
 function notify() {
     notification=$'\e]9;'
     notification+=$1
