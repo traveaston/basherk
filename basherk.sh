@@ -42,6 +42,10 @@ shopt -s histappend                     # append to history, don't overwrite
 shopt -s checkwinsize                   # check the window size after each command
 shopt -s cdspell                        # autocorrect for cd
 
+# Check for interactive shell (to avoid problems with scp/rsync)
+# and disable XON/XOFF to enable Ctrl-s (forward search) in bash reverse search
+[[ $- == *i* ]] && stty -ixon
+
 # Source all bash completion scripts
 [[ -d /usr/local/etc/bash_completion.d ]] && {
     for f in /usr/local/etc/bash_completion.d/*; do source $f; done
