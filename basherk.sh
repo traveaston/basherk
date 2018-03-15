@@ -418,15 +418,22 @@ function rm() {
     local -a sanitized
     command rm "$@"
     process=true
-    for arg in "$@"; do
-    if [[ $process && $arg = -*f* ]]; then
-        sanitized+=("${arg//f/}")
-    elif [[ $arg == -- ]]; then
-        process=
-    else
-        sanitized+=("$arg")
-    fi
 
+    for arg in "$@"; do
+        if [[ $process && $arg == "-f" ]]; then
+            # do nothing; don't add `-f` to the command in history
+            :
+        elif [[ $process && $arg == -*f* ]]; then
+            # remove the `f` from `-rf` or similar
+            sanitized+=("${arg//f/}")
+        elif [[ $process && $arg == "-iv" ]]; then
+            # do nothing; don't add `-iv` to the command in history
+            :
+        elif [[ $arg == -- ]]; then
+            process=
+        else
+            sanitized+=("$arg")
+        fi
     done
 
     # add sanitized command to history
