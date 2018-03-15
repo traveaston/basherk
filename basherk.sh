@@ -315,6 +315,23 @@ function h() {
     [[ -z "$1" ]] && history || history | grep "$@"
 }
 
+# _have and have are required by some bash_completion scripts
+if ! exists _have; then {
+    # This function checks whether we have a given program on the system.
+    _have()
+    {
+        PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null
+    }
+} fi
+if ! exists have; then {
+    # Backwards compatibility redirect to _have
+    have()
+    {
+        unset -v have
+        _have $1 && have=yes
+    }
+} fi
+
 # Highlight Pattern
 # Works like grep but shows all lines
 function hlp() {
