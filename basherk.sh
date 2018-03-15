@@ -31,6 +31,13 @@ RED=$'\e[31;49m'
 
 alias basherk='. "$basherk_src"'
 
+# check if a command exists
+# usage: if exists apt-get; then apt-get update; fi
+# hoisted due to use in this script
+function exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 alias grep='grep --color=auto'
 
 # history options
@@ -253,12 +260,6 @@ function check256() {
         [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
         echo "${RED}sha256 check failed${D}"
     }
-}
-
-# check if a command exists
-# usage: if exists apt-get; then apt-get update; fi
-function exists() {
-    command -v "$1" >/dev/null 2>&1
 }
 
 # Fix shitty find command
