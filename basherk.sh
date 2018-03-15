@@ -47,15 +47,6 @@ shopt -s cdspell                        # autocorrect for cd
 # and disable XON/XOFF to enable Ctrl-s (forward search) in bash reverse search
 [[ $- == *i* ]] && stty -ixon
 
-# Source all bash completion scripts
-[[ -d /usr/local/etc/bash_completion.d ]] && {
-    for f in /usr/local/etc/bash_completion.d/*; do source $f; done
-} || {
-    if [ -f ~/.git-completion.bash ]; then
-            . ~/.git-completion.bash
-    fi
-}
-
 os="$(uname)"
 host="$(hostname)"
 
@@ -481,6 +472,39 @@ function set_title() {
     t=${t/TITLE_HERE/$1}
     export PROMPT_COMMAND=$t
 }
+
+function _source_bash_completions() {
+    local -a dirs real_dirs done
+
+    dirs=(
+        /etc/bash_completion.d
+        /usr/local/etc/bash_completion.d
+        /usr/share/bash-completion/bash_completion.d
+        /usr/share/bash-completion/completions
+    )
+
+    # use realpath to handle duplicates by symlink and remove non-existant directories
+    for dir in ${dirs[@]}; do
+        [[ -d $dir ]] && real_dirs+=($(realpath $dir))
+    done
+
+    for dir in ${real_dirs[@]}; do
+        # check if directory has already been processed
+        [[ ! " ${done[@]} " =~ " ${dir} " ]] && {
+            for file in $dir/*; do
+                [[ -f $file ]] && source $file
+            done
+
+            # add directory to processed array
+            done+=($dir)
+        }
+    done
+
+    # source other scripts if exist
+    [[ -f ~/.git-completion.bash ]] && . ~/.git-completion.bash
+}
+
+_source_bash_completions
 
 function sshl() {
     local start=false
