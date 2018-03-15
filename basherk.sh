@@ -482,12 +482,12 @@ function sshl() {
     [[ "$STATUS" == "Error connecting to agent: Connection refused" ]] && start=true
 
     [[ $start == true ]] && {
-        command -v keychain >/dev/null 2>&1 && {
+        if exists keychain; then {
             eval `keychain --eval`
-        } || {
+        } else {
             # keychain not installed, use ssh-agent instead
             eval `ssh-agent -s`
-        }
+        } fi
 
         # re-run status check after starting agent
         STATUS="$(ssh-add -l 2>&1)"
