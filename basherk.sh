@@ -475,7 +475,17 @@ function sshl() {
     [[ "$STATUS" == "Could not open a connection to your authentication agent." ]] && start=true
     [[ "$STATUS" == "Error connecting to agent: Connection refused" ]] && start=true
 
-    [[ $start == true ]] && eval `keychain --eval` && STATUS="$(ssh-add -l 2>&1)"
+    [[ $start == true ]] && {
+        command -v keychain >/dev/null 2>&1 && {
+            eval `keychain --eval`
+        } || {
+            # keychain not installed, use ssh-agent instead
+            eval `ssh-agent -s`
+        }
+
+        # re-run status check after starting agent
+        STATUS="$(ssh-add -l 2>&1)"
+    }
 
     if [[ "$STATUS" == "The agent has no identities." ]]; then
         if [[ -f ~/.ssh/id_ed25519 ]]; then
