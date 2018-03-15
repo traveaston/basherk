@@ -507,8 +507,8 @@ function sshl() {
 }
 export -f sshl
 
-# start ssh agent(keychain or legacy) and list ssh keys
-sshl
+# if ssh-add exists start ssh agent(keychain or legacy) and list keys
+if exists ssh-add; then sshl; fi
 
 function strpos() {
     [[ -z $1 ]] && echo "usage: strpos haystack needle" || {
