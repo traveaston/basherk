@@ -77,12 +77,11 @@ host="$(hostname)"
 case $os in
     macOS)
         alias ls='ls -G'
-        alias tailf='tail -f'
 
-        alias el='now && tail -f /usr/local/var/log/apache2/error_log'
-        alias elm='now && tail -f /var/log/mysql.log'
-        alias elmnd='now && tail -f /usr/local/var/log/mysqlnd.log'
-        alias elpg='now && tail -f /usr/local/var/log/postgres.log'
+        alias el='now && tailf /usr/local/var/log/apache2/error_log'
+        alias elm='now && tailf /var/log/mysql.log'
+        alias elmnd='now && tailf /usr/local/var/log/mysqlnd.log'
+        alias elpg='now && tailf /usr/local/var/log/postgres.log'
 
         alias fcache='sudo dscacheutil -flushcache'
         alias suho='sudo sublime /etc/hosts'
@@ -109,7 +108,7 @@ case $os in
             fi
         }
 
-        alias elp='tail -f /c/xMAMP/logs/phperror.log'
+        alias elp='tailf /c/xMAMP/logs/phperror.log'
         alias suho='vi /mnt/c/Windows/System32/drivers/etc/hosts'
         ;;
 esac
@@ -132,6 +131,8 @@ alias pwf='printf '%s' "${PWD##*/}"'
 alias vollist='echo && echo pvs && pvs && echo && echo vgs && vgs && echo && echo lvs && lvs'
 alias voldisp='echo && echo pvdisplay && pvdisplay && echo && echo vgdisplay && vgdisplay && echo && echo lvdisplay && lvdisplay'
 alias weigh='du -sch'
+
+if ! exists tailf; then alias tailf='tail -f'; fi
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
