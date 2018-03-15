@@ -264,6 +264,8 @@ function check256() {
     }
 }
 
+# check if a command exists
+# usage: if exists apt-get; then apt-get update; fi
 function exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -408,6 +410,8 @@ function pause() {
     read -p "$*"
 }
 
+# sanitize history by removing -f from rm command
+# this prevents you from rerunning an old command and force removing something unintended
 function rm() {
     local HISTIGNORE="$HISTIGNORE:command rm *"
     local arg process
@@ -424,6 +428,8 @@ function rm() {
     fi
 
     done
+
+    # add sanitized command to history
     history -s rm "${sanitized[@]}"
 }
 
