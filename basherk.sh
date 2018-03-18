@@ -263,7 +263,7 @@ function check256() {
     }
 }
 
-# Fix shitty find command
+# custom find command to handle searching files, commits, file/commit contents, or PATH
 function f() {
     local location=$1
     local search=$2
@@ -273,7 +273,7 @@ function f() {
     hl=${hl/./\\.}
 
     [[ -z $1 ]] && {
-        echo "search for files, commits or file contents"
+        echo "search files, commits, file contents, or PATH"
         echo "usage: f location search [sudo]"
         echo
         echo "locations:"
@@ -285,28 +285,36 @@ function f() {
         echo "f in string"
         echo "f in 'string with spaces'"
         echo "f in '\$pecial'"
-    } || {
-        if [[ $location == "path" ]]; then $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
-        elif [[ $location == "in" ]]; then {
-            if [[ "$3" != "--old" ]]; then {
-                args="$@"
-                args=${args:3}
-                if exists rg; then
-                    rg $args
-                elif exists ag; then
-                    ag $args
-                else searchcontents $args
-                fi
-            } else {
-                searchcontents "$2" $4 $5
-            } fi
-        }
-        elif [[ $location == "commits" ]]; then git grep "$search" $(git rev-list --all)
-        else {
-            echo "searching $location for $search"
-            $sudo find $location -name "$search" | hlp "$hl"
-        } fi
+        return
     }
+
+    if [[ $location == "path" ]]; then {
+        # search path, limit depth to 1 directory
+        $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
+    } elif [[ $location == "in" ]]; then {
+        # search file contents
+        if [[ "$3" != "--old" ]]; then {
+            args="$@"
+            args=${args:3}
+
+            if exists rg; then {
+                rg $args
+                return
+            } elif exists ag; then {
+                ag $args
+                return
+            } else {
+                searchcontents $args
+            } fi
+        } else {
+            searchcontents "$2" $4 $5
+        } fi
+    } elif [[ $location == "commits" ]]; then {
+        git grep "$search" $(git rev-list --all)
+    } else {
+        echo "searching $location for $search"
+        $sudo find $location -name "$search" | hlp "$hl"
+    } fi
 }
 
 function gitcd() {
