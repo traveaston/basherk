@@ -631,7 +631,9 @@ function which() {
     local location="$(command which $app)"
 
     echo $location # lol, i'm a bat
-    ls -ahl $location
+
+    # check if which returns anything, otherwise we just ls the current dir
+    [[ "$location" != "" ]] && ls -ahl $location
 }
 
 function iTermSH() {
