@@ -280,7 +280,7 @@ function f() {
         echo "    folders ( / . /usr )"
         echo "    path (will systematically search each folder in \$PATH)"
         echo "    in (search file contents)"
-        echo "    commits (uses git grep to search through all committed code)"
+        echo "    commit (find a commit with message matching string)"
         echo
         echo "f in string"
         echo "f in 'string with spaces'"
@@ -309,8 +309,9 @@ function f() {
         } else {
             searchcontents "$2" $4 $5
         } fi
-    } elif [[ $location == "commits" ]]; then {
-        git grep "$search" $(git rev-list --all)
+    } elif [[ $location == "commit" ]]; then {
+        # find a commit with message matching string
+        graphall -10000 | grep -i "$search"
     } else {
         echo "searching $location for $search"
         $sudo find $location -name "$search" | hlp "$hl"
