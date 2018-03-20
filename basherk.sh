@@ -61,9 +61,6 @@ host="$(hostname)"
 [[ $host =~ ^(Zen|Obsidian)$ ]] && os="Windows"
 
 # Functions that require defining first
-[[ $os == "macOS" ]] && alias la='ls -Ahl'
-[[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -Ahl --color=auto'
-
 [[ $os =~ ^(macOS|Windows)$ ]] && {
     alias gitr='cd ~/dev/repos'
 }
@@ -73,9 +70,14 @@ host="$(hostname)"
     alias linver='cat /etc/*-release'
 }
 
+alias ls='ls --color=auto'
+alias la='ls -Ahl'
+alias l='la -go'
+
 # Single OS aliases
 case $os in
     macOS)
+        # enable colours
         alias ls='ls -G'
 
         alias el='now && tailf /usr/local/var/log/apache2/error_log'
