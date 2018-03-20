@@ -268,7 +268,6 @@ function f() {
     local location=$1
     local search=$2
     local sudo=$3
-    local args
     local hl=${search/\*/}
     hl=${hl/./\\.}
 
@@ -295,21 +294,18 @@ function f() {
         $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
     } elif [[ $location == "in" ]]; then {
         # search file contents
-        if [[ "$3" != "--old" ]]; then {
-            args="$@"
-            args=${args:3}
+        local args=$(echo "$@" | perl -pe 's/^in //')
 
-            if exists rg; then {
-                rg $args
-                return
-            } elif exists ag; then {
-                ag $args
-                return
-            } else {
-                searchcontents $args
-            } fi
+        # prefer ripgrep, then silver surfer, then grep if neither are installed
+        if exists rg; then {
+            rg "$args"
+        } elif exists ag; then {
+            ag "$args"
         } else {
-            searchcontents "$2" $4 $5
+            echo "searching $(pwf) for '$search' (case insensitive, ignoring binary files, .git/, and vendor/)"
+            count=$(grep --color=always -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
+
+            echo "$count matches"
         } fi
     } elif [[ $location == "commit" ]]; then {
         # find a commit with message matching string
@@ -491,25 +487,6 @@ function scanip() {
 
 function scansubnet() {
     scan_nmap 192.168.$1.1 $2
-}
-
-function searchcontents() {
-    if [[ "$1" != "" ]]; then
-        echo "searching $(pwf) for '$1' (ignoring binary files, .git/, vendor/)"
-        grepString="grep -"
-        [[ "$2" != "0" ]] && grepString+="i"
-        grepString+="Inr \"$1\" . --exclude-dir=\".git\" --exclude-dir=\"vendor\" --exclude-dir"
-        [[ "$3" != "0" ]] && grepString+=" --exclude-dir=\"js\""
-
-        eval $grepString
-        count=$(eval $grepString | wc -l)
-
-        echo "$count matches"
-    else
-        echo "usage: searchcontents string [bool caseInsensitive?] [bool excludeJS?]"
-        echo "       searchcontents 'string with spaces' [1|0] [1|0]"
-        echo "       searchcontents '\$pecial' [1|0] [1|0]"
-    fi
 }
 
 function set_title() {
