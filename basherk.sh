@@ -273,14 +273,16 @@ function f() {
     hl=${hl/./\\.}
 
     [[ -z $1 ]] && {
-        echo "search files, commits, file contents, or PATH"
+        echo "search files, commits, file/commit contents, or PATH"
         echo "usage: f location search [sudo]"
         echo
         echo "locations:"
         echo "    folders ( / . /usr )"
         echo "    path (will systematically search each folder in \$PATH)"
-        echo "    in (search file contents)"
+        echo "    in (find in file contents)"
         echo "    commit (find a commit with message matching string)"
+        echo "    patch (find a patch containing change matching string/regexp)"
+        echo "    patchfull (find a patch containing change matching string/regexp, and show full context)"
         echo
         echo "f in string"
         echo "f in 'string with spaces'"
@@ -312,6 +314,22 @@ function f() {
     } elif [[ $location == "commit" ]]; then {
         # find a commit with message matching string
         graphall -10000 | grep -i "$search"
+    } elif [[ $location == "patch"* ]]; then {
+        # find a patch containing change matching string/regexp
+
+        [[ $location == "patchfull" ]] && local context="--function-context"
+
+        for commit in $(git log --pretty=format:"%h" -G "$search"); do
+            echo
+            git log -1 $commit --format='%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(20,trunc)%cr%Creset %C(yellow)%d'
+
+            # git grep the commit for the search, remove hash from each line as we echo it pretty above
+            local matches=$(git grep --color=always -n $context "$search" $commit)
+            echo "${matches//$commit:/}"
+        done
+
+        # display tip for patchfull
+        [[ $location == "patch" ]] && echo && echo "${GREEN}f ${@/patch/patchfull}${D} to show context"
     } else {
         echo "searching $location for $search"
         $sudo find $location -name "$search" | hlp "$hl"
