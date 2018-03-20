@@ -96,7 +96,7 @@ case $os in
         ;;
     Linux)
         alias cdnet='cd /etc/sysconfig/network-scripts/'
-        alias el='now && tailf /var/log/httpd/error_log'
+        alias el='now && tailf /usr/local/apache2/logs/error_log'
         alias gitr='gitcd /var/www/html'
         ;;
     Windows)
