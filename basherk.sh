@@ -141,6 +141,7 @@ alias travmysql='mysql -u trav -p'
 alias mysql_shutdown='mysqladmin -u trav -p shutdown'
 alias elmd='now && tailf /var/log/mysqld.log'
 alias ipas='ip addr show | hlp "inet .*/"'
+alias openports='nmap -sT -O localhost'
 
 # Git aliases
 alias gb='git branch -a'
