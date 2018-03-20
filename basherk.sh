@@ -327,8 +327,9 @@ function f() {
         # display tip for patchfull
         [[ $location == "patch" ]] && echo && echo "${GREEN}f ${@/patch/patchfull}${D} to show context"
     } else {
-        echo "searching $location for $search"
-        $sudo find $location -name "$search" | hlp "$hl"
+        # find files
+        echo "searching $location for *$search* (case insensitive)"
+        $sudo find $location -iname "*$search*" | hlp "$hl"
     } fi
 }
 
