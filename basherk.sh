@@ -61,8 +61,8 @@ host="$(hostname)"
 [[ $host =~ ^(Zen|Obsidian)$ ]] && os="Windows"
 
 # Functions that require defining first
-[[ $os == "macOS" ]] && alias la='ls -aGhl'
-[[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -ahl --color=auto'
+[[ $os == "macOS" ]] && alias la='ls -Ahl'
+[[ $os =~ ^(Linux|Windows)$ ]] && alias la='ls -Ahl --color=auto'
 
 [[ $os =~ ^(macOS|Windows)$ ]] && {
     alias gitr='cd ~/dev/repos'
