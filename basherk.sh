@@ -197,7 +197,10 @@ function cchar() {
 }
 
 function cd() {
-    command cd "$1" && pwd && la
+    command cd "$1"
+    pwd
+    la
+    [[ -d .git ]] && gitinfo
 }
 
 function cdfile() {
@@ -334,10 +337,6 @@ function f() {
         echo "searching $location for *$search* (case insensitive)"
         $sudo find $location -iname "*$search*" | hlp "$hl"
     } fi
-}
-
-function gitcd() {
-    command cd "$1" && gitinfo
 }
 
 function h() {
