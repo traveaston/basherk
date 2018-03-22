@@ -509,9 +509,16 @@ function _source_bash_completions() {
         /usr/share/bash-completion/completions
     )
 
-    # use realpath to handle duplicates by symlink and remove non-existant directories
+    # some servers have readlink installed in place of realpath
+    if exists realpath; then {
+        local realpath="realpath"
+    } else {
+        local realpath="readlink -e"
+    } fi
+
+    # use realpath/readlink to handle duplicates by symlink and remove non-existant directories
     for dir in ${dirs[@]}; do
-        [[ -d $dir ]] && real_dirs+=($(realpath $dir))
+        [[ -d $dir ]] && real_dirs+=($($realpath $dir))
     done
 
     for dir in ${real_dirs[@]}; do
