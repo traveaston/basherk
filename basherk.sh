@@ -204,7 +204,7 @@ function cd() {
 }
 
 function cdfile() {
-    cd $(dirname $1)
+    cd "$(dirname "$1")"
 }
 
 # commit
