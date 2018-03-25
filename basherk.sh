@@ -719,13 +719,16 @@ if exists git; then prompt+='${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(gi
 prompt+='${D}$(iTermSH)\n$ '
 
 export PS1=$prompt
-
+unset prompt
 
 # Set window title
-export PROMPT_COMMAND='echo -ne "\033]0;$USER at $(hostname) in ${PWD##*/}\007";'
+pcmd='echo -ne "\033]0;$USER at $(hostname) in ${PWD##*/}\007";'
 
 # Save and reload the history after each command finishes
-export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\nhistory -a; history -c; history -r;'}"
+pcmd="history -a; history -c; history -r; $pcmd"
+
+export PROMPT_COMMAND=$pcmd
+unset pcmd
 
 # source things to be executed after basherk
 [[ -f "$basherk_dir/basherk-custom.sh" ]] && . "$basherk_dir/post-basherk.sh"
