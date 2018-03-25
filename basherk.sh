@@ -499,6 +499,15 @@ function set_title() {
     export PROMPT_COMMAND=$t
 }
 
+function showrepo() {
+    local url="$(git remote get-url origin)"
+
+    # reformat url from ssh to https if necessary
+    [[ $url != "http"* ]] && url="$(echo $url | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')"
+
+    open "$url"
+}
+
 function _source_bash_completions() {
     local -a dirs real_dirs done
 
