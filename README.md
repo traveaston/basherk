@@ -6,56 +6,52 @@ Handy aliases and functions to make your life in the terminal easier
 
 Essentially:
 
-![alt text](https://imgs.xkcd.com/comics/automation.png "xkcd: Automation").
-
-## Getting Started
-
-`git clone git@github.com:traveaston/basherk.git`
-
-### Prerequisities
-
-- [Git](https://git-scm.com/)
-
+![alt text](https://imgs.xkcd.com/comics/automation.png "xkcd: Automation")
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
+Ideally you want to clone the repo and symlink basherk into your home folder (to allow custom aliases, etc), and just use the main basherk file on servers you manage, but it's up to you.
 
-Stay what the step will be
+Clone the repo  
+`git clone https://github.com/traveaston/basherk.git`
 
+Enter the directory and symlink basherk to the home folder
 ```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+cd basherk/
+ln -s "$(realpath basherk.sh)" ~/.basherk
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+Either add the following lines your .bashrc file to source basherk on terminal open, or run the command at the bottom to add them automatically
 
-## Deployment
+```
+# source basherk
+. ~/.basherk
+```
 
-Add additional notes about how to deploy this on a live system
+You can also run the following command to download and run the latest version of basherk if it isn't installed already.  
+`wget https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -O ~/.basherk && . ~/.basherk`
+
+Source basherk from .bashrc  
+`echo >> ~/.bashrc && echo "# source basherk" >> ~/.bashrc && echo ". ~/.basherk" >> ~/.bashrc`
+
+### Updating
+
+Running `ubash` or `basherk --update` will download the latest revision from the master branch and re-source itself.
 
 ## Contributing
 
 Indentation: 4 spaces
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
 * **Trav Easton** - *Initial work*
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/traveaston/basherk/graphs/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
+* Steve Losh http://stevelosh.com/blog/2009/03/candy-colored-terminal/
