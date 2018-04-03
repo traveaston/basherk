@@ -525,7 +525,7 @@ function _source_bash_completions() {
         local realpath="readlink -e"
     } fi
 
-    # use realpath/readlink to handle duplicates by symlink and remove non-existant directories
+    # remove non-existant directories and use realpath/readlink to handle duplicates by symlink
     for dir in ${dirs[@]}; do
         [[ -d $dir ]] && real_dirs+=($($realpath $dir))
     done
