@@ -97,7 +97,7 @@ case $os in
     Linux)
         alias cdnet='cd /etc/sysconfig/network-scripts/'
         alias el='now && tailf /usr/local/apache2/logs/error_log'
-        alias gitr='gitcd /var/www/html'
+        alias gitr='cd /var/www/html'
         ;;
     Windows)
         # ~/dev is symlinked to /mnt/c/Dropbox/Web Development
