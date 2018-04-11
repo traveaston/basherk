@@ -134,13 +134,19 @@ alias vollist='echo && echo pvs && pvs && echo && echo vgs && vgs && echo && ech
 alias voldisp='echo && echo pvdisplay && pvdisplay && echo && echo vgdisplay && vgdisplay && echo && echo lvdisplay && lvdisplay'
 alias weigh='du -sch'
 
+# conditional aliases
 if ! exists tailf; then alias tailf='tail -f'; fi
+
+if exists ip; then {
+    alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
+} else {
+    alias ipas='ifconfig | hlp ".*inet [0-9.]*"'
+} fi
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
 alias mysql_shutdown='mysqladmin -u trav -p shutdown'
 alias elmd='now && tailf /var/log/mysqld.log'
-alias ipas='ip addr show | hlp "inet .*/"'
 alias openports='nmap -sT -O localhost'
 
 # Git aliases
