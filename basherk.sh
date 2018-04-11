@@ -709,14 +709,14 @@ function git_root() {
 }
 
 # user at host
-prompt='\n${PINK}\u ${D}at ${ORANGE}\h '
+prompt="\n${PINK}\u ${D}at ${ORANGE}\h "
 
 # working dir or repo name substitute
-prompt+='${D}in ${GREEN}$(echo_working_dir "\w") '
+prompt+="${D}in ${GREEN}$(echo_working_dir "\w") "
 
-if exists git; then prompt+='${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) '; fi
+if exists git; then prompt+="${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) "; fi
 
-prompt+='${D}$(iTermSH)\n$ '
+prompt+="${D}$(iTermSH)\n$ "
 
 export PS1=$prompt
 unset prompt
