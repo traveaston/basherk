@@ -279,6 +279,7 @@ function check256() {
 function f() {
     local location=$1
     local search=$2
+    local tool
     local sudo=$3
     local hl=${search/\*/}
     hl=${hl/./\\.}
@@ -301,6 +302,15 @@ function f() {
         return
     }
 
+    # prefer ripgrep, then silver surfer, then grep if neither are installed
+    if exists rg; then {
+        tool="rg"
+    } elif exists ag; then {
+        tool="ag"
+    } else {
+        tool="grep"
+    } fi
+
     if [[ $location == "path" ]]; then {
         # search path, limit depth to 1 directory
         $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
@@ -308,14 +318,10 @@ function f() {
         # search file contents
         local args=$(echo "$@" | perl -pe 's/^in //')
 
-        # prefer ripgrep, then silver surfer, then grep if neither are installed
-        if exists rg; then {
-            rg "$args"
-        } elif exists ag; then {
-            ag "$args"
-        } else {
+        if [[ "$tool" != "grep" ]]; then $tool "$args"
+        else {
             echo "searching $(pwf) for '$search' (case insensitive, ignoring binary files, .git/, and vendor/)"
-            count=$(grep --color=always -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
+            count=$($tool --color=always -Iinr "$args" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
         } fi
