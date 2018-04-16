@@ -345,9 +345,14 @@ function f() {
         # display tip for patchfull
         [[ $location == "patch" ]] && echo && echo "${GREEN}f ${@/patch/patchfull}${D} to show context"
     } else {
-        # find files
-        echo "searching $location for *$search* (case insensitive)"
-        $sudo find $location -iname "*$search*" | hlp "$hl"
+        if [[ -d "$location" ]]; then {
+            # find files
+            echo "searching $location for *$search* (case insensitive)"
+            $sudo find $location -iname "*$search*" | hlp "$hl"
+        } elif [[ -f "$location" ]]; then {
+            # find a string within a single file
+            $tool $search $location
+        } fi
     } fi
 }
 
