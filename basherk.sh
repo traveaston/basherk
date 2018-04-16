@@ -347,8 +347,12 @@ function f() {
     } else {
         if [[ -d "$location" ]]; then {
             # find files
-            echo "searching $location for *$search* (case insensitive)"
-            $sudo find $location -iname "*$search*" | hlp "$hl"
+
+            # add wildcards to file search if the user hasn't specified one
+            [[ "$search" == *'*'* ]] || search="*$search*"
+
+            echo "searching $location for $search (case insensitive)"
+            $sudo find $location -iname "$search" | hlp "$hl"
         } elif [[ -f "$location" ]]; then {
             # find a string within a single file
             $tool $search $location
