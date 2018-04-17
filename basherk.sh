@@ -554,6 +554,11 @@ function _source_bash_completions() {
     for dir in ${real_dirs[@]}; do
         # check if directory has already been processed
         [[ ! " ${done[@]} " =~ " ${dir} " ]] && {
+            filecount=$(ls -1 $dir | wc -l)
+
+            # skip completions dir if containing more than 50 files
+            (( $filecount > 50 )) && echo "Skipping $filecount completions in $dir" && return
+
             for file in $dir/*; do
                 [[ -f $file ]] && source $file
             done
