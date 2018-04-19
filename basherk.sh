@@ -59,6 +59,7 @@ host="$(hostname)"
 
 [[ $os == "Darwin" ]] && os="macOS"
 [[ $host =~ ^(Zen|Obsidian)$ ]] && os="Windows"
+[[ "$BASH" == *termux* ]] && os="Android"
 
 # Functions that require defining first
 [[ $os =~ ^(macOS|Windows)$ ]] && {
