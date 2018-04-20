@@ -206,7 +206,7 @@ function cchar() {
 function cd() {
     command cd "$1"
     pwd
-    la
+    l
     [[ -d .git ]] && gitinfo
 }
 
