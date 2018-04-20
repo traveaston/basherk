@@ -73,7 +73,7 @@ host="$(hostname)"
 
 alias ls='ls --color=auto'
 alias la='ls -Ahl'
-alias l='la -go'
+[[ $os != "Android" ]] && alias l='la -go' || alias l='la -g'
 
 # Single OS aliases
 case $os in
