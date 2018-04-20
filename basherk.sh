@@ -138,6 +138,8 @@ alias weigh='du -sch'
 # conditional aliases
 if ! exists tailf; then alias tailf='tail -f'; fi
 
+if ! exists aspell; then alias aspell='hunspell'; fi
+
 if exists ip; then {
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
 } else {
