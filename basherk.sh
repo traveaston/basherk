@@ -38,8 +38,6 @@ function exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-alias grep='grep --color=auto'
-
 # history options
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
@@ -62,6 +60,8 @@ host="$(hostname)"
 [[ "$BASH" == *termux* ]] && os="Android"
 
 # Functions that require defining first
+[[ $os != "Android" ]] && alias grep='grep --color=auto'
+
 [[ $os =~ ^(macOS|Windows)$ ]] && {
     alias gitr='cd ~/dev/repos'
 }
