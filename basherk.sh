@@ -38,8 +38,6 @@ function exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-alias grep='grep --color=auto'
-
 # history options
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
@@ -59,8 +57,11 @@ host="$(hostname)"
 
 [[ $os == "Darwin" ]] && os="macOS"
 [[ $host =~ ^(Zen|Obsidian)$ ]] && os="Windows"
+[[ "$BASH" == *termux* ]] && os="Android"
 
 # Functions that require defining first
+[[ $os != "Android" ]] && alias grep='grep --color=auto'
+
 [[ $os =~ ^(macOS|Windows)$ ]] && {
     alias gitr='cd ~/dev/repos'
 }
@@ -72,7 +73,7 @@ host="$(hostname)"
 
 alias ls='ls --color=auto'
 alias la='ls -Ahl'
-alias l='la -go'
+[[ $os != "Android" ]] && alias l='la -go' || alias l='la -g'
 
 # Single OS aliases
 case $os in
@@ -136,6 +137,8 @@ alias weigh='du -sch'
 
 # conditional aliases
 if ! exists tailf; then alias tailf='tail -f'; fi
+
+if ! exists aspell; then alias aspell='hunspell'; fi
 
 if exists ip; then {
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
@@ -205,7 +208,7 @@ function cchar() {
 function cd() {
     command cd "$1"
     pwd
-    la
+    l
     [[ -d .git ]] && gitinfo
 }
 
