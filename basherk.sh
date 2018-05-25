@@ -9,6 +9,7 @@ basherk_ver=129
 basherk_date="25 May 2018"
 basherk_src=${BASH_SOURCE[0]}
 basherk_dir=$(dirname "$basherk_src")
+basherk_url="https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh"
 
 # colours, credit: http://stevelosh.com/blog/2009/03/candy-colored-terminal/
 D=$'\e[37;49m'
@@ -651,7 +652,11 @@ function ubash() {
         [[ $os == "Linux" ]] || [[ $host == "RODS_Z20T" ]] && {
             # if you get a certificate error from this, put your hostname inside the following bash regex
             http_only_hosts='no_https_1|no_https_2'
-            wget https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -O "$basherk_src" $([[ $host =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
+
+            if exists wget; then wget $basherk_url -O "$basherk_src" $([[ $host =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
+            else curl $basherk_url -o "$basherk_src"
+            fi
+
             clear
         }
         basherk

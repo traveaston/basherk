@@ -31,6 +31,9 @@ Either add the following lines your .bashrc file to source basherk on terminal o
 You can also run the following command to download and run the latest version of basherk if it isn't installed already.  
 `wget https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -O ~/.basherk && . ~/.basherk`
 
+Or if wget isn't installed, use curl (notice the lowercase `o`)  
+`curl https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -o ~/.basherk && . ~/.basherk`
+
 Source basherk from .bashrc  
 `echo >> ~/.bashrc && echo "# source basherk" >> ~/.bashrc && echo ". ~/.basherk" >> ~/.bashrc`
 
