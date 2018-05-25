@@ -173,6 +173,7 @@ alias graphdates="git log --graph -20 --format=format:'%Cgreen%h %Cblue<%an> %Cr
 alias latestcommits="git log --graph -20 --date-order --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
 alias stage='git add -p'
 alias staged='git diff --staged'
+alias stashcontents='git stash show -p'
 alias unstage='git reset -q HEAD --'
 alias discard='git checkout --'
 alias discardpatch='git checkout -p'
