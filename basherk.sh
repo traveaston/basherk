@@ -43,7 +43,7 @@ function exists() {
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
 export HISTFILESIZE=100000              # 100kb max history size
-export HISTIGNORE=clear:countsize:df:f:find:gd:gds:staged:gdsw:gdw:gl:gla:gs:stashes:graph:graphall:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall:"* --version":test:"time *":suho:" *"
+export HISTIGNORE=clear:countsize:df:f:find:gd:gds:staged*:gdw:gl:gla:gs:stashes:graph:graphall:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall:"* --version":test:"time *":suho:" *"
 export HISTTIMEFORMAT="+%Y-%m-%d.%H:%M:%S "
 shopt -s histappend                     # append to history, don't overwrite
 shopt -s checkwinsize                   # check the window size after each command
@@ -149,7 +149,6 @@ alias gd='git diff'
 alias gdom='git diff origin/master'
 alias gds='staged'
 alias gdw='git diff --color-words'
-alias gdsw='git diff --staged --color-words'
 alias gl='graph'
 alias gla='graphall'
 alias gnb='git checkout -b'
@@ -163,6 +162,8 @@ alias graphdates="git log --graph -20 --format=format:'%Cgreen%h %Cblue<%an> %Cr
 alias latestcommits="git log --graph -20 --date-order --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
 alias stage='git add -p'
 alias staged='git diff --staged'
+alias stagedchars='git diff --staged --color-words=.'
+alias stagedwords='git diff --staged --color-words'
 alias stashcontents='git stash show -p'
 alias unstage='git reset -q HEAD --'
 alias discard='git checkout --'
