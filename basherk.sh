@@ -229,9 +229,9 @@ function check256() {
         sha256="shasum -a 256"
     } fi
 
-    file=$1
+    file="$1"
     expect="$2"
-    actual=$($sha256 $file | awk '{print $1}')
+    actual=$($sha256 "$file" | awk '{print $1}')
 
     [[ -z "$expect" ]] && echo $actual || {
         [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
@@ -274,10 +274,10 @@ function compare() {
 
 # comparefiles $file1 $file2
 function comparefiles() {
-    check256 $1 $(check256 $2)
+    check256 "$1" $(check256 "$2")
 
-    ls -ahl $1
-    ls -ahl $2
+    ls -ahl "$1"
+    ls -ahl "$2"
 }
 
 # custom find command to handle searching files, commits, file/commit contents, or PATH
