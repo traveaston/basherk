@@ -388,12 +388,17 @@ if ! exists have; then {
 
 # Highlight Pattern
 # Works like grep but shows all lines
+# -i for case insensitive
 function hlp() {
-    if [[ "$1" != "" ]]; then
-        grep -E "$1|$"
-    else
+    if [[ "$1" == "" ]]; then
         echo "usage: command -params | hlp 'highlightstring'"
         echo "For acceptable highlightstring values, see ${RED}searchcontents${D}"
+    fi
+
+    if [[ "$1" == "-i" ]]; then
+        grep -iE "$2|$"
+    else
+        grep -E "$1|$"
     fi
 }
 
