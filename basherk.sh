@@ -218,6 +218,27 @@ function cdfile() {
     cd "$(dirname "$1")"
 }
 
+# check256 $file [$checksum]
+# show file checksum OR compare against expected checksum
+function check256() {
+    local actual expect file sha256
+
+    if exists sha256sum; then {
+        sha256="sha256sum"
+    } elif exists shasum; then {
+        sha256="shasum -a 256"
+    } fi
+
+    file=$1
+    expect="$2"
+    actual=$($sha256 $file | awk '{print $1}')
+
+    [[ -z "$expect" ]] && echo $actual || {
+        [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
+        echo "${RED}sha256 check failed${D}"
+    }
+}
+
 # commit
 # wrapper for git commit
 # counts characters, checks spelling and asks to commit
@@ -257,27 +278,6 @@ function comparefiles() {
 
     ls -ahl $1
     ls -ahl $2
-}
-
-# check256 $file [$checksum]
-# show file checksum OR compare against expected checksum
-function check256() {
-    local actual expect file sha256
-
-    if exists sha256sum; then {
-        sha256="sha256sum"
-    } elif exists shasum; then {
-        sha256="shasum -a 256"
-    } fi
-
-    file=$1
-    expect="$2"
-    actual=$($sha256 $file | awk '{print $1}')
-
-    [[ -z "$expect" ]] && echo $actual || {
-        [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
-        echo "${RED}sha256 check failed${D}"
-    }
 }
 
 # custom find command to handle searching files, commits, file/commit contents, or PATH
