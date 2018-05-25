@@ -43,7 +43,7 @@ function exists() {
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
 export HISTFILESIZE=100000              # 100kb max history size
-export HISTIGNORE=clear:countsize:df:f:find:gd:gds:staged*:gdw:gl:gla:gs:stashes:graph:graphall:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall:"* --version":test:"time *":suho:" *"
+export HISTIGNORE=changed*:clear:countsize:df:f:find:gd:gds:staged*:gl:gla:gs:stashes:graph:graphall:h:"h *":history:la:ls:mc:"open .":ps:pwd:ubash:ubashall:"* --version":test:"time *":suho:" *"
 export HISTTIMEFORMAT="+%Y-%m-%d.%H:%M:%S "
 shopt -s histappend                     # append to history, don't overwrite
 shopt -s checkwinsize                   # check the window size after each command
@@ -144,11 +144,13 @@ alias elmd='now && tailf /var/log/mysqld.log'
 alias openports='nmap -sT -O localhost'
 
 # Git aliases
+alias changed='git diff'
+alias changedchars='git diff --color-words=.'
+alias changedwords='git diff --color-words'
 alias gb='git branch -a'
 alias gd='git diff'
 alias gdom='git diff origin/master'
 alias gds='staged'
-alias gdw='git diff --color-words'
 alias gl='graph'
 alias gla='graphall'
 alias gnb='git checkout -b'
