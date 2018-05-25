@@ -270,6 +270,13 @@ function comparefiles() {
     ls -ahl "$2"
 }
 
+# cpmod $file1 $file2
+# copy file mode / permissions from one file to another
+# in other words set file2 permissions identical to file1
+function cpmod() {
+    chmod $(vwmod "$1") "$2"
+}
+
 # custom find command to handle searching files, commits, file/commit contents, or PATH
 function f() {
     local location=$1
