@@ -356,10 +356,11 @@ function f() {
             # add wildcards to file search if the user hasn't specified one
             [[ "$search" == *'*'* ]] || search="*$search*"
 
-            echo "searching $location for $search (case insensitive)"
-            $sudo find $location -iname "$search" | hlp "$hl"
+            echo "searching folder for file matching $search (case insensitive)"
+            $sudo find $location -iname "$search" | hlp -i "$hl"
         } elif [[ -f "$location" ]]; then {
             # find a string within a single file
+            echo "searching file for string"
             $tool $search $location
         } fi
     } fi
