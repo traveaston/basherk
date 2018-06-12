@@ -54,10 +54,9 @@ shopt -s cdspell                        # autocorrect for cd
 [[ $- == *i* ]] && stty -ixon
 
 os="$(uname)"
-host="$(hostname)"
 
 [[ $os == "Darwin" ]] && os="macOS"
-[[ $host =~ ^(Zen|Obsidian)$ ]] && os="Windows"
+[[ $HOSTNAME =~ ^(Zen|Obsidian)$ ]] && os="Windows"
 [[ "$BASH" == *termux* ]] && os="Android"
 
 # Functions that require defining first
@@ -656,11 +655,11 @@ function tmucks() {
 # update basherk
 function ubash() {
     if [[ -z "$1" ]]; then
-        [[ $os == "Linux" ]] || [[ $host == "RODS_Z20T" ]] && {
+        [[ $os == "Linux" ]] || [[ $HOSTNAME == "RODS_Z20T" ]] && {
             # if you get a certificate error from this, put your hostname inside the following bash regex
             http_only_hosts='no_https_1|no_https_2'
 
-            if exists wget; then wget $basherk_url -O "$basherk_src" $([[ $host =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
+            if exists wget; then wget $basherk_url -O "$basherk_src" $([[ $HOSTNAME =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
             else curl $basherk_url -o "$basherk_src"
             fi
 
@@ -763,7 +762,7 @@ export PS1=$prompt
 unset prompt
 
 # Set window title
-pcmd='echo -ne "\033]0;$USER at $(hostname) in ${PWD##*/}\007";'
+pcmd='echo -ne "\033]0;$USER at $HOSTNAME in ${PWD##*/}\007";'
 
 # Save and reload the history after each command finishes
 pcmd="history -a; history -c; history -r; $pcmd"
