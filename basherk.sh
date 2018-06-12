@@ -106,7 +106,7 @@ case $os in
         ;;
 esac
 
-alias gitinfo='graphall -10 && tcommits && gs'
+alias gitinfo='graphall -10 && tcommits && echo "open repo url in browser with ${GREEN}showrepo${D}" && gs'
 
 # Redefine builtin commands
 alias cp='cp -iv' # interactive and verbose
