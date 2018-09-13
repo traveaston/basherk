@@ -1,3 +1,4 @@
+#!/bin/bash
 # post-basherk
 # © Trav Easton 2016
 

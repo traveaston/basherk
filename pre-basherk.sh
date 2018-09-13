@@ -1,3 +1,4 @@
+#!/bin/bash
 # pre-basherk
 # © Trav Easton 2016
 
