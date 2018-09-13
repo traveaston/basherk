@@ -423,7 +423,7 @@ function maillog_search() {
         echo "       maillog_search --id v6A2pBDv006314"
         echo "       maillog_search --from *@example.com ${RED}Not working, use from or to without asterisk${D}"
     }
-    local OPTS=`getopt -o i -l from: -l id: -l to: -- "$@"`
+    local OPTS=$(getopt -o i -l from: -l id: -l to: -- "$@")
     if [ $? != 0 ]
     then
         exit 1
@@ -595,10 +595,10 @@ function sshl() {
 
     [[ $start == true ]] && {
         if exists keychain; then {
-            eval `keychain --eval`
+            eval $(keychain --eval)
         } else {
             # keychain not installed, use ssh-agent instead
-            eval `ssh-agent -s`
+            eval $(ssh-agent -s)
         } fi
 
         # re-run status check after starting agent
