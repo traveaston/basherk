@@ -199,7 +199,7 @@ function cchar() {
         esac
     done
 
-    echo "string is ${RED}${#1}${D} characters long"
+    echo "string is ${CYAN}${#1}${D} characters long"
 }
 
 function cd() {
