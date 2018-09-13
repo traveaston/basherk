@@ -234,6 +234,11 @@ function check256() {
     }
 }
 
+# remove annoying synology, windows, macos files
+function cleanup_files() {
+    find . \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -rfv
+}
+
 # commit
 # wrapper for git commit
 # counts characters, checks spelling and asks to commit
