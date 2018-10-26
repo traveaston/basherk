@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # basherk
 # .bashrc replacement
 
@@ -228,15 +228,20 @@ function check256() {
     expect="$2"
     actual=$($sha256 "$file" | awk '{print $1}')
 
-    [[ -z "$expect" ]] && echo $actual || {
-        [[ "$expect" == "$actual" ]] && echo "${GREEN}sha256 matches${D}" ||
-        echo "${RED}sha256 check failed${D}"
-    }
+    if [[ -z "$expect" ]]; then
+        echo "$actual"
+    else
+        if [[ "$expect" == "$actual" ]]; then
+            echo "${GREEN}sha256 matches${D}"
+        else
+            echo "${RED}sha256 check failed${D}"
+        fi
+    fi
 }
 
 # remove annoying synology, windows, macos files
 function cleanup_files() {
-    find . \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -rfv
+    find . \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -ivrf
 }
 
 # commit
@@ -246,7 +251,7 @@ function commit() {
     local message="$1"
     local len=$(cchar -a "$message")
 
-    [[ $len > 50 ]] && {
+    [[ $len -gt 50 ]] && {
         echo "${RED}$len characters long${D}"
         echo "truncated to 50: '${BLUE}${message:0:50}${D}'"
         return
@@ -361,14 +366,14 @@ function f() {
             # find files
 
             # add wildcards to file search if the user hasn't specified one
-            [[ "$search" == *'*'* ]] || search="*$search*"
+            [[ ! "$search" == *'*'* ]] && search="*$search*"
 
             echo "searching folder for file matching $search (case insensitive)"
-            $sudo find $location -iname "$search" | hlp -i "$hl"
+            $sudo find "$location" -iname "$search" | hlp -i "$hl"
         } elif [[ -f "$location" ]]; then {
             # find a string within a single file
             echo "searching file for string"
-            $tool $search $location
+            $tool "$search" "$location"
         } fi
     } fi
 }
@@ -439,9 +444,9 @@ function maillog_search() {
     while true ; do
         case "$1" in
             -i) echo "This would do a case insensitive search"; shift;;
-            --from) grep $2 /var/log/maillog; shift 2;;
-            --id) grep $2 /var/log/maillog | egrep -i 'from=|to=' | hlp $2; shift 2;;
-            --to) grep $2 /var/log/maillog; shift 2;;
+            --from) grep "$2" /var/log/maillog; shift 2;;
+            --id) grep "$2" /var/log/maillog | egrep -i "from=|to=" | hlp "$2"; shift 2;;
+            --to) grep "$2" /var/log/maillog; shift 2;;
             --) shift; break;;
         esac
     done
@@ -542,7 +547,7 @@ function showrepo() {
     local url="$(git remote get-url origin)"
 
     # reformat url from ssh to https if necessary
-    [[ $url != "http"* ]] && url="$(echo $url | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')"
+    [[ $url != "http"* ]] && url="$(echo "$url" | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')"
 
     open "$url"
 }
@@ -634,9 +639,9 @@ export -f sshl
 if exists ssh-add; then sshl; fi
 
 function strpos() {
-    [[ -z $1 ]] && echo "usage: strpos haystack needle" || {
+    [[ -z "$1" ]] && echo "usage: strpos haystack needle" || {
         x="${1%%$2*}"
-        [[ $x = $1 ]] && echo -1 || echo ${#x}
+        [[ "$x" = "$1" ]] && echo -1 || echo "${#x}"
     }
 }
 
@@ -665,7 +670,7 @@ function ubash() {
     if [[ -z "$1" ]]; then
         [[ $os == "Linux" ]] || [[ $HOSTNAME == "RODS_Z20T" ]] && {
             # if you get a certificate error from this, put your hostname inside the following bash regex
-            http_only_hosts='no_https_1|no_https_2'
+            http_only_hosts="no_https_1|no_https_2"
 
             if exists wget; then wget $basherk_url -O "$basherk_src" $([[ $HOSTNAME =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
             else curl $basherk_url -o "$basherk_src"
@@ -677,9 +682,9 @@ function ubash() {
         echo "basherk updated: version $basherk_ver ($basherk_date)"
     else {
         # we're pushing our basherk to another machine
-        if [[ $1 == *@* ]]; then
+        if [[ "$1" == *@* ]]; then
             # user@host has been specified
-            pos=$(strpos $1 '@')
+            pos=$(strpos "$1" "@")
             user=${1:0:pos}
             ((pos++))
             host=${1:pos}
@@ -699,12 +704,12 @@ function ubash() {
 # extend information provided by which
 function which() {
     local app="$1"
-    local location="$(command which $app)"
+    local location="$(command which "$app")"
 
-    echo $location # lol, i'm a bat
+    echo "$location" # lol, i'm a bat
 
     # check if which returns anything, otherwise we just ls the current dir
-    [[ "$location" != "" ]] && ls -ahl $location
+    [[ "$location" != "" ]] && ls -ahl "$location"
 }
 
 function iTermSH() {
@@ -731,11 +736,11 @@ function echo_working_dir() {
         # cancel if remote name doesn't match directory name
         if [[ $dir == *":"* ]]; then
             # strip everything before colon using sed and prepend repo name
-            dir="$REPO repo$(sed 's/.*://' <<< $dir)"
+            dir="$REPO repo$(sed 's/.*://' <<< "$dir")"
         fi
     fi
 
-    echo $dir
+    echo "$dir"
 }
 Response=""
 function git_branch() {
