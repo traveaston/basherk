@@ -365,10 +365,14 @@ function f() {
         if [[ -d "$location" ]]; then {
             # find files
 
+            [[ -e "$search" ]] && {
+                echo "warning: if you specified a wildcard (*), bash interpreted it as globbing"
+            }
+
             # add wildcards to file search if the user hasn't specified one
             [[ ! "$search" == *'*'* ]] && search="*$search*"
 
-            echo "searching folder for file matching $search (case insensitive)"
+            echo "searching ${CYAN}$(command cd "$location" && pwd)${D} for files matching ${CYAN}$search${D} (case insensitive)"
             $sudo find "$location" -iname "$search" | hlp -i "$hl"
         } elif [[ -f "$location" ]]; then {
             # find a string within a single file
