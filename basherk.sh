@@ -186,6 +186,23 @@ alias gitrebase='echo "usage: git checkout ${GREEN}develop${D}" &&
 alias gitundocommit='echo "git reset --soft HEAD^"'
 alias tcommits='echo "Total commits for ${GREEN}$(git_repo_name): ${PINK}$(git log --oneline --all | wc -l)"${D}'
 
+# credit: https://stackoverflow.com/a/17841619
+function array_join() {
+    [[ -z "$1" ]] || [[ $1 == "--help" ]] && {
+        echo "Join array elements with a (multi-character) delimiter"
+        echo "Usage:"
+        echo "    array_join [--help]"
+        echo "    array_join delim array"
+        return
+    }
+
+    local d=$1
+    shift
+    echo -n "$1"
+    shift
+    printf "%s" "${@/#/$d}"
+}
+
 # Count characters in a string
 function cchar() {
     local OPTIND
