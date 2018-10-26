@@ -133,6 +133,8 @@ if ! exists tailf; then alias tailf='tail -f'; fi
 
 if ! exists aspell; then alias aspell='hunspell'; fi
 
+if ! exists realpath; then alias realpath='readlink'; fi
+
 if exists ip; then {
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
 } else {
@@ -594,19 +596,12 @@ function _source_bash_completions() {
         /usr/share/bash-completion/completions
     )
 
-    # some servers have readlink installed in place of realpath
-    if exists realpath; then {
-        local realpath="realpath -e"
-    } else {
-        local realpath="readlink -e"
-    } fi
-
     for path in "${paths[@]}"; do
         # ignore non-existant directories
         [[ ! -d $path ]] && continue
 
         # uniquify via absolute paths
-        absolute_path="$($realpath "$path")"
+        absolute_path="$(realpath -e "$path")"
         [[ ! " ${absolutes[@]} " =~ " ${absolute_path} " ]] && absolutes+=("$absolute_path")
     done
 
