@@ -600,30 +600,30 @@ function _source_bash_completions() {
         local realpath="readlink -e"
     } fi
 
-    # remove non-existant directories and use realpath/readlink to handle duplicates by symlink
-    for path in ${paths[@]}; do
-        [[ -d $path ]] && absolutes+=($($realpath $path))
+    # ignore non-existant directories, and uniquify via absolute paths
+    for path in "${paths[@]}"; do
+        [[ -d $path ]] && absolutes+=("$($realpath "$path")")
     done
 
-    for path in ${absolutes[@]}; do
-        # check if directory has already been processed
+    for path in "${absolutes[@]}"; do
+        # check if path has already been sourced
         [[ ! " ${sourced[@]} " =~ " ${path} " ]] && {
-            filecount=$(ls -1 $path | wc -l)
+            filecount=$(ls -1 "$path" | wc -l)
 
-            # skip completions dir if containing more than 250 files
-            (( $filecount > 250 )) && echo "Skipping $filecount completions in $path" && return
+            # skip completions path if containing more than 250 files
+            [[ $filecount -gt 250 ]] && echo "Skipping $filecount completions in $path" && return
 
-            for file in $path/*; do
-                [[ -f $file ]] && source $file
+            for file in "$path"/*; do
+                [[ -f "$file" ]] && source "$file"
             done
 
-            # add directory to processed array
-            sourced+=($path)
+            # add path to sourced array
+            sourced+=("$path")
         }
     done
 
     # source other scripts if exist
-    [[ -f ~/.git-completion.bash ]] && . ~/.git-completion.bash
+    [[ -f ~/.git-completion.bash ]] && source ~/.git-completion.bash
 }
 
 _source_bash_completions
