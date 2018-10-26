@@ -587,7 +587,19 @@ function showrepo() {
 
 function _source_bash_completions() {
     local -a paths absolutes
-    local absolute_path filecount
+    local absolute_path filecount limit=250
+
+    if [[ $1 == "--help" ]]; then
+        echo "Source all completion files from valid paths"
+        echo "Usage:"
+        echo "    _source_bash_completions [options]"
+        echo "        --help               Show this screen"
+        echo "        -f, --force          Don't skip paths containing >250 files"
+        return
+    elif [[ "$1" == "-f" ]] || [[ "$1" == "--force" ]]; then
+        shift
+        limit=10000
+    fi
 
     paths=(
         /etc/bash_completion.d
@@ -608,8 +620,10 @@ function _source_bash_completions() {
     for path in "${absolutes[@]}"; do
         filecount=$(ls -1 "$path" | wc -l)
 
-        # skip completions path if containing more than 250 files
-        [[ $filecount -gt 250 ]] && echo "Skipping $filecount completions in $path" && return
+        [[ $filecount -gt $limit ]] && {
+            echo "Skipping $filecount completions in $path"
+            return
+        }
 
         for file in "$path"/*; do
             [[ -f "$file" ]] && source "$file"
