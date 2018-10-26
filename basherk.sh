@@ -667,12 +667,19 @@ function tmucks() {
 
 # update basherk
 function ubash() {
+    local quiet=false
+
+    [[ "$1" == "-q" ]] && {
+        shift
+        quiet=true
+    }
+
     if [[ -z "$1" ]]; then
         [[ $os == "Linux" ]] || [[ $HOSTNAME == "RODS_Z20T" ]] && {
             # if you get a certificate error from this, put your hostname inside the following bash regex
             http_only_hosts="no_https_1|no_https_2"
 
-            if exists wget; then wget $basherk_url -O "$basherk_src" $([[ $HOSTNAME =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")
+            if exists wget; then wget $basherk_url -O "$basherk_src" "$([[ $HOSTNAME =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")"
             else curl $basherk_url -o "$basherk_src"
             fi
 
@@ -692,11 +699,11 @@ function ubash() {
             # only host has been specified
             user="root"
             host=$1
-            [[ "$uquiet" != true ]] && echo "assuming ${RED}root@${D}$host"
+            [[ "$quiet" == false ]] && echo "assuming ${RED}root@${D}$host"
         fi
 
         rsync -az "$basherk_src" $user@"$host":~/.basherk
-        [[ "$uquiet" != true ]] && echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
+        [[ "$quiet" == false ]] && echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
     }
     fi
 }
