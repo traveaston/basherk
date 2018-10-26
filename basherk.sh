@@ -133,6 +133,8 @@ if ! exists tailf; then alias tailf='tail -f'; fi
 
 if ! exists aspell; then alias aspell='hunspell'; fi
 
+if ! exists realpath; then alias realpath='readlink'; fi
+
 if exists ip; then {
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
 } else {
@@ -584,46 +586,52 @@ function showrepo() {
 }
 
 function _source_bash_completions() {
-    local -a dirs real_dirs done
+    local -a paths absolutes
+    local absolute_path filecount limit=250
 
-    dirs=(
+    if [[ $1 == "--help" ]]; then
+        echo "Source all completion files from valid paths"
+        echo "Usage:"
+        echo "    _source_bash_completions [options]"
+        echo "        --help               Show this screen"
+        echo "        -f, --force          Don't skip paths containing >250 files"
+        return
+    elif [[ "$1" == "-f" ]] || [[ "$1" == "--force" ]]; then
+        shift
+        limit=10000
+    fi
+
+    paths=(
         /etc/bash_completion.d
         /usr/local/etc/bash_completion.d
         /usr/share/bash-completion/bash_completion.d
         /usr/share/bash-completion/completions
     )
 
-    # some servers have readlink installed in place of realpath
-    if exists realpath; then {
-        local realpath="realpath"
-    } else {
-        local realpath="readlink -e"
-    } fi
+    for path in "${paths[@]}"; do
+        # ignore non-existant directories
+        [[ ! -d $path ]] && continue
 
-    # remove non-existant directories and use realpath/readlink to handle duplicates by symlink
-    for dir in ${dirs[@]}; do
-        [[ -d $dir ]] && real_dirs+=($($realpath $dir))
+        # uniquify via absolute paths
+        absolute_path="$(realpath -e "$path")"
+        [[ ! " ${absolutes[@]} " =~ " ${absolute_path} " ]] && absolutes+=("$absolute_path")
     done
 
-    for dir in ${real_dirs[@]}; do
-        # check if directory has already been processed
-        [[ ! " ${done[@]} " =~ " ${dir} " ]] && {
-            filecount=$(ls -1 $dir | wc -l)
+    for path in "${absolutes[@]}"; do
+        filecount=$(ls -1 "$path" | wc -l)
 
-            # skip completions dir if containing more than 250 files
-            (( $filecount > 250 )) && echo "Skipping $filecount completions in $dir" && return
-
-            for file in $dir/*; do
-                [[ -f $file ]] && source $file
-            done
-
-            # add directory to processed array
-            done+=($dir)
+        [[ $filecount -gt $limit ]] && {
+            echo "Skipping $filecount completions in $path"
+            continue
         }
+
+        for file in "$path"/*; do
+            [[ -f "$file" ]] && source "$file"
+        done
     done
 
     # source other scripts if exist
-    [[ -f ~/.git-completion.bash ]] && . ~/.git-completion.bash
+    [[ -f ~/.git-completion.bash ]] && source ~/.git-completion.bash
 }
 
 _source_bash_completions
