@@ -536,11 +536,21 @@ function scansubnet() {
     scan_nmap 192.168.$1.1 $2
 }
 
+# set_title $title
+# set window title to $title, or "user at host in folder" if blank
+# ensures prompt command is not overwritten
 function set_title() {
-    t='echo -ne "\033]0;TITLE_HERE\007";'
+    local pcmd='echo -ne "\033]0;$USER at $HOSTNAME in ${PWD##*/}\007";'
 
-    t=${t/TITLE_HERE/$1}
-    export PROMPT_COMMAND=$t
+    [[ -n "$1" ]] && {
+        pcmd='echo -ne "\033]0;TITLE_HERE\007";'
+        pcmd=${pcmd/TITLE_HERE/$1}
+    }
+
+    # Save and reload the history after each command finishes
+    pcmd="history -a; history -c; history -r; $pcmd"
+
+    export PROMPT_COMMAND=$pcmd
 }
 
 function showrepo() {
@@ -797,14 +807,9 @@ unset _gitbash
 export PS1=$prompt
 unset prompt
 
-# Set window title
-pcmd='echo -ne "\033]0;$USER at $HOSTNAME in ${PWD##*/}\007";'
-
-# Save and reload the history after each command finishes
-pcmd="history -a; history -c; history -r; $pcmd"
-
-export PROMPT_COMMAND=$pcmd
-unset pcmd
+# Set window title to something readable
+set_title
+export DISABLE_AUTO_TITLE="true"
 
 # source things to be executed after basherk
 [[ -f "$basherk_dir/basherk-custom.sh" ]] && . "$basherk_dir/post-basherk.sh"
