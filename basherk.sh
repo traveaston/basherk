@@ -676,14 +676,21 @@ function strpos() {
     }
 }
 
-# tm process1 [process2, etc]
 function tm() {
-    # replace spaces between params with OR regex for highlighting
-    local search=$(echo "$@" | sed -e 's/ /\|/g')
+    [[ -z "$1" ]] || [[ $1 == "--help" ]] && {
+        echo "Find running processes by name (task manager)"
+        echo "Usage:"
+        echo "    tm [--help]      Show this screen"
+        echo "    tm p1 [p2, etc]  Show processes with name matching p#"
+        return
+    }
 
-    # escape grep to ensure color=always
-    # grep for UID OR search to make the header show up
-    ps -aef | \grep --color=always -E "UID|$search"
+    # join params with logical OR for regex
+    local processes
+    processes=$(array_join "|" "$@")
+
+    # show full info with ps and grep for processes (and UID to show header)
+    ps -aef | command grep --color=always -E "UID|$processes"
 }
 
 function tmucks() {
