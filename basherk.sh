@@ -622,7 +622,7 @@ function _source_bash_completions() {
 
         [[ $filecount -gt $limit ]] && {
             echo "Skipping $filecount completions in $path"
-            return
+            continue
         }
 
         for file in "$path"/*; do
