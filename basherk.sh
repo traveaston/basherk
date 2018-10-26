@@ -584,9 +584,9 @@ function showrepo() {
 }
 
 function _source_bash_completions() {
-    local -a dirs real_dirs done
+    local -a paths absolutes sourced
 
-    dirs=(
+    paths=(
         /etc/bash_completion.d
         /usr/local/etc/bash_completion.d
         /usr/share/bash-completion/bash_completion.d
@@ -601,24 +601,24 @@ function _source_bash_completions() {
     } fi
 
     # remove non-existant directories and use realpath/readlink to handle duplicates by symlink
-    for dir in ${dirs[@]}; do
-        [[ -d $dir ]] && real_dirs+=($($realpath $dir))
+    for path in ${paths[@]}; do
+        [[ -d $path ]] && absolutes+=($($realpath $path))
     done
 
-    for dir in ${real_dirs[@]}; do
+    for path in ${absolutes[@]}; do
         # check if directory has already been processed
-        [[ ! " ${done[@]} " =~ " ${dir} " ]] && {
-            filecount=$(ls -1 $dir | wc -l)
+        [[ ! " ${sourced[@]} " =~ " ${path} " ]] && {
+            filecount=$(ls -1 $path | wc -l)
 
             # skip completions dir if containing more than 250 files
-            (( $filecount > 250 )) && echo "Skipping $filecount completions in $dir" && return
+            (( $filecount > 250 )) && echo "Skipping $filecount completions in $path" && return
 
-            for file in $dir/*; do
+            for file in $path/*; do
                 [[ -f $file ]] && source $file
             done
 
             # add directory to processed array
-            done+=($dir)
+            sourced+=($path)
         }
     done
 
