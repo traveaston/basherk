@@ -584,7 +584,8 @@ function showrepo() {
 }
 
 function _source_bash_completions() {
-    local -a paths absolutes sourced
+    local -a paths absolutes
+    local absolute_path filecount
 
     paths=(
         /etc/bash_completion.d
@@ -595,31 +596,29 @@ function _source_bash_completions() {
 
     # some servers have readlink installed in place of realpath
     if exists realpath; then {
-        local realpath="realpath"
+        local realpath="realpath -e"
     } else {
         local realpath="readlink -e"
     } fi
 
-    # ignore non-existant directories, and uniquify via absolute paths
     for path in "${paths[@]}"; do
-        [[ -d $path ]] && absolutes+=("$($realpath "$path")")
+        # ignore non-existant directories
+        [[ ! -d $path ]] && continue
+
+        # uniquify via absolute paths
+        absolute_path="$($realpath "$path")"
+        [[ ! " ${absolutes[@]} " =~ " ${absolute_path} " ]] && absolutes+=("$absolute_path")
     done
 
     for path in "${absolutes[@]}"; do
-        # check if path has already been sourced
-        [[ ! " ${sourced[@]} " =~ " ${path} " ]] && {
-            filecount=$(ls -1 "$path" | wc -l)
+        filecount=$(ls -1 "$path" | wc -l)
 
-            # skip completions path if containing more than 250 files
-            [[ $filecount -gt 250 ]] && echo "Skipping $filecount completions in $path" && return
+        # skip completions path if containing more than 250 files
+        [[ $filecount -gt 250 ]] && echo "Skipping $filecount completions in $path" && return
 
-            for file in "$path"/*; do
-                [[ -f "$file" ]] && source "$file"
-            done
-
-            # add path to sourced array
-            sourced+=("$path")
-        }
+        for file in "$path"/*; do
+            [[ -f "$file" ]] && source "$file"
+        done
     done
 
     # source other scripts if exist
