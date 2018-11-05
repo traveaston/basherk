@@ -204,22 +204,6 @@ function array_join() {
     printf "%s" "${@/#/$d}"
 }
 
-# Count characters in a string
-function cchar() {
-    local OPTIND
-
-    while getopts "a:" opt; do
-        case $opt in
-            a)
-                echo ${#OPTARG}
-                return
-                ;;
-        esac
-    done
-
-    echo "string is ${CYAN}${#1}${D} characters long"
-}
-
 function cd() {
     command cd "$1"
     pwd
@@ -267,7 +251,7 @@ function cleanup_files() {
 # counts characters, checks spelling and asks to commit
 function commit() {
     local message="$1"
-    local len=$(cchar -a "$message")
+    local len=$(length -a "$message")
 
     [[ $len -gt 50 ]] && {
         echo "${RED}$len characters long${D}"
@@ -445,6 +429,22 @@ function lastmod() {
     if [[ $os == "macOS" ]]; then echo "Last modified" $(( $(date +%s) - $(stat -f%c "$1") )) "seconds ago"
     else echo "Last modified" $(( $(date +%s) - $(date +%s -r "$1") )) "seconds ago"
     fi
+}
+
+# Display the length of a given string (character count)
+function length() {
+    local OPTIND
+
+    while getopts "a:" opt; do
+        case $opt in
+            a)
+                echo ${#OPTARG}
+                return
+                ;;
+        esac
+    done
+
+    echo "string is ${CYAN}${#1}${D} characters long"
 }
 
 function maillog_search() {
