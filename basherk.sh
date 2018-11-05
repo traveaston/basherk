@@ -109,7 +109,7 @@ case $os in
         ;;
 esac
 
-alias gitinfo='graphall -10 && tcommits && echo "open repo url in browser with ${GREEN}showrepo${D}" && gs'
+alias gitinfo='graphall -10 && totalcommits && echo "open repo url in browser with ${GREEN}showrepo${D}" && gs'
 
 # Redefine builtin commands
 alias cp='cp -iv' # interactive and verbose
@@ -186,7 +186,6 @@ alias gitrebase='echo "usage: git checkout ${GREEN}develop${D}" &&
                  echo "Rebase ${GREEN}branch${D} onto ${PINK}base${D}, which can be any kind of commit reference:" &&
                  echo "an ID, branch name, tag or relative reference to HEAD."'
 alias gitundocommit='echo "git reset --soft HEAD^"'
-alias tcommits='echo "Total commits for ${GREEN}$(git_repo_name): ${PINK}$(git log --oneline --all | wc -l)"${D}'
 
 # credit: https://stackoverflow.com/a/17841619
 function array_join() {
@@ -709,6 +708,34 @@ function tmucks() {
     if [[ "$STATUS" == "no sessions" ]]; then {
         tmux
     } fi
+}
+
+function totalcommits() {
+    local override="custom"
+    local ref repo
+    local -i commits
+
+    # get git repo name from remote, or use folder name if empty
+    repo=$(git_repo_name)
+    [[ -z $repo ]] && repo=$(pwf)
+
+    # allow overriding starting commit, if you inherit a project or similar
+    # set using: git config basherk.firstcommit <ref>
+    # ref is any git-readable reference (sha, tag, branch, etc)
+    ref=$(git config --local --get basherk.firstcommit)
+
+    # reference initial commit if override is absent
+    [[ -z $ref ]] && {
+        ref=$(git rev-list --max-parents=0 --abbrev-commit HEAD)
+        override="initial"
+    }
+
+    commits=$(git rev-list "$ref".. --count)
+
+    # increment to also include ref commit in count
+    ((commits++))
+
+    echo "${D}Commits for ${CYAN}$repo${D} starting $ref ($override): ${CYAN}$commits${D}"
 }
 
 # update basherk
