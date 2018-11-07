@@ -646,15 +646,17 @@ function sshl() {
         echo "No ssh identity found."
     fi
 
-    if exists keychain; then {
-        eval $(keychain --eval $key)
-    } else {
+    if exists keychain; then
+        # standard keychain only displays the first key when multiple are added
+        # so make it quiet then explicitly list all keys
+        eval $(keychain --eval --quiet $key)
+        keychain -l
+    else
         # keychain not installed, use ssh-agent instead
         eval $(ssh-agent -s)
         ssh-add ~/.ssh/$key
-    } fi
-
-    echo "$(ssh-add -l 2>&1)"
+        ssh-add -l
+    fi
 }
 export -f sshl
 
