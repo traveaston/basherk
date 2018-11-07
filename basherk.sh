@@ -636,22 +636,14 @@ function _source_bash_completions() {
 _source_bash_completions
 
 function sshl() {
-    local start=false
-    local STATUS="$(ssh-add -l 2>&1)"
-    [[ "$STATUS" == "Could not open a connection to your authentication agent." ]] && start=true
-    [[ "$STATUS" == "Error connecting to agent: Connection refused" ]] && start=true
+    if exists keychain; then {
+        eval $(keychain --eval)
+    } else {
+        # keychain not installed, use ssh-agent instead
+        eval $(ssh-agent -s)
+    } fi
 
-    [[ $start == true ]] && {
-        if exists keychain; then {
-            eval $(keychain --eval)
-        } else {
-            # keychain not installed, use ssh-agent instead
-            eval $(ssh-agent -s)
-        } fi
-
-        # re-run status check after starting agent
-        STATUS="$(ssh-add -l 2>&1)"
-    }
+    STATUS="$(ssh-add -l 2>&1)"
 
     if [[ "$STATUS" == "The agent has no identities." ]]; then
         if [[ -f ~/.ssh/id_ed25519 ]]; then
