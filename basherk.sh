@@ -636,15 +636,18 @@ function _source_bash_completions() {
 _source_bash_completions
 
 function sshl() {
-    local key
+    local key="$1"
 
-    if [[ -f ~/.ssh/id_ed25519 ]]; then
-        key="id_ed25519"
-    elif [[ -f ~/.ssh/id_rsa ]]; then
-        key="id_rsa"
-    else
-        echo "No ssh identity found."
-    fi
+    # autodetect key if none specified
+    [[ -z $key ]] && {
+        if [[ -f ~/.ssh/id_ed25519 ]]; then
+            key="id_ed25519"
+        elif [[ -f ~/.ssh/id_rsa ]]; then
+            key="id_rsa"
+        else
+            echo "No ssh identity found."
+        fi
+    }
 
     if exists keychain; then
         # standard keychain only displays the first key when multiple are added
@@ -654,7 +657,14 @@ function sshl() {
     else
         # keychain not installed, use ssh-agent instead
         eval $(ssh-agent -s)
-        ssh-add ~/.ssh/$key
+
+        # allow relative or absolute key path argument
+        if [[ -f ~/.ssh/$key ]]; then
+            ssh-add ~/.ssh/$key
+        else
+            ssh-add $key
+        fi
+
         ssh-add -l
     fi
 }
