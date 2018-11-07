@@ -636,39 +636,36 @@ function _source_bash_completions() {
 _source_bash_completions
 
 function sshl() {
-    local start=false
-    local STATUS="$(ssh-add -l 2>&1)"
-    [[ "$STATUS" == "Could not open a connection to your authentication agent." ]] && start=true
-    [[ "$STATUS" == "Error connecting to agent: Connection refused" ]] && start=true
+    local key="$1"
 
-    [[ $start == true ]] && {
-        if exists keychain; then {
-            eval $(keychain --eval)
-        } else {
-            # keychain not installed, use ssh-agent instead
-            eval $(ssh-agent -s)
-        } fi
-
-        # re-run status check after starting agent
-        STATUS="$(ssh-add -l 2>&1)"
-    }
-
-    if [[ "$STATUS" == "The agent has no identities." ]]; then
+    # autodetect key if none specified
+    [[ -z $key ]] && {
         if [[ -f ~/.ssh/id_ed25519 ]]; then
-            echo "Loading ${GREEN}ed25519${D} identity file"
-            keyfile="id_ed25519"
+            key="id_ed25519"
         elif [[ -f ~/.ssh/id_rsa ]]; then
-            echo "${RED}WARNING: RSA is an insecure algorithm, upgrade to ed25519${D}"
-            echo "Loading ${RED}rsa${D} identity file"
-            keyfile="id_rsa"
+            key="id_rsa"
         else
             echo "No ssh identity found."
-            return 1
+        fi
+    }
+
+    if exists keychain; then
+        # standard keychain only displays the first key when multiple are added
+        # so make it quiet then explicitly list all keys
+        eval "$(keychain --eval --quiet $key)"
+        keychain -l
+    else
+        # keychain not installed, use ssh-agent instead
+        eval "$(ssh-agent -s)"
+
+        # allow relative or absolute key path argument
+        if [[ -f ~/.ssh/$key ]]; then
+            ssh-add ~/.ssh/$key
+        else
+            ssh-add $key
         fi
 
-        ssh-add ~/.ssh/$keyfile
-    else
-        echo "$STATUS"
+        ssh-add -l
     fi
 }
 export -f sshl
