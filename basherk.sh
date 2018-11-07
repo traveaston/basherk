@@ -652,11 +652,11 @@ function sshl() {
     if exists keychain; then
         # standard keychain only displays the first key when multiple are added
         # so make it quiet then explicitly list all keys
-        eval $(keychain --eval --quiet $key)
+        eval "$(keychain --eval --quiet $key)"
         keychain -l
     else
         # keychain not installed, use ssh-agent instead
-        eval $(ssh-agent -s)
+        eval "$(ssh-agent -s)"
 
         # allow relative or absolute key path argument
         if [[ -f ~/.ssh/$key ]]; then
