@@ -636,6 +636,8 @@ function _source_bash_completions() {
 _source_bash_completions
 
 function sshl() {
+    local key
+
     if exists keychain; then {
         eval $(keychain --eval)
     } else {
@@ -647,18 +649,15 @@ function sshl() {
 
     if [[ "$STATUS" == "The agent has no identities." ]]; then
         if [[ -f ~/.ssh/id_ed25519 ]]; then
-            echo "Loading ${GREEN}ed25519${D} identity file"
-            keyfile="id_ed25519"
+            key="id_ed25519"
         elif [[ -f ~/.ssh/id_rsa ]]; then
-            echo "${RED}WARNING: RSA is an insecure algorithm, upgrade to ed25519${D}"
-            echo "Loading ${RED}rsa${D} identity file"
-            keyfile="id_rsa"
+            key="id_rsa"
         else
             echo "No ssh identity found."
             return 1
         fi
 
-        ssh-add ~/.ssh/$keyfile
+        ssh-add ~/.ssh/$key
     else
         echo "$STATUS"
     fi
