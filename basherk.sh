@@ -638,29 +638,23 @@ _source_bash_completions
 function sshl() {
     local key
 
+    if [[ -f ~/.ssh/id_ed25519 ]]; then
+        key="id_ed25519"
+    elif [[ -f ~/.ssh/id_rsa ]]; then
+        key="id_rsa"
+    else
+        echo "No ssh identity found."
+    fi
+
     if exists keychain; then {
-        eval $(keychain --eval)
+        eval $(keychain --eval $key)
     } else {
         # keychain not installed, use ssh-agent instead
         eval $(ssh-agent -s)
+        ssh-add ~/.ssh/$key
     } fi
 
-    STATUS="$(ssh-add -l 2>&1)"
-
-    if [[ "$STATUS" == "The agent has no identities." ]]; then
-        if [[ -f ~/.ssh/id_ed25519 ]]; then
-            key="id_ed25519"
-        elif [[ -f ~/.ssh/id_rsa ]]; then
-            key="id_rsa"
-        else
-            echo "No ssh identity found."
-            return 1
-        fi
-
-        ssh-add ~/.ssh/$key
-    else
-        echo "$STATUS"
-    fi
+    echo "$(ssh-add -l 2>&1)"
 }
 export -f sshl
 
