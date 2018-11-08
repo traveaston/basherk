@@ -25,6 +25,9 @@ RED=$'\e[31;49m'
 [[ $1 == "--version" ]] && echo "basherk $basherk_ver ($basherk_date)" && return
 [[ $1 == "--update" ]] && ubash && return
 
+# show basherk version on execution
+echo "basherk $basherk_ver ($basherk_date)"
+
 # source pre-basherk dependencies
 [[ -f "$basherk_dir/basherk-custom.sh" ]] && . "$basherk_dir/pre-basherk.sh"
 
@@ -756,7 +759,6 @@ function ubash() {
             clear
         }
         basherk
-        echo "basherk updated: version $basherk_ver ($basherk_date)"
     else {
         # we're pushing our basherk to another machine
         if [[ "$1" == *@* ]]; then
