@@ -428,6 +428,34 @@ function ipdrop() {
     iptables -A INPUT -s $1 -j DROP
 }
 
+function ipscan() {
+    [[ $1 == "--help" ]] && {
+        echo "Scan IP address or subnet with sudo passthrough for ICMP"
+        echo "Usage:"
+        echo "    ipscan                   Scan current subnet based on local IP"
+        echo "    ipscan [ip]              Scan IP address e.g. ipscan 192.168.25.50"
+        echo "    ipscan [ip/netmask]      Scan IP with netmask e.g. ipscan 192.168.25.50/28"
+        echo "    ipscan [subnet]          Scan subnet e.g. ipscan 25"
+        echo "    ipscan [addr] [sudo]     Scan address (IP or subnet) using sudo (ICMP rather than TCP pingscan)"
+        return
+    }
+
+    local ip=$1
+    local sudo=$2
+
+    [[ -z "$ip" ]] && {
+        # scan subnet using local ip address with /24 subnet mask
+        ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')/24"
+    }
+
+    # if only subnet was given, build a complete address
+    re='^[0-9]{1,3}$'
+    [[ $ip =~ $re ]] && ip="192.168.$ip.1/24"
+
+    echo "$sudo scanning ${CYAN}$ip${D}"
+    $sudo nmap -sn -PE $ip
+}
+
 function lastmod() {
     if [[ $os == "macOS" ]]; then echo "Last modified" $(( $(date +%s) - $(stat -f%c "$1") )) "seconds ago"
     else echo "Last modified" $(( $(date +%s) - $(date +%s -r "$1") )) "seconds ago"
@@ -543,22 +571,6 @@ function rm() {
 
     # add sanitized command to history
     history -s rm "${sanitized[@]}"
-}
-
-function scan_nmap() {
-    local ip=$1
-    local sudo=$2
-
-    echo $sudo scanning ${PINK}$ip${D}
-    $sudo nmap -sn -PE $ip/24
-}
-
-function scanip() {
-    scan_nmap $1 $2
-}
-
-function scansubnet() {
-    scan_nmap 192.168.$1.1 $2
 }
 
 # set_title $title
