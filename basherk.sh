@@ -138,11 +138,11 @@ if ! exists aspell; then alias aspell='hunspell'; fi
 
 if ! exists realpath; then alias realpath='readlink'; fi
 
-if exists ip; then {
+if exists ip; then
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
-} else {
+else
     alias ipas='ifconfig | hlp ".*inet [0-9.]*"'
-} fi
+fi
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
@@ -223,11 +223,11 @@ function cdfile() {
 function check256() {
     local actual expect file sha256
 
-    if exists sha256sum; then {
+    if exists sha256sum; then
         sha256="sha256sum"
-    } elif exists shasum; then {
+    elif exists shasum; then
         sha256="shasum -a 256"
-    } fi
+    fi
 
     file="$1"
     expect="$2"
@@ -325,13 +325,13 @@ function f() {
     }
 
     # prefer ripgrep, then silver surfer, then grep if neither are installed
-    if exists rg; then {
+    if exists rg; then
         tool="rg"
-    } elif exists ag; then {
+    elif exists ag; then
         tool="ag"
-    } else {
+    else
         tool="grep"
-    } fi
+    fi
 
     if [[ $location == "path" ]]; then {
         # search path, limit depth to 1 directory
@@ -340,13 +340,14 @@ function f() {
         # search file contents
         local args=$(echo "$@" | perl -pe 's/^in //')
 
-        if [[ "$tool" != "grep" ]]; then $tool "$args"
-        else {
+        if [[ "$tool" != "grep" ]]; then
+            $tool "$args"
+        else
             echo "searching $(pwf) for '$search' (case insensitive, ignoring binary files, .git/, and vendor/)"
             count=$($tool --color=always -Iinr "$args" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
-        } fi
+        fi
     } elif [[ $location == "commit" ]]; then {
         # find a commit with message matching string
         graphall -10000 | grep -i "$search"
@@ -392,21 +393,19 @@ function h() {
 }
 
 # _have and have are required by some bash_completion scripts
-if ! exists _have; then {
+if ! exists _have; then
     # This function checks whether we have a given program on the system.
-    _have()
-    {
+    _have() {
         PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null
     }
-} fi
-if ! exists have; then {
+fi
+if ! exists have; then
     # Backwards compatibility redirect to _have
-    have()
-    {
+    have() {
         unset -v have
         _have $1 && have=yes
     }
-} fi
+fi
 
 # Highlight Pattern
 # Works like grep but shows all lines
@@ -717,9 +716,9 @@ function tmucks() {
 
     # when there's already a tmux session, $() doesn't capture output,
     # it just attaches, so we only need to check if it doesn't work
-    if [[ "$STATUS" == "no sessions" ]]; then {
+    if [[ "$STATUS" == "no sessions" ]]; then
         tmux
-    } fi
+    fi
 }
 
 function totalcommits() {
