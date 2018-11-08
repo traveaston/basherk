@@ -79,7 +79,10 @@ os="$(uname)"
 
 alias ls='ls --color=auto'
 alias la='ls -Ahl'
-[[ $os != "Android" ]] && alias l='la -go' || alias l='la -g'
+alias l='la -go'
+
+# override l alias for android (busybox ls lacks -o flag)
+[[ $os == "Android" ]] && alias l='la -g'
 
 # Single OS aliases
 case $os in
