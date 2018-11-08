@@ -714,15 +714,17 @@ function tm() {
     ps -aef | command grep --color=always -E "UID|$processes"
 }
 
-function tmucks() {
-    local STATUS="$(tmux attach 2>&1)"
+if exists tmux; then
+    function tmucks() {
+        local STATUS="$(tmux attach 2>&1)"
 
-    # when there's already a tmux session, $() doesn't capture output,
-    # it just attaches, so we only need to check if it doesn't work
-    if [[ "$STATUS" == "no sessions" ]]; then
-        tmux
-    fi
-}
+        # when there's already a tmux session, $() doesn't capture output,
+        # it just attaches, so we only need to check if it doesn't work
+        if [[ "$STATUS" == "no sessions" ]]; then
+            tmux
+        fi
+    }
+fi
 
 function totalcommits() {
     local override="custom"
