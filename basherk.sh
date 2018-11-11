@@ -414,16 +414,30 @@ fi
 # Works like grep but shows all lines
 # -i for case insensitive
 function hlp() {
-    if [[ "$1" == "" ]]; then
-        echo "usage: command -params | hlp 'highlightstring'"
-        echo "For acceptable highlightstring values, see ${RED}searchcontents${D}"
+    local regex
+    local flags="-E"
+
+    if [[ -z "$1" ]]; then
+        echo "usage: command -params | hlp foo Bar"
+        echo "       command -params | hlp -i foo bar"
+        echo "       command -params | hlp 'foo bar'"
+        echo "       command -params | hlp '\$foobar'"
+        return
+    elif [[ "$1" == "-i" ]]; then
+        shift;
+        flags="-iE"
     fi
 
-    if [[ "$1" == "-i" ]]; then
-        grep -iE "$2|$"
-    else
-        grep -E "$1|$"
-    fi
+    # always grep for $ (end of line) to show all lines, by highlighting the newline character
+    regex="$"
+
+    # concatenate arguments with logical OR
+    for pattern in "$@"; do
+        regex+="|$pattern"
+    done
+
+    # escape grep to ensure color=always
+    \grep --color=always $flags "$regex"
 }
 
 function ipdrop() {
