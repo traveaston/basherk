@@ -544,7 +544,8 @@ function mvln() {
     local old_location="$1"
     local new_location="$2"
 
-    mv -iv "$old_location" "$new_location"
+    # only link if move succeeds
+    mv -iv "$old_location" "$new_location" && \
     ln -s "$new_location" "$old_location"
 }
 
