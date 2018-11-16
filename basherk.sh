@@ -715,24 +715,25 @@ function strpos() {
 [[ $os == "macOS" ]] && {
     # credit Justin Hileman - original (http://justinhileman.com)
     # credit Vitaly (https://gist.github.com/vitalybe/021d2aecee68178f3c52)
-    function tab () {
+    function tab() {
         [[ $1 == "--help" ]] && {
             echo "Open new iTerm tabs from the command line"
             echo "Usage:"
             echo "    tab                   Opens the current directory in a new tab"
-            echo "    tab [PATH]            Open PATH in a new tab"
+            echo "    tab [PATH]            Open PATH in a new tab (includes symlinks)"
             echo "    tab [CMD]             Open a new tab and execute CMD (also sets tab title)"
             echo "    tab [PATH] [CMD] ...  You can prob'ly guess"
             return
         }
 
         local cmd=""
-        local cdto="$PWD"
+        local path="$PWD"
         local args="$@"
         local execute_set_title=""
 
-        if [ -d "$1" ]; then
-            cdto=$(command cd "$1"; pwd)
+        # if first argument is directory or symlink to exising directory
+        if [[ -d "$1" ]] || [[ -L "$1" && -d "$(realpath "$1")" ]]; then
+            path=$(command cd "$1"; pwd)
             args="${@:2}"
         fi
 
@@ -748,7 +749,7 @@ function strpos() {
               tell newTab
                 tell current session
                   write text " $execute_set_title"
-                  write text " cd \"$cdto\"$cmd"
+                  write text " cd \"$path\"$cmd"
                 end tell
               end tell
             end tell
