@@ -747,8 +747,8 @@ function strpos() {
               set newTab to (create tab with default profile)
               tell newTab
                 tell current session
-                  write text "$execute_set_title"
-                  write text "cd \"$cdto\"$cmd"
+                  write text " $execute_set_title"
+                  write text " cd \"$cdto\"$cmd"
                 end tell
               end tell
             end tell
