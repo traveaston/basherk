@@ -721,7 +721,7 @@ function strpos() {
         local args="$@"
 
         if [ -d "$1" ]; then
-            cdto=`cd "$1"; pwd`
+            cdto=$(command cd "$1"; pwd)
             args="${@:2}"
         fi
 
