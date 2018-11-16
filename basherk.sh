@@ -716,6 +716,16 @@ function strpos() {
     # credit Justin Hileman - original (http://justinhileman.com)
     # credit Vitaly (https://gist.github.com/vitalybe/021d2aecee68178f3c52)
     function tab () {
+        [[ $1 == "--help" ]] && {
+            echo "Open new iTerm tabs from the command line"
+            echo "Usage:"
+            echo "    tab                   Opens the current directory in a new tab"
+            echo "    tab [PATH]            Open PATH in a new tab"
+            echo "    tab [CMD]             Open a new tab and execute CMD"
+            echo "    tab [PATH] [CMD] ...  You can prob'ly guess"
+            return
+        }
+
         local cmd=""
         local cdto="$PWD"
         local args="$@"
