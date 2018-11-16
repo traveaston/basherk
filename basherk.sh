@@ -721,7 +721,7 @@ function strpos() {
             echo "Usage:"
             echo "    tab                   Opens the current directory in a new tab"
             echo "    tab [PATH]            Open PATH in a new tab"
-            echo "    tab [CMD]             Open a new tab and execute CMD"
+            echo "    tab [CMD]             Open a new tab and execute CMD (also sets tab title)"
             echo "    tab [PATH] [CMD] ...  You can prob'ly guess"
             return
         }
@@ -729,6 +729,7 @@ function strpos() {
         local cmd=""
         local cdto="$PWD"
         local args="$@"
+        local execute_set_title=""
 
         if [ -d "$1" ]; then
             cdto=$(command cd "$1"; pwd)
@@ -736,6 +737,7 @@ function strpos() {
         fi
 
         if [ -n "$args" ]; then
+            execute_set_title="set_title '$args'"
             cmd="; $args"
         fi
 
@@ -745,6 +747,7 @@ function strpos() {
               set newTab to (create tab with default profile)
               tell newTab
                 tell current session
+                  write text "$execute_set_title"
                   write text "cd \"$cdto\"$cmd"
                 end tell
               end tell
