@@ -737,7 +737,12 @@ function strpos() {
             args="${@:2}"
         fi
 
-        commands+=("command cd '$path'")
+        # no need to cd if goal is home directory
+        [[ "$path" != "$HOME" ]] && {
+            commands+=("command cd '$path'")
+        }
+
+        commands+=("clear" "pwd")
 
         if [ -n "$args" ]; then
             exec_set_title="set_title '$args'"
