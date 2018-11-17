@@ -747,6 +747,7 @@ function strpos() {
         if [ -n "$args" ]; then
             exec_set_title="set_title '$args'"
             commands+=("$args")
+            commands+=("set_title")
         fi
 
         exec_commands="$(array_join "; " "${commands[@]}")"
