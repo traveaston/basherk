@@ -712,6 +712,62 @@ function strpos() {
     }
 }
 
+[[ $os == "macOS" ]] && {
+    # credit Justin Hileman - original (http://justinhileman.com)
+    # credit Vitaly (https://gist.github.com/vitalybe/021d2aecee68178f3c52)
+    function tab() {
+        [[ $1 == "--help" ]] && {
+            echo "Open new iTerm tabs from the command line"
+            echo "Usage:"
+            echo "    tab                   Opens the current directory in a new tab"
+            echo "    tab [PATH]            Open PATH in a new tab (includes symlinks)"
+            echo "    tab [CMD]             Open a new tab and execute CMD (also sets tab title)"
+            echo "    tab [PATH] [CMD] ...  You can prob'ly guess"
+            return
+        }
+
+        local commands=()
+        local path="$PWD"
+        local args="$@"
+        local exec_set_title exec_commands
+
+        # if first argument is directory or symlink to exising directory
+        if [[ -d "$1" ]] || [[ -L "$1" && -d "$(realpath "$1")" ]]; then
+            path=$(command cd "$1"; pwd)
+            args="${@:2}"
+        fi
+
+        # no need to cd if goal is home directory
+        [[ "$path" != "$HOME" ]] && {
+            commands+=("command cd '$path'")
+        }
+
+        commands+=("clear" "pwd")
+
+        if [ -n "$args" ]; then
+            exec_set_title="set_title '$args'"
+            commands+=("$args")
+            commands+=("set_title")
+        fi
+
+        exec_commands="$(array_join "; " "${commands[@]}")"
+
+        osascript &>/dev/null <<EOF
+          tell application "iTerm"
+            tell current window
+              set newTab to (create tab with default profile)
+              tell newTab
+                tell current session
+                  write text " $exec_set_title"
+                  write text " $exec_commands"
+                end tell
+              end tell
+            end tell
+          end tell
+EOF
+    }
+}
+
 function tm() {
     [[ -z "$1" ]] || [[ $1 == "--help" ]] && {
         echo "Find running processes by name (task manager)"
