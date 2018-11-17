@@ -726,10 +726,10 @@ function strpos() {
             return
         }
 
-        local cmd=""
+        local commands=()
         local path="$PWD"
         local args="$@"
-        local execute_set_title=""
+        local exec_set_title exec_commands
 
         # if first argument is directory or symlink to exising directory
         if [[ -d "$1" ]] || [[ -L "$1" && -d "$(realpath "$1")" ]]; then
@@ -737,10 +737,14 @@ function strpos() {
             args="${@:2}"
         fi
 
+        commands+=("command cd '$path'")
+
         if [ -n "$args" ]; then
-            execute_set_title="set_title '$args'"
-            cmd="; $args"
+            exec_set_title="set_title '$args'"
+            commands+=("$args")
         fi
+
+        exec_commands="$(array_join "; " "${commands[@]}")"
 
         osascript &>/dev/null <<EOF
           tell application "iTerm"
@@ -748,8 +752,8 @@ function strpos() {
               set newTab to (create tab with default profile)
               tell newTab
                 tell current session
-                  write text " $execute_set_title"
-                  write text " cd \"$path\"$cmd"
+                  write text " $exec_set_title"
+                  write text " $exec_commands"
                 end tell
               end tell
             end tell
