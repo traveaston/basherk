@@ -392,7 +392,9 @@ function f() {
 }
 
 function h() {
-    [[ -z "$1" ]] && history || history | grep "$@"
+    [[ -z "$1" ]] && history && return
+
+    history | grep "$@"
 }
 
 # _have and have are required by some bash_completion scripts
@@ -706,10 +708,10 @@ export -f sshl
 if exists ssh-add; then sshl; fi
 
 function strpos() {
-    [[ -z "$1" ]] && echo "usage: strpos haystack needle" || {
-        x="${1%%$2*}"
-        [[ "$x" = "$1" ]] && echo -1 || echo "${#x}"
-    }
+    [[ -z "$1" ]] && echo "usage: strpos haystack needle" && return
+
+    x="${1%%$2*}"
+    [[ "$x" = "$1" ]] && echo -1 || echo "${#x}"
 }
 
 [[ $os == "macOS" ]] && {
@@ -879,13 +881,14 @@ function which() {
 }
 
 function iTermSH() {
-    [[ $os == "macOS" ]] && {
-        # Help iTerm2 Semantic History by echoing current dir
-        d=$'\e]1337;CurrentDir='
-        d+=$(pwd)
-        d+=$'\007'
-        echo $d
-    }
+    [[ $os != "macOS" ]] && return
+
+    # Help iTerm2 Semantic History by echoing current dir
+    d=$'\e]1337;CurrentDir='
+    d+=$(pwd)
+    d+=$'\007'
+
+    echo $d
 }
 
 function echo_working_dir() {
