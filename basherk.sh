@@ -139,8 +139,6 @@ if ! exists tailf; then alias tailf='tail -f'; fi
 
 if ! exists aspell; then alias aspell='hunspell'; fi
 
-if ! exists realpath; then alias realpath='readlink'; fi
-
 if exists ip; then
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
 else
@@ -192,6 +190,27 @@ alias gitrebase='echo "usage: git checkout ${GREEN}develop${D}" &&
                  echo "Rebase ${GREEN}branch${D} onto ${PINK}base${D}, which can be any kind of commit reference:" &&
                  echo "an ID, branch name, tag or relative reference to HEAD."'
 alias gitundocommit='echo "git reset --soft HEAD^"'
+
+# alias realpath for consistency
+function alias_realpath() {
+    local utility='realpath'
+    local exists_flag='-e'
+
+    # overwrite default if non-existant
+    if ! exists realpath; then
+        utility='readlink'
+    fi
+
+    # unset flag if not accepted
+    if [[ "$($utility $exists_flag 2>&1)" =~ (invalid|illegal) ]]; then
+        exists_flag=''
+    fi
+
+    # shellcheck disable=SC2139 # unconventionally use double quotes to expand variables
+    alias _realpath="$utility $exists_flag"
+}
+alias_realpath
+unset alias_realpath # avoid pollution
 
 # credit: https://stackoverflow.com/a/17841619
 function array_join() {
@@ -646,7 +665,7 @@ function _source_bash_completions() {
         [[ ! -d $path ]] && continue
 
         # uniquify via absolute paths
-        absolute_path="$(realpath -e "$path")"
+        absolute_path="$(_realpath "$path")"
         [[ ! " ${absolutes[@]} " =~ " ${absolute_path} " ]] && absolutes+=("$absolute_path")
     done
 
@@ -734,7 +753,7 @@ function strpos() {
         local exec_set_title exec_commands
 
         # if first argument is directory or symlink to exising directory
-        if [[ -d "$1" ]] || [[ -L "$1" && -d "$(realpath "$1")" ]]; then
+        if [[ -d "$1" ]] || [[ -L "$1" && -d "$(_realpath "$1")" ]]; then
             path=$(command cd "$1"; pwd)
             args="${@:2}"
         fi
