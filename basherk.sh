@@ -21,12 +21,11 @@ ORANGE=$'\e[33;49m'
 PINK=$'\e[35;49m'
 RED=$'\e[31;49m'
 
-[[ $1 == "-v" ]] && echo "basherk $basherk_ver ($basherk_date)" && return
-[[ $1 == "--version" ]] && echo "basherk $basherk_ver ($basherk_date)" && return
-[[ $1 == "--update" ]] && ubash && return
-
 # show basherk version on execution
 echo "basherk $basherk_ver ($basherk_date)"
+
+[[ $1 =~ ^-(v|-version)$ ]] && return
+[[ $1 == "--update" ]] && ubash && return
 
 # source pre-basherk dependencies
 [[ -f "$basherk_dir/basherk-custom.sh" ]] && . "$basherk_dir/pre-basherk.sh"
