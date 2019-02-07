@@ -614,7 +614,9 @@ function rm() {
 # set window title to $title, or "user at host in folder" if blank
 # ensures prompt command is not overwritten
 function set_title() {
-    local pcmd='echo -ne "\033]0;$USER at $HOSTNAME in ${PWD##*/}\007";'
+    local pcmd='echo -ne "\033]0;$USER at ${HOSTNAME%%.*} in ${PWD##*/}\007";'
+    # hostname is truncated before first period
+    # folder is truncated after last slash
 
     [[ -n "$1" ]] && {
         pcmd='echo -ne "\033]0;TITLE_HERE\007";'
