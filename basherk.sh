@@ -960,7 +960,7 @@ if [[ $_gitbash == true ]]; then {
 
     prompt+="${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) "
 
-    prompt+="${D}\n$ "
+    prompt+="${D}\n\$ "
 } else {
     # user at host
     prompt='\n${PINK}\u ${D}at ${ORANGE}\h '
@@ -970,7 +970,7 @@ if [[ $_gitbash == true ]]; then {
 
     if exists git; then prompt+='${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) '; fi
 
-    prompt+='${D}$(iTermSH)\n$ '
+    prompt+='${D}$(iTermSH)\n\$ '
 } fi
 
 # unset flag to ensure other terminals don't use incorrect code
