@@ -239,9 +239,7 @@ function cd() {
     command cd "$new_dir"
 
     # don't run other commands if we didn't actually change directory
-    if [[ "$old_dir" == "$PWD" ]]; then
-        return
-    fi
+    [[ "$old_dir" == "$PWD" ]] && return
 
     # print working directory and list contents
     pwd
