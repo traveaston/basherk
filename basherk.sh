@@ -229,9 +229,21 @@ function array_join() {
 }
 
 function cd() {
+    local old_dir=$PWD
+
+    # escape cd to avoid calling itself or other alias
     command cd "$1"
+
+    # don't run other commands if we didn't actually change directory
+    if [[ "$old_dir" == "$PWD" ]]; then
+        return
+    fi
+
+    # print working directory and list contents
     pwd
     l
+
+    # run gitinfo if .git directory exists
     [[ -d .git ]] && gitinfo
 }
 
