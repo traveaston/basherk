@@ -230,9 +230,13 @@ function array_join() {
 
 function cd() {
     local old_dir=$PWD
+    local new_dir=$1
+
+    # go home if directory not specified
+    [[ -z "$new_dir" ]] && new_dir=~
 
     # escape cd to avoid calling itself or other alias
-    command cd "$1"
+    command cd "$new_dir"
 
     # don't run other commands if we didn't actually change directory
     if [[ "$old_dir" == "$PWD" ]]; then
