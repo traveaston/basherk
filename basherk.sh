@@ -892,13 +892,31 @@ function totalcommits() {
 # update basherk on another machine (or localhost if none specified)
 function ubash() {
     local dest=$1
+    local src="$basherk_src"
 
     [[ -z "$1" ]] && {
-        [[ $os == "Linux" ]] && {
-        # download latest (HEAD) basherk
-        curl $basherk_url -o "$basherk_src"
-        clear
+        # update localhost
+
+        [[ -n "$(command cd "$basherk_dir" && git_in_repo)" ]] && {
+            echo "you are running basherk from a repo, to update:"
+            echo "${BLUE}cd "$basherk_dir""
+            echo "git pull"
+            echo "basherk${D}"
+            return
         }
+
+        [[ -L "$src" ]] && {
+            local actual_path=$(_realpath "$src")
+            echo "basherk is a symlink, updating it"
+            la "$src"
+
+            # if actual file is writable, set it as the location for curl
+            [[ -w "$actual_path" ]] && src="$actual_path"
+        }
+
+        # download latest (HEAD) basherk
+        curl $basherk_url -o "$src"
+        clear
 
         echo "re-sourcing basherk"
         basherk
@@ -907,7 +925,7 @@ function ubash() {
 
     [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
 
-    rsync -az "$basherk_src" $dest:~/.basherk
+    rsync -az "$src" $dest:~/.basherk
     echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
 }
 
