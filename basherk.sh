@@ -468,6 +468,7 @@ fi
 # Works like grep but shows all lines
 # -i for case insensitive
 function hlp() {
+    local args
     local regex
     local flags="-E"
 
@@ -485,8 +486,15 @@ function hlp() {
     # always grep for $ (end of line) to show all lines, by highlighting the newline character
     regex="$"
 
+    # replace all asterisks with spaces
+    # trim leading/trailing spaces with awk (and squash multiple into 1)
+    args="$(echo "${@//\*/ }" | awk '{$1=$1;print}')"
+
+    # replace remaining spaces with logical OR so searching for wildcards highlights correctly
+    args="${args// /|}"
+
     # concatenate arguments with logical OR
-    for pattern in "$@"; do
+    for pattern in "$args"; do
         regex+="|$pattern"
     done
 
