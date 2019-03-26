@@ -721,7 +721,9 @@ function _source_bash_completions() {
         }
 
         for file in "$path"/*; do
-            [[ -f "$file" ]] && source "$file"
+            [[ -f "$file" ]] && {
+                source "$file" || echo "_source_bash_completions error sourcing $file"
+            }
         done
     done
 
