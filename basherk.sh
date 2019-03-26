@@ -925,8 +925,11 @@ function ubash() {
 
     [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
 
-    rsync -az "$src" $dest:~/.basherk
-    echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
+    rsync -az "$src" $dest:~/.basherk && {
+        echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
+    } || {
+        echo "basherk update failed for $dest"
+    }
 }
 
 # extend information provided by which
