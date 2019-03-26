@@ -925,26 +925,32 @@ function iTermSH() {
     echo $d
 }
 
+# return working directory with gitroot path replaced with repo name (if necessary)
+# ~/dev/repos/basherk/test => basherk repo/test
 function echo_working_dir() {
     local dir=$1
-    if [[ $(git_in_repo) == "on" ]]; then
-        PWD=$(pwd)
-        REPO=$(git_repo_name)
+    local gitrepo subfolder
 
-        # replace repo with colon in path for use in sed
-        dir=${PWD/$REPO/:}
+    # return input if not in a git repo
+    [[ -z "$(git_in_repo)" ]] && echo "$1" && return
 
-        # since git_repo_name uses remote name, if there's no
-        # remote, we won't have a name to replace with. Also
-        # cancel if remote name doesn't match directory name
-        if [[ $dir == *":"* ]]; then
-            # strip everything before colon using sed and prepend repo name
-            dir="$REPO repo$(sed 's/.*://' <<< "$dir")"
-        fi
-    fi
+    gitrepo=$(git_repo_name)
+    subfolder=$(git rev-parse --show-prefix)
+
+    # return input if repo name is blank
+    [[ -z "$gitrepo" ]] && echo "$1" && return
+
+    # manually build subfolder if inside .git since show-prefix returns blank
+    [[ "$dir" == *".git"* ]] && subfolder=".git${dir##*.git}"
+
+    dir="$gitrepo repo/$subfolder"
+
+    # trim trailing slash (in case subfolder is blank, since we append a slash after gitrepo)
+    dir="${dir%/}"
 
     echo "$dir"
 }
+
 Response=""
 function git_branch() {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
