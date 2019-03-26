@@ -891,6 +891,8 @@ function totalcommits() {
 
 # update basherk on another machine (or localhost if none specified)
 function ubash() {
+    local dest=$1
+
     if [[ -z "$1" ]]; then
         [[ $os == "Linux" ]] && {
             # download latest (HEAD) basherk
@@ -900,21 +902,9 @@ function ubash() {
         }
         basherk
     else {
-        # we're pushing our basherk to another machine
-        if [[ "$1" == *@* ]]; then
-            # user@host has been specified
-            pos=$(strpos "$1" "@")
-            user=${1:0:pos}
-            ((pos++))
-            host=${1:pos}
-        else
-            # only host has been specified
-            user="root"
-            host=$1
-            echo "assuming ${RED}root@${D}$host"
-        fi
+        [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
 
-        rsync -az "$basherk_src" $user@"$host":~/.basherk
+        rsync -az "$basherk_src" $dest:~/.basherk
         echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
     }
     fi
