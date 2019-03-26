@@ -358,8 +358,8 @@ function f() {
     local search=$2
     local tool
     local sudo=$3
-    local hl=${search/\*/}
-    hl=${hl/./\\.}
+    # escape all periods for highlighting pattern (grep wildcards)
+    local hl=${search//./\\.}
 
     [[ -z $1 ]] && {
         echo "search files, commits, file/commit contents, or PATH"
