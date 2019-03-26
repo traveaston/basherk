@@ -895,17 +895,19 @@ function ubash() {
 
     if [[ -z "$1" ]]; then
         [[ $os == "Linux" ]] && {
-            # download latest (HEAD) basherk
-            curl $basherk_url -o "$basherk_src"
-
-            clear
+        # download latest (HEAD) basherk
+        curl $basherk_url -o "$basherk_src"
+        clear
         }
-        basherk
-    else {
-        [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
 
-        rsync -az "$basherk_src" $dest:~/.basherk
-        echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
+        echo "re-sourcing basherk"
+        basherk
+        return
+    else {
+    [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
+
+    rsync -az "$basherk_src" $dest:~/.basherk
+    echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
     }
     fi
 }
