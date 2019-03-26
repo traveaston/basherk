@@ -889,46 +889,47 @@ function totalcommits() {
     echo "${D}Commits for ${CYAN}$repo${D} starting $ref ($override): ${CYAN}$commits${D}"
 }
 
-# update basherk
+# update basherk on another machine (or localhost if none specified)
 function ubash() {
-    local quiet=false
+    local dest=$1
+    local src="$basherk_src"
 
-    [[ "$1" == "-q" ]] && {
-        shift
-        quiet=true
-    }
+    [[ -z "$1" ]] && {
+        # update localhost
 
-    if [[ -z "$1" ]]; then
-        [[ $os == "Linux" ]] || [[ $HOSTNAME == "RODS_Z20T" ]] && {
-            # if you get a certificate error from this, put your hostname inside the following bash regex
-            http_only_hosts="no_https_1|no_https_2"
-
-            if exists wget; then wget $basherk_url -O "$basherk_src" "$([[ $HOSTNAME =~ ^($http_only_hosts)$ ]] && echo "--no-check-certificate")"
-            else curl $basherk_url -o "$basherk_src"
-            fi
-
-            clear
+        [[ -n "$(command cd "$basherk_dir" && git_in_repo)" ]] && {
+            echo "you are running basherk from a repo, to update:"
+            echo "${BLUE}cd "$basherk_dir""
+            echo "git pull"
+            echo "basherk${D}"
+            return
         }
-        basherk
-    else {
-        # we're pushing our basherk to another machine
-        if [[ "$1" == *@* ]]; then
-            # user@host has been specified
-            pos=$(strpos "$1" "@")
-            user=${1:0:pos}
-            ((pos++))
-            host=${1:pos}
-        else
-            # only host has been specified
-            user="root"
-            host=$1
-            [[ "$quiet" == false ]] && echo "assuming ${RED}root@${D}$host"
-        fi
 
-        rsync -az "$basherk_src" $user@"$host":~/.basherk
-        [[ "$quiet" == false ]] && echo "$user@$host updated with basherk version $basherk_ver ($basherk_date)"
+        [[ -L "$src" ]] && {
+            local actual_path=$(_realpath "$src")
+            echo "basherk is a symlink, updating it"
+            la "$src"
+
+            # if actual file is writable, set it as the location for curl
+            [[ -w "$actual_path" ]] && src="$actual_path"
+        }
+
+        # download latest (HEAD) basherk
+        curl $basherk_url -o "$src"
+        clear
+
+        echo "re-sourcing basherk"
+        basherk
+        return
     }
-    fi
+
+    [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
+
+    rsync -az "$src" $dest:~/.basherk && {
+        echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
+    } || {
+        echo "basherk update failed for $dest"
+    }
 }
 
 # extend information provided by which
