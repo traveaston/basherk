@@ -309,6 +309,18 @@ function commit() {
     } || echo "Aborted"
 }
 
+function check_commit() {
+    local commit=$1
+    local message=$(git log $commit -1 --pretty=%B)
+
+    echo
+    echo "${PINK}$message${D}"
+    echo
+    echo "$message" | aspell -a
+
+    echo "If necessary, amend commit with: ${BLUE}git commit --amend${D}"
+}
+
 # Compare 2 strings
 function compare() {
     [[ -z "$1" ]] && exit
