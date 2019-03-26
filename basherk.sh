@@ -295,7 +295,15 @@ function commit() {
         echo "${RED}$len characters long${D}"
         echo "truncated to 50: '${BLUE}${message:0:50}${D}'"
         return
-    } || echo "${GREEN}$len characters long${D}"
+    }
+
+    [[ $len == 0 ]] && {
+        # commit with editor and if command succeeds, check spelling
+        git commit -e && check_commit
+        return
+    }
+
+    echo "${GREEN}$len characters long${D}"
 
     echo
     echo "${BLUE}Spell check:${D}"
