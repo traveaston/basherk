@@ -893,7 +893,7 @@ function totalcommits() {
 function ubash() {
     local dest=$1
 
-    if [[ -z "$1" ]]; then
+    [[ -z "$1" ]] && {
         [[ $os == "Linux" ]] && {
         # download latest (HEAD) basherk
         curl $basherk_url -o "$basherk_src"
@@ -903,13 +903,12 @@ function ubash() {
         echo "re-sourcing basherk"
         basherk
         return
-    else {
+    }
+
     [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
 
     rsync -az "$basherk_src" $dest:~/.basherk
     echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
-    }
-    fi
 }
 
 # extend information provided by which
