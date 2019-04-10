@@ -83,6 +83,9 @@ alias l='la -go'
 # override l alias for android (busybox ls lacks -o flag)
 [[ $os == "Android" ]] && alias l='la -g'
 
+# override ls alias for FreeBSD / FreeNAS
+[[ $os == "FreeBSD" ]] && alias ls='ls -G'
+
 # Single OS aliases
 case $os in
     macOS)
