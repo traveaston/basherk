@@ -399,9 +399,10 @@ function f() {
         local args=$(echo "$@" | perl -pe 's/^in //')
 
         if [[ "$tool" != "grep" ]]; then
+            echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool)"
             $tool "$args"
         else
-            echo "searching $(pwf) for '$search' (case insensitive, ignoring binary files, .git/, and vendor/)"
+            echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries , .git/, vendor/)"
             count=$($tool --color=always -Iinr "$args" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
