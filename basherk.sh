@@ -27,11 +27,11 @@ echo "basherk $basherk_ver ($basherk_date)"
 [[ $1 =~ ^-(v|-version)$ ]] && return
 [[ $1 == "--update" ]] && ubash && return
 
-# source pre-basherk dependencies
-[[ -f "$basherk_dir/basherk-custom.sh" ]] && . "$basherk_dir/pre-basherk.sh"
+# source pre-basherk definitions
+[[ -f "$basherk_dir/pre-basherk.sh" ]] && . "$basherk_dir/pre-basherk.sh"
 
 # source custom basherk user definitions
-[[ -f "$basherk_dir/basherk-custom.sh" ]] && . "$basherk_dir/basherk-custom.sh"
+[[ -f "$basherk_dir/custom-basherk.sh" ]] && . "$basherk_dir/custom-basherk.sh"
 
 alias basherk='. "$basherk_src"'
 
@@ -1037,5 +1037,5 @@ unset prompt
 set_title
 export DISABLE_AUTO_TITLE="true"
 
-# source things to be executed after basherk
-[[ -f "$basherk_dir/basherk-custom.sh" ]] && . "$basherk_dir/post-basherk.sh"
+# source post-basherk definitions
+[[ -f "$basherk_dir/post-basherk.sh" ]] && . "$basherk_dir/post-basherk.sh"
