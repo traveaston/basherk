@@ -531,7 +531,7 @@ function ipscan() {
     }
 
     # if only subnet was given, build a complete address
-    re='^[0-9]{1,3}$'
+    local re='^[0-9]{1,3}$'
     [[ $ip =~ $re ]] && ip="192.168.$ip.1/24"
 
     echo "$sudo scanning ${CYAN}$ip${D}"
