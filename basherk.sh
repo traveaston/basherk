@@ -609,9 +609,21 @@ function mvln() {
     local old_location="$1"
     local new_location="$2"
 
-    # only link if move succeeds
-    mv -iv "$old_location" "$new_location" && \
+    if ! new_location=$(mv -iv "$old_location" "$new_location"); then
+        # return before symlinking if move fails
+        return
+    fi
+
+    # capture actual final move location from first line of output, and remove quotes
+    new_location="$(echo "$new_location" | head -n1 | tr -d \'\")"
+    # remove everything before "-> "
+    new_location="${new_location##*-> }"
+
     ln -s "$new_location" "$old_location"
+
+    # show results, and for directories, show name(with trailing slash) instead of contents
+    la -dp "$old_location"
+    la -dp "$new_location"
 }
 
 function notify() {
