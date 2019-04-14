@@ -559,6 +559,41 @@ function length() {
     echo "string is ${CYAN}${#1}${D} characters long"
 }
 
+function listening() {
+    [[ -z "$1" ]] || [[ $1 == "--help" ]] && {
+        echo "Find port or process in list of listening ports"
+        echo "Usage:"
+        echo "    listening [--help]      Show this screen"
+        echo "    listening p1 [p2, etc]  Show ports/processes matching p#"
+        return
+    }
+
+    local args=($@)
+    local pattern
+
+    # regex for int with 1-5 characters
+    local int_regex='^[0-9]{1,5}$'
+
+    for (( i = 0; i < ${#args[@]}; i++ )); do
+        # prepend colon to integer(port) to avoid searching PID, etc
+        [[ ${args[$i]} =~ $int_regex ]] && args[$i]=":${args[$i]}"
+    done
+
+    pattern=$(array_join "|" "${args[@]}")
+
+    if [[ $os == "macOS" ]]; then
+        # show full info with ps and grep for ports (and COMMAND to show header)
+        sudo lsof -iTCP -sTCP:LISTEN -nP | command grep --color=always -E "COMMAND|$pattern"
+    else
+        # show full info with ps and grep for ports (and UID to show header)
+        # -tu show both tcp and udp
+        # -l display listening sockets
+        # -p display PID/Program name
+        # -n don't resolve ports to names (80 => http, can't grep for port number)
+        netstat -tulpn | command grep --color=always -E "Active|Proto|$pattern"
+    fi
+}
+
 function maillog_search() {
     [[ -z $1 ]] && {
         echo "search though maillog"
