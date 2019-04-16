@@ -2,12 +2,12 @@
 # .bashrc replacement
 
 # If not running interactively, don't do anything
-[[ -z "$PS1" ]] && return
+[[ -z $PS1 ]] && return
 
 # basherk specific
 basherk_ver=132
 basherk_date="26 March 2019"
-basherk_src=${BASH_SOURCE[0]}
+basherk_src="${BASH_SOURCE[0]}"
 basherk_dir=$(dirname "$basherk_src")
 basherk_url="https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh"
 
@@ -23,7 +23,7 @@ RED=$'\e[31;49m'
 # show basherk version on execution
 echo "basherk $basherk_ver ($basherk_date)"
 
-[[ $1 =~ ^-(v|-version)$ ]] && return
+[[ $1 =~ -(v|-version) ]] && return
 [[ $1 == "--update" ]] && ubash && return
 
 # source pre-basherk definitions
@@ -55,22 +55,22 @@ shopt -s cdspell                        # autocorrect for cd
 # and disable XON/XOFF to enable Ctrl-s (forward search) in bash reverse search
 [[ $- == *i* ]] && stty -ixon
 
-os="$(uname)"
+os=$(uname)
 
 [[ -f /git-bash.exe ]] && _gitbash=true
 
 [[ $os == "Darwin" ]] && os="macOS"
-[[ $HOSTNAME =~ ^(Zen|Obsidian)$ ]] && os="Windows"
-[[ "$BASH" == *termux* ]] && os="Android"
+[[ $HOSTNAME =~ (Zen|Obsidian) ]] && os="Windows"
+[[ $BASH == *termux* ]] && os="Android"
 
 # Functions that require defining first
 [[ $os != "Android" ]] && alias grep='grep --color=auto'
 
-[[ $os =~ ^(macOS|Windows)$ ]] && {
+[[ $os =~ (macOS|Windows) ]] && {
     alias gitr='cd ~/dev/repos'
 }
 
-[[ $os =~ ^(Linux|Windows)$ ]] && {
+[[ $os =~ (Linux|Windows) ]] && {
     alias vwmod='stat --format "%a"'
     alias linver='cat /etc/*-release'
 }
@@ -167,10 +167,10 @@ alias gs='git status'
 alias stashes='git stash list'
 alias gsl='stashes'
 alias gitsquashlast='git rebase -i HEAD~2'
-alias graph="git log --graph -14 --format=format:'%Cgreen%h%Creset - %<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d'"
-alias graphall="git log --graph -20 --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
-alias graphdates="git log --graph -20 --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(26,trunc)%ad%Creset %C(yellow)%d' --branches --remotes --tags"
-alias latestcommits="git log --graph -20 --date-order --format=format:'%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d' --branches --remotes --tags"
+alias graph='git log --graph -14 --format=format:"%Cgreen%h%Creset - %<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d"'
+alias graphall='git log --graph -20 --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d" --branches --remotes --tags'
+alias graphdates='git log --graph -20 --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(26,trunc)%ad%Creset %C(yellow)%d" --branches --remotes --tags'
+alias latestcommits='git log --graph -20 --date-order --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d" --branches --remotes --tags'
 alias stage='git add -p'
 alias staged='git diff --staged'
 alias stagedchars='git diff --staged --color-words=.'
@@ -194,17 +194,17 @@ alias gitundocommit='echo "git reset --soft HEAD^"'
 
 # alias realpath for consistency
 function alias_realpath() {
-    local utility='realpath'
-    local exists_flag='-e'
+    local utility="realpath"
+    local exists_flag="-e"
 
     # overwrite default if non-existant
     if ! exists realpath; then
-        utility='readlink'
+        utility="readlink"
     fi
 
     # unset flag if not accepted
     if [[ "$($utility $exists_flag 2>&1)" =~ (invalid|illegal) ]]; then
-        exists_flag=''
+        exists_flag=""
     fi
 
     # shellcheck disable=SC2139 # unconventionally use double quotes to expand variables
@@ -215,7 +215,7 @@ unset alias_realpath # avoid pollution
 
 # credit: https://stackoverflow.com/a/17841619
 function array_join() {
-    [[ -z "$1" ]] || [[ $1 == "--help" ]] && {
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
         echo "Join array elements with a (multi-character) delimiter"
         echo "Usage:"
         echo "    array_join [--help]"
@@ -223,7 +223,7 @@ function array_join() {
         return
     }
 
-    local d=$1
+    local d="$1"
     shift
     echo -n "$1"
     shift
@@ -231,17 +231,17 @@ function array_join() {
 }
 
 function cd() {
-    local old_dir=$PWD
-    local new_dir=$1
+    local old_dir="$PWD"
+    local new_dir="$1"
 
     # go home if directory not specified
-    [[ -z "$new_dir" ]] && new_dir=~
+    [[ -z $new_dir ]] && new_dir=~
 
     # escape cd to avoid calling itself or other alias
     command cd "$new_dir"
 
     # don't run other commands if we didn't actually change directory
-    [[ "$old_dir" == "$PWD" ]] && return
+    [[ $old_dir == "$PWD" ]] && return
 
     # print working directory and list contents
     pwd
@@ -270,10 +270,10 @@ function check256() {
     expect="$2"
     actual=$($sha256 "$file" | awk '{print $1}')
 
-    if [[ -z "$expect" ]]; then
+    if [[ -z $expect ]]; then
         echo "$actual"
     else
-        if [[ "$expect" == "$actual" ]]; then
+        if [[ $expect == "$actual" ]]; then
             echo "${GREEN}sha256 matches${D}"
         else
             echo "${RED}sha256 check failed${D}"
@@ -314,14 +314,14 @@ function commit() {
     echo "git commit -m ${PINK}\"$message\"${D}"
     read -p "Commit using this message? [y/N] " commit
 
-    [[ "$commit" == "y" ]] && {
+    [[ $commit == "y" ]] && {
         git commit -m "$message"
     } || echo "Aborted"
 }
 
 function check_commit() {
-    local commit=$1
-    local message=$(git log $commit -1 --pretty=%B)
+    local commit="$1"
+    local message=$(git log "$commit" -1 --pretty=%B)
 
     echo
     echo "${PINK}$message${D}"
@@ -333,15 +333,15 @@ function check_commit() {
 
 # Compare 2 strings
 function compare() {
-    [[ -z "$1" ]] && exit
+    [[ -z $1 ]] && exit
 
-    [[ "$1" == "$2" ]] && echo "${GREEN}2 strings match${D}" ||
+    [[ $1 == "$2" ]] && echo "${GREEN}2 strings match${D}" ||
     echo "${RED}Strings don't match${D}"
 }
 
 # comparefiles $file1 $file2
 function comparefiles() {
-    check256 "$1" $(check256 "$2")
+    check256 "$1" "$(check256 "$2")"
 
     ls -ahl "$1"
     ls -ahl "$2"
@@ -351,17 +351,17 @@ function comparefiles() {
 # copy file mode / permissions from one file to another
 # in other words set file2 permissions identical to file1
 function cpmod() {
-    chmod $(vwmod "$1") "$2"
+    chmod "$(vwmod "$1")" "$2"
 }
 
 # custom find command to handle searching files, commits, file/commit contents, or PATH
 function f() {
-    local location=$1
-    local search=$2
+    local location="$1"
+    local search="$2"
     local tool
-    local sudo=$3
+    local sudo="$3"
     # escape all periods for highlighting pattern (grep wildcards)
-    local hl=${search//./\\.}
+    local hl="${search//./\\.}"
 
     [[ -z $1 ]] && {
         echo "search files, commits, file/commit contents, or PATH"
@@ -392,12 +392,13 @@ function f() {
 
     if [[ $location == "path" ]]; then {
         # search path, limit depth to 1 directory
+        # shellcheck disable=SC2086 # PATH substitution needs to be unquoted to glob for find cmd
         $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
     } elif [[ $location == "in" ]]; then {
         # search file contents
         local args=$(echo "$@" | perl -pe 's/^in //')
 
-        if [[ "$tool" != "grep" ]]; then
+        if [[ $tool != "grep" ]]; then
             echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool)"
             $tool "$args"
         else
@@ -409,36 +410,36 @@ function f() {
     } elif [[ $location == "commit" ]]; then {
         # find a commit with message matching string
         graphall -10000 | grep -i "$search"
-    } elif [[ $location == "patch"* ]]; then {
+    } elif [[ $location == patch* ]]; then {
         # find a patch containing change matching string/regexp
 
         [[ $location == "patchfull" ]] && local context="--function-context"
 
         for commit in $(git log --pretty=format:"%h" -G "$search"); do
             echo
-            git log -1 $commit --format='%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(20,trunc)%cr%Creset %C(yellow)%d'
+            git log -1 "$commit" --format="%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(20,trunc)%cr%Creset %C(yellow)%d"
 
             # git grep the commit for the search, remove hash from each line as we echo it pretty above
-            local matches=$(git grep --color=always -n $context "$search" $commit)
+            local matches=$(git grep --color=always -n $context "$search" "$commit")
             echo "${matches//$commit:/}"
         done
 
         # display tip for patchfull
         [[ $location == "patch" ]] && echo && echo "${GREEN}f ${@/patch/patchfull}${D} to show context"
     } else {
-        if [[ -d "$location" ]]; then {
+        if [[ -d $location ]]; then {
             # find files
 
-            [[ -e "$search" ]] && {
+            [[ -e $search ]] && {
                 echo "warning: if you specified a wildcard (*), bash interpreted it as globbing"
             }
 
             # add wildcards to file search if the user hasn't specified one
-            [[ ! "$search" == *'*'* ]] && search="*$search*"
+            [[ ! $search == *'*'* ]] && search="*$search*"
 
             echo "searching ${CYAN}$(command cd "$location" && pwd)${D} for files matching ${CYAN}$search${D} (case insensitive)"
             $sudo find "$location" -iname "$search" | hlp -i "$hl"
-        } elif [[ -f "$location" ]]; then {
+        } elif [[ -f $location ]]; then {
             # find a string within a single file
             echo "searching file for string"
             $tool "$search" "$location"
@@ -447,7 +448,7 @@ function f() {
 }
 
 function h() {
-    [[ -z "$1" ]] && history && return
+    [[ -z $1 ]] && history && return
 
     history | grep "$@"
 }
@@ -475,13 +476,13 @@ function hlp() {
     local regex
     local flags="-E"
 
-    if [[ -z "$1" ]]; then
+    if [[ -z $1 ]]; then
         echo "usage: command -params | hlp foo Bar"
         echo "       command -params | hlp -i foo bar"
         echo "       command -params | hlp 'foo bar'"
         echo "       command -params | hlp '\$foobar'"
         return
-    elif [[ "$1" == "-i" ]]; then
+    elif [[ $1 == "-i" ]]; then
         shift;
         flags="-iE"
     fi
@@ -491,13 +492,13 @@ function hlp() {
 
     # replace all asterisks with spaces
     # trim leading/trailing spaces with awk (and squash multiple into 1)
-    args="$(echo "${@//\*/ }" | awk '{$1=$1;print}')"
+    args=$(echo "${@//\*/ }" | awk '{$1=$1;print}')
 
     # replace remaining spaces with logical OR so searching for wildcards highlights correctly
     args="${args// /|}"
 
     # concatenate arguments with logical OR
-    for pattern in "$args"; do
+    for pattern in $args; do
         regex+="|$pattern"
     done
 
@@ -506,7 +507,7 @@ function hlp() {
 }
 
 function ipdrop() {
-    iptables -A INPUT -s $1 -j DROP
+    iptables -A INPUT -s "$1" -j DROP
 }
 
 function ipscan() {
@@ -521,10 +522,10 @@ function ipscan() {
         return
     }
 
-    local ip=$1
-    local sudo=$2
+    local ip="$1"
+    local sudo="$2"
 
-    [[ -z "$ip" ]] && {
+    [[ -z $ip ]] && {
         # scan subnet using local ip address with /24 subnet mask
         ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')/24"
     }
@@ -534,7 +535,7 @@ function ipscan() {
     [[ $ip =~ $re ]] && ip="192.168.$ip.1/24"
 
     echo "$sudo scanning ${CYAN}$ip${D}"
-    $sudo nmap -sn -PE $ip
+    $sudo nmap -sn -PE "$ip"
 }
 
 function lastmod() {
@@ -560,7 +561,7 @@ function length() {
 }
 
 function listening() {
-    [[ -z "$1" ]] || [[ $1 == "--help" ]] && {
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
         echo "Find port or process in list of listening ports"
         echo "Usage:"
         echo "    listening [--help]      Show this screen"
@@ -568,7 +569,7 @@ function listening() {
         return
     }
 
-    local args=($@)
+    local args=("$@")
     local pattern
 
     # regex for int with 1-5 characters
@@ -629,7 +630,7 @@ function maillog_search() {
 
 # mkdir and cd into it
 function mkcd() {
-    [[ -z "$1" ]] && echo "make a directory and cd into it, must provide an argument" && return
+    [[ -z $1 ]] && echo "make a directory and cd into it, must provide an argument" && return
 
     mkdir -pv "$@"
     cd "$@"
@@ -638,8 +639,8 @@ function mkcd() {
 # movelink (move & link)
 # move a file to another location, and symbolic link it back to the original location
 function mvln() {
-    [[ -z "$1" ]] && echo "usage like native mv: mvln oldfile newfile" && return
-    [[ -z "$2" ]] && echo "Error: Must specify new location" && return
+    [[ -z $1 ]] && echo "usage like native mv: mvln oldfile newfile" && return
+    [[ -z $2 ]] && echo "Error: Must specify new location" && return
 
     local old_location="$1"
     local new_location="$2"
@@ -650,7 +651,7 @@ function mvln() {
     fi
 
     # capture actual final move location from first line of output, and remove quotes
-    new_location="$(echo "$new_location" | head -n1 | tr -d \'\")"
+    new_location=$(echo "$new_location" | head -n1 | tr -d \'\")
     # remove everything before "-> "
     new_location="${new_location##*-> }"
 
@@ -663,7 +664,7 @@ function mvln() {
 
 function notify() {
     notification=$'\e]9;'
-    notification+=$1
+    notification+="$1"
     notification+=$'\007'
     echo $notification
 }
@@ -706,11 +707,12 @@ function rm() {
 # set window title to $title, or "user at host in folder" if blank
 # ensures prompt command is not overwritten
 function set_title() {
+    # shellcheck disable=SC2016 # use single quotes for prompt command, variable expansion must happen at runtime
     local pcmd='echo -ne "\033]0;$USER at ${HOSTNAME%%.*} in ${PWD##*/}\007";'
     # hostname is truncated before first period
     # folder is truncated after last slash
 
-    [[ -n "$1" ]] && {
+    [[ -n $1 ]] && {
         pcmd='echo -ne "\033]0;TITLE_HERE\007";'
         pcmd=${pcmd/TITLE_HERE/$1}
     }
@@ -722,10 +724,10 @@ function set_title() {
 }
 
 function showrepo() {
-    local url="$(git remote get-url origin)"
+    local url=$(git remote get-url origin)
 
     # reformat url from ssh to https if necessary
-    [[ $url != "http"* ]] && url="$(echo "$url" | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')"
+    [[ $url != http* ]] && url=$(echo "$url" | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')
 
     open "$url"
 }
@@ -741,7 +743,7 @@ function _source_bash_completions() {
         echo "        --help               Show this screen"
         echo "        -f, --force          Don't skip paths containing >250 files"
         return
-    elif [[ "$1" == "-f" ]] || [[ "$1" == "--force" ]]; then
+    elif [[ $1 == "-f" ]] || [[ $1 == "--force" ]]; then
         shift
         limit=10000
     fi
@@ -771,7 +773,7 @@ function _source_bash_completions() {
         }
 
         for file in "$path"/*; do
-            [[ -f "$file" ]] && {
+            [[ -f $file ]] && {
                 source "$file" || echo "_source_bash_completions error sourcing $file"
             }
         done
@@ -822,10 +824,10 @@ export -f sshl
 if exists ssh-add; then sshl; fi
 
 function strpos() {
-    [[ -z "$1" ]] && echo "usage: strpos haystack needle" && return
+    [[ -z $1 ]] && echo "usage: strpos haystack needle" && return
 
     x="${1%%$2*}"
-    [[ "$x" = "$1" ]] && echo -1 || echo "${#x}"
+    [[ $x = "$1" ]] && echo -1 || echo "${#x}"
 }
 
 [[ $os == "macOS" ]] && {
@@ -848,13 +850,13 @@ function strpos() {
         local exec_set_title exec_commands
 
         # if first argument is directory or symlink to exising directory
-        if [[ -d "$1" ]] || [[ -L "$1" && -d "$(_realpath "$1")" ]]; then
+        if [[ -d $1 ]] || [[ -L $1 && -d "$(_realpath "$1")" ]]; then
             path=$(command cd "$1"; pwd)
             args="${@:2}"
         fi
 
         # no need to cd if goal is home directory
-        [[ "$path" != "$HOME" ]] && {
+        [[ $path != "$HOME" ]] && {
             commands+=("command cd '$path'")
         }
 
@@ -866,7 +868,7 @@ function strpos() {
             commands+=("set_title")
         fi
 
-        exec_commands="$(array_join "; " "${commands[@]}")"
+        exec_commands=$(array_join "; " "${commands[@]}")
 
         osascript &>/dev/null <<EOF
           tell application "iTerm"
@@ -885,7 +887,7 @@ EOF
 }
 
 function tm() {
-    [[ -z "$1" ]] || [[ $1 == "--help" ]] && {
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
         echo "Find running processes by name (task manager)"
         echo "Usage:"
         echo "    tm [--help]      Show this screen"
@@ -903,11 +905,11 @@ function tm() {
 
 if exists tmux; then
     function tmucks() {
-        local STATUS="$(tmux attach 2>&1)"
+        local status=$(tmux attach 2>&1)
 
         # when there's already a tmux session, $() doesn't capture output,
         # it just attaches, so we only need to check if it doesn't work
-        if [[ "$STATUS" == "no sessions" ]]; then
+        if [[ $status == "no sessions" ]]; then
             tmux
         fi
     }
@@ -943,27 +945,27 @@ function totalcommits() {
 
 # update basherk on another machine (or localhost if none specified)
 function ubash() {
-    local dest=$1
+    local dest="$1"
     local src="$basherk_src"
 
-    [[ -z "$1" ]] && {
+    [[ -z $1 ]] && {
         # update localhost
 
         [[ -n "$(command cd "$basherk_dir" && git_in_repo)" ]] && {
             echo "you are running basherk from a repo, to update:"
-            echo "${BLUE}cd "$basherk_dir""
+            echo "${BLUE}cd \"$basherk_dir\""
             echo "git pull"
             echo "basherk${D}"
             return
         }
 
-        [[ -L "$src" ]] && {
+        [[ -L $src ]] && {
             local actual_path=$(_realpath "$src")
             echo "basherk is a symlink, updating it"
             la "$src"
 
             # if actual file is writable, set it as the location for curl
-            [[ -w "$actual_path" ]] && src="$actual_path"
+            [[ -w $actual_path ]] && src="$actual_path"
         }
 
         # download latest (HEAD) basherk
@@ -975,9 +977,9 @@ function ubash() {
         return
     }
 
-    [[ "$dest" != *@* ]] && echo "Please specify user@host" && return
+    [[ $dest != *@* ]] && echo "Please specify user@host" && return
 
-    rsync -az "$src" $dest:~/.basherk && {
+    rsync -az "$src" "$dest":~/.basherk && {
         echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
     } || {
         echo "basherk update failed for $dest"
@@ -987,12 +989,12 @@ function ubash() {
 # extend information provided by which
 function which() {
     local app="$1"
-    local location="$(command which "$app")"
+    local location=$(command which "$app")
 
     echo "$location" # lol, i'm a bat
 
     # check if which returns anything, otherwise we just ls the current dir
-    [[ "$location" != "" ]] && ls -ahl "$location"
+    [[ -n $location ]] && ls -ahl "$location"
 }
 
 function iTermSH() {
@@ -1009,7 +1011,7 @@ function iTermSH() {
 # return working directory with gitroot path replaced with repo name (if necessary)
 # ~/dev/repos/basherk/test => basherk repo/test
 function echo_working_dir() {
-    local dir=$1
+    local dir="$1"
     local gitrepo subfolder
 
     # return input if not in a git repo
@@ -1019,10 +1021,10 @@ function echo_working_dir() {
     subfolder=$(git rev-parse --show-prefix)
 
     # return input if repo name is blank
-    [[ -z "$gitrepo" ]] && echo "$1" && return
+    [[ -z $gitrepo ]] && echo "$1" && return
 
     # manually build subfolder if inside .git since show-prefix returns blank
-    [[ "$dir" == *".git"* ]] && subfolder=".git${dir##*.git}"
+    [[ $dir == *.git* ]] && subfolder=".git${dir##*.git}"
 
     dir="$gitrepo repo/$subfolder"
 
@@ -1036,17 +1038,21 @@ Response=""
 function git_branch() {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
 }
+
 function git_dirty() {
     [[ $(git status --porcelain 2> /dev/null | grep '?') != "" ]] && Response+="?"
     [[ $(git status --porcelain 2> /dev/null | grep 'M') != "" ]] && Response+="!"
     echo $Response
 }
+
 function git_in_repo() {
-    [[ $(git_branch) != "" ]] && echo "on"
+    [[ -n "$(git_branch)" ]] && echo "on"
 }
+
 function git_repo_name() {
     git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//'
 }
+
 function git_root() {
     git rev-parse --show-toplevel
 }
@@ -1063,14 +1069,18 @@ if [[ $_gitbash == true ]]; then {
 
     prompt+="${D}\n\$ "
 } else {
+    # shellcheck disable=SC2016 # prompt command requires single quotes
     # user at host
     prompt='\n${PINK}\u ${D}at ${ORANGE}\h '
 
+    # shellcheck disable=SC2016 # prompt command requires single quotes
     # working dir or repo name substitute
     prompt+='${D}in ${GREEN}$(echo_working_dir "\w") '
 
+    # shellcheck disable=SC2016 # prompt command requires single quotes
     if exists git; then prompt+='${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) '; fi
 
+    # shellcheck disable=SC2016 # prompt command requires single quotes
     prompt+='${D}$(iTermSH)\n\$ '
 } fi
 

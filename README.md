@@ -37,7 +37,26 @@ If you aren't using the repo, `basherk --update` or `ubash` will download the la
 
 ## Contributing
 
-Indentation: 4 spaces
+* 4 space indentation
+* Double quotes
+  * Aliases use single quotes
+  * Regexes use single quotes
+  * Rare cases where single quotes make more sense
+* Don't quote LHS of comparison (eg. `[[ $foo == "$bar" ]]`) except:
+  * Subshells should be quoted for readability `[[ "$(cat bar.log)" == "foo" ]]`
+  * Variables concatentated with strings should be quoted
+* Quote RHS of comparison (eg. `[[ $foo == "$(cat bar.log)" ]]`) except:
+  * Regex or pattern (and vars containing) shouldn't be quoted `[[ $os =~ (mac|unix) ]]`
+  * String with wildcards shouldn't be quoted `[[ $dir == *.git* ]]`
+  * Integers shouldn't be quoted
+* Variables for if switches (eg. `[[ -z $foo ]]`) shouldn't be quoted except:
+  * Variables concatentated with strings should be quoted
+* Variable assignment should be quoted (`foo="bar"`) except:
+  * When assigning subshell output `foo=$(cat bar)`
+  * When assigning an integer
+  * When assigning a boolean `bar=false`
+* Simple regexes can be inline if it is clean but more complex expressions should be passed by variable
+  * Also when containing special characters, especially `space`, should be passed by variable
 
 ## Authors
 
