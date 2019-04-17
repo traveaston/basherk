@@ -1067,15 +1067,19 @@ function echo_working_dir() {
     echo "$dir"
 }
 
-Response=""
 function git_branch() {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
 }
 
 function git_dirty() {
-    [[ $(git status --porcelain 2> /dev/null | grep '?') != "" ]] && Response+="?"
-    [[ $(git status --porcelain 2> /dev/null | grep 'M') != "" ]] && Response+="!"
-    echo $Response
+    local dirty
+    local status=$(git status --porcelain 2> /dev/null)
+
+    # echo ? for new/untracked files and ! for modified files
+    [[ $status == *'?'* ]] && dirty+="?"
+    [[ $status == *"M "* ]] && dirty+="!"
+
+    echo "$dirty"
 }
 
 function git_in_repo() {
