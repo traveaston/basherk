@@ -577,20 +577,18 @@ function lastmod() {
     fi
 }
 
-# Display the length of a given string (character count)
 function length() {
-    local OPTIND
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
+        echo "Usage:"
+        echo "    length \"string\"     Display the length of a given string (character count)"
+        echo "    length -a \"string\"  Show length of string only (int)"
+        return
+    }
 
-    while getopts "a:" opt; do
-        case $opt in
-            a)
-                echo ${#OPTARG}
-                return
-                ;;
-        esac
-    done
+    # -a: just return string length
+    [[ $1 == "-a" ]] && echo "${#2}" && return
 
-    echo "string is ${CYAN}${#1}${D} characters long"
+    echo "string \"$1\" is ${CYAN}${#1}${D} characters long"
 }
 
 function listening() {
