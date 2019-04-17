@@ -1,3 +1,7 @@
+# shellcheck disable=SC1090 # ignore non-constant source location warning
+# shellcheck disable=SC2119 # not a regular script, function's $1 is never script's $1
+# shellcheck disable=SC2120 # not a regular script, functions define arguments we won't use here
+# shellcheck disable=SC2164 # in both instances it doesn't matter if cd fails, it's the last command
 # basherk
 # .bashrc replacement
 
@@ -906,6 +910,7 @@ function strpos() {
 
         exec_commands=$(array_join "; " "${commands[@]}")
 
+        # osascript 2-space indentation due to deep nesting
         osascript &>/dev/null <<EOF
           tell application "iTerm"
             tell current window

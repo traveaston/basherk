@@ -37,6 +37,7 @@ If you aren't using the repo, `basherk --update` or `ubash` will download the la
 
 ## Contributing
 
+* Lint basherk with shellcheck `shellcheck -s bash basherk.sh`
 * 4 space indentation
 * Double quotes
   * Aliases use single quotes
