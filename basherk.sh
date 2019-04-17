@@ -214,20 +214,26 @@ alias_realpath
 unset alias_realpath # avoid pollution
 
 # credit: https://stackoverflow.com/a/17841619
+# this solution avoids appending/prepending delimiter to final string
 function array_join() {
     [[ -z $1 ]] || [[ $1 == "--help" ]] && {
         echo "Join array elements with a (multi-character) delimiter"
         echo "Usage:"
         echo "    array_join [--help]"
-        echo "    array_join delim array"
+        echo "    array_join delimiter \${array[@]}"
         return
     }
 
-    local d="$1"
+    # capture delimiter in variable and remove from arguments array
+    local delimiter="$1"
     shift
+
+    # echo first array element to avoid prepending it with delimiter
     echo -n "$1"
     shift
-    printf "%s" "${@/#/$d}"
+
+    # prepend each element with delimiter
+    printf "%s" "${@/#/$delimiter}"
 }
 
 function cd() {
