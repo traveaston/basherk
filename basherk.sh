@@ -345,7 +345,7 @@ function commit() {
     echo "$message" | aspell -a
 
     echo "git commit -m ${PINK}\"$message\"${D}"
-    read -p "Commit using this message? [y/N] " commit
+    read -r -p "Commit using this message? [y/N] " commit
 
     [[ $commit == "y" ]] && {
         git commit -m "$message"
@@ -701,7 +701,7 @@ function notify() {
 }
 
 function pause() {
-    read -p "$*"
+    read -r -p "$*"
 }
 
 # sanitize history by removing -f from rm command
@@ -798,6 +798,7 @@ function _source_bash_completions() {
     done
 
     for path in "${absolutes[@]}"; do
+        # shellcheck disable=SC2012 # ls (over find) is adequate for a quick file count
         filecount=$(ls -1 "$path" | wc -l)
 
         [[ $filecount -gt $limit ]] && {
