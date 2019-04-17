@@ -879,14 +879,16 @@ function strpos() {
 
         local commands=()
         local path="$PWD"
-        local args="$@"
-        local exec_set_title exec_commands
+        local exec_set_title exec_commands user_command
 
         # if first argument is directory or symlink to exising directory
         if [[ -d $1 ]] || [[ -L $1 && -d "$(_realpath "$1")" ]]; then
+            # capture path in variable and remove from arguments array
             path=$(command cd "$1"; pwd)
-            args="${@:2}"
+            shift
         fi
+
+        user_command="$*"
 
         # no need to cd if goal is home directory
         [[ $path != "$HOME" ]] && {
@@ -895,11 +897,11 @@ function strpos() {
 
         commands+=("clear" "pwd")
 
-        if [ -n "$args" ]; then
-            exec_set_title="set_title '$args'"
-            commands+=("$args")
+        [[ -n $user_command ]] && {
+            exec_set_title="set_title '$user_command'"
+            commands+=("$user_command")
             commands+=("set_title")
-        fi
+        }
 
         exec_commands=$(array_join "; " "${commands[@]}")
 
