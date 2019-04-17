@@ -630,39 +630,6 @@ function listening() {
     fi
 }
 
-function maillog_search() {
-    [[ -z $1 ]] && {
-        echo "search though maillog"
-        echo "usage: maillog_search --from user@example.com.au"
-        echo "       maillog_search --to user@example.com.au"
-        echo "       maillog_search --id v6A2pBDv006314"
-        echo "       maillog_search --from *@example.com ${RED}Not working, use from or to without asterisk${D}"
-    }
-    local OPTS=$(getopt -o i -l from: -l id: -l to: -- "$@")
-    if [ $? != 0 ]
-    then
-        exit 1
-    fi
-
-    eval set -- "$OPTS"
-
-    while true ; do
-        case "$1" in
-            -i) echo "This would do a case insensitive search"; shift;;
-            --from) grep "$2" /var/log/maillog; shift 2;;
-            --id) grep "$2" /var/log/maillog | egrep -i "from=|to=" | hlp "$2"; shift 2;;
-            --to) grep "$2" /var/log/maillog; shift 2;;
-            --) shift; break;;
-        esac
-    done
-
-    # echo "Args:"
-    # for arg
-    # do
-    #     echo $arg
-    # done
-}
-
 # mkdir and cd into it
 function mkcd() {
     [[ -z $1 ]] && echo "make a directory and cd into it, must provide an argument" && return
