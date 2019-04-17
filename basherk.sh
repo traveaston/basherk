@@ -236,6 +236,33 @@ function array_join() {
     printf "%s" "${@/#/$delimiter}"
 }
 
+# function built around this solution https://stackoverflow.com/a/15394738
+# usage: if in_array "foo" "${bar[@]}"; then echo "array contains element"; fi
+function in_array() {
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
+        echo "Search array for matching element"
+        echo "Usage:"
+        echo "    in_array [--help]"
+        echo "    in_array element \${array[@]}"
+        return
+    }
+
+    # capture element/needle in variable and remove from arguments array
+    local element="$1"
+    shift
+
+    # shellcheck disable=SC2076 # use regex but literally to acceptably match part of the array string
+    # search for " element " to ensure we don't false match part of another element
+    # concat array, and append/prepend space for matching outer elements
+    if [[ " $* " =~ " $element " ]]; then
+        # return true
+        return 0
+    else
+        # return false
+        return 1
+    fi
+}
+
 function cd() {
     local old_dir="$PWD"
     local new_dir="$1"
