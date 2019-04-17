@@ -793,8 +793,10 @@ function _source_bash_completions() {
         [[ ! -d $path ]] && continue
 
         # uniquify via absolute paths
-        absolute_path="$(_realpath "$path")"
-        [[ ! " ${absolutes[@]} " =~ " ${absolute_path} " ]] && absolutes+=("$absolute_path")
+        absolute_path=$(_realpath "$path")
+        if ! in_array "$absolute_path" "${absolutes[@]}"; then
+            absolutes+=("$absolute_path");
+        fi
     done
 
     for path in "${absolutes[@]}"; do
