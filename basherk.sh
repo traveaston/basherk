@@ -57,8 +57,6 @@ shopt -s cdspell                        # autocorrect for cd
 
 os=$(uname)
 
-[[ -f /git-bash.exe ]] && _gitbash=true
-
 [[ $os == "Darwin" ]] && os="macOS"
 [[ $HOSTNAME =~ (Zen|Obsidian) ]] && os="Windows"
 [[ $BASH == *termux* ]] && os="Android"
@@ -121,6 +119,7 @@ alias gitinfo='graphall -10 && totalcommits && echo "open repo url in browser wi
 # Redefine builtin commands
 alias cp='cp -iv' # interactive and verbose
 alias mv='mv -iv'
+# shellcheck disable=SC2032 # ignore warning that xargs rm in this script won't use this alias
 alias rm='rm -iv'
 alias df='df -h' # human readable
 alias mkdir='mkdir -pv' # Make parent directories as needed and be verbose
@@ -316,6 +315,7 @@ function check256() {
 
 # remove annoying synology, windows, macos files
 function cleanup_files() {
+    # shellcheck disable=SC2033 # ignore warning that xargs rm in this script won't use my rm function
     find . \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -ivrf
 }
 
@@ -423,11 +423,11 @@ function f() {
         tool="grep"
     fi
 
-    if [[ $location == "path" ]]; then {
+    if [[ $location == "path" ]]; then
         # search path, limit depth to 1 directory
         # shellcheck disable=SC2086 # PATH substitution needs to be unquoted to glob for find cmd
         $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
-    } elif [[ $location == "in" ]]; then {
+    elif [[ $location == "in" ]]; then
         # search file contents
         local args=$(echo "$@" | perl -pe 's/^in //')
 
@@ -440,10 +440,10 @@ function f() {
 
             echo "$count matches"
         fi
-    } elif [[ $location == "commit" ]]; then {
+    elif [[ $location == "commit" ]]; then
         # find a commit with message matching string
         graphall -10000 | grep -i "$search"
-    } elif [[ $location == patch* ]]; then {
+    elif [[ $location == patch* ]]; then
         # find a patch containing change matching string/regexp
 
         [[ $location == "patchfull" ]] && local context="--function-context"
@@ -458,9 +458,9 @@ function f() {
         done
 
         # display tip for patchfull
-        [[ $location == "patch" ]] && echo && echo "${GREEN}f ${@/patch/patchfull}${D} to show context"
-    } else {
-        if [[ -d $location ]]; then {
+        [[ $location == "patch" ]] && echo -e "\n${GREEN}f ${*/patch/patchfull}${D} to show context (containing function)"
+    else
+        if [[ -d $location ]]; then
             # find files
 
             [[ -e $search ]] && {
@@ -472,12 +472,12 @@ function f() {
 
             echo "searching ${CYAN}$(command cd "$location" && pwd)${D} for files matching ${CYAN}$search${D} (case insensitive)"
             $sudo find "$location" -iname "$search" | hlp -i "$hl"
-        } elif [[ -f $location ]]; then {
+        elif [[ -f $location ]]; then
             # find a string within a single file
             echo "searching file for string"
             $tool "$search" "$location"
-        } fi
-    } fi
+        fi
+    fi
 }
 
 function h() {
@@ -1014,11 +1014,11 @@ function ubash() {
 
     [[ $dest != *@* ]] && echo "Please specify user@host" && return
 
-    rsync -az "$src" "$dest":~/.basherk && {
+    if rsync -az "$src" "$dest":~/.basherk; then
         echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
-    } || {
-        echo "basherk update failed for $dest"
-    }
+    else
+        echo "${RED}basherk update failed for $dest${D}"
+    fi
 }
 
 # extend information provided by which
@@ -1093,7 +1093,7 @@ function git_root() {
 }
 
 # git bash requires double quotes for prompt
-if [[ $_gitbash == true ]]; then {
+if [[ -f /git-bash.exe ]]; then
     # user at host
     prompt="\n${PINK}\u ${D}at ${ORANGE}\h "
 
@@ -1103,7 +1103,7 @@ if [[ $_gitbash == true ]]; then {
     prompt+="${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) "
 
     prompt+="${D}\n\$ "
-} else {
+else
     # shellcheck disable=SC2016 # prompt command requires single quotes
     # user at host
     prompt='\n${PINK}\u ${D}at ${ORANGE}\h '
@@ -1117,10 +1117,7 @@ if [[ $_gitbash == true ]]; then {
 
     # shellcheck disable=SC2016 # prompt command requires single quotes
     prompt+='${D}$(iTermSH)\n\$ '
-} fi
-
-# unset flag to ensure other terminals don't use incorrect code
-unset _gitbash
+fi
 
 export PS1=$prompt
 unset prompt
