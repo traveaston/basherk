@@ -68,10 +68,6 @@ os=$(uname)
 # Functions that require defining first
 [[ $os != "Android" ]] && alias grep='grep --color=auto'
 
-[[ $os =~ (macOS|Windows) ]] && {
-    alias gitr='cd ~/dev/repos'
-}
-
 [[ $os =~ (Linux|Windows) ]] && {
     alias vwmod='stat --format "%a"'
     alias linver='cat /etc/*-release'
@@ -110,7 +106,6 @@ case $os in
     Linux)
         alias cdnet='cd /etc/sysconfig/network-scripts/'
         alias el='now && tailf /usr/local/apache2/logs/error_log'
-        alias gitr='cd /var/www/html'
         ;;
     Windows)
         alias elp='tailf /c/xMAMP/logs/phperror.log'
@@ -148,6 +143,13 @@ if exists ip; then
 else
     alias ipas='ifconfig | hlp ".*inet [0-9.]*"'
 fi
+
+# alias repo directory automatically
+[[ -d ~/dev/repos ]] && {
+    alias gitr='cd ~/dev/repos'
+} || {
+    alias gitr='cd /var/www/html'
+}
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
