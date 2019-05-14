@@ -810,7 +810,7 @@ function sshl() {
         eval "$(keychain --eval --quiet $key)"
         keychain -l
     else
-        # keychain not installed, use ssh-agent instead
+        echo "keychain not installed, falling back to built-in ssh-agent"
         eval "$(ssh-agent -s)"
 
         # allow relative or absolute key path argument
