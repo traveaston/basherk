@@ -370,9 +370,9 @@ function check_commit() {
     echo "If necessary, amend commit with: ${BLUE}git commit --amend${D}"
 }
 
-# Compare 2 strings
+# compare "string1" "string2"
 function compare() {
-    [[ -z $1 ]] && exit
+    [[ -z $1 ]] && echo "compare 2 strings" && return
 
     [[ $1 == "$2" ]] && echo "${GREEN}2 strings match${D}" ||
     echo "${RED}Strings don't match${D}"
