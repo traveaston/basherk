@@ -360,7 +360,11 @@ function commit() {
 
 function check_commit() {
     local commit="$1"
-    local message=$(git log "$commit" -1 --pretty=%B)
+    local message
+
+    # $commit needs to be unquoted here. Missing argument implicitly refers to the
+    # last commit, rather than an empty string that references "" and fails
+    message=$(git log $commit -1 --pretty=%B)
 
     echo
     echo "${PINK}$message${D}"
