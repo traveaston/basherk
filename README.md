@@ -12,6 +12,9 @@ The easiest way to start using basherk is to download and source the file
 To source it each session automatically  
 `echo -e "\n. ~/.basherk # source basherk" >> ~/.bashrc`
 
+To have root source basherk from the same file  
+`sudo echo -e "\n. $(_realpath ~/.basherk) # source basherk" >> /root/.bashrc`
+
 ___
 
 Additionally, you can clone the repo for contributing, custom aliases, etc.
@@ -43,16 +46,17 @@ If you aren't using the repo, `basherk --update` or `ubash` will download the la
   * Aliases use single quotes
   * Regexes use single quotes
   * Rare cases where single quotes make more sense
-* Don't quote LHS of comparison (eg. `[[ $foo == "$bar" ]]`) except:
+* Don't quote LHS of comparison (eg. `[[ $foo == "$bar" ]]`), except:
   * Subshells should be quoted for readability `[[ "$(cat bar.log)" == "foo" ]]`
   * Variables concatentated with strings should be quoted
-* Quote RHS of comparison (eg. `[[ $foo == "$(cat bar.log)" ]]`) except:
+* Quote RHS of comparison (eg. `[[ $foo == "$(cat bar.log)" ]]`), except:
   * Regex or pattern (and vars containing) shouldn't be quoted `[[ $os =~ (mac|unix) ]]`
   * String with wildcards shouldn't be quoted `[[ $dir == *.git* ]]`
+  * String with wildcards and spaces should be half-quoted `[[ $dir == *"git bar"* ]]`
   * Integers shouldn't be quoted
-* Variables for if switches (eg. `[[ -z $foo ]]`) shouldn't be quoted except:
+* Variables for if switches (eg. `[[ -z $foo ]]`) shouldn't be quoted, except:
   * Variables concatentated with strings should be quoted
-* Variable assignment should be quoted (`foo="bar"`) except:
+* Variable assignment should be quoted (`foo="bar"`), except:
   * When assigning subshell output `foo=$(cat bar)`
   * When assigning an integer
   * When assigning a boolean `bar=false`
