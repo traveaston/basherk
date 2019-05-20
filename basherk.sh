@@ -399,14 +399,7 @@ function cpmod() {
 
 # custom find command to handle searching files, commits, file/commit contents, or PATH
 function f() {
-    local location="$1"
-    local search="$2"
-    local tool
-    local sudo="$3"
-    # escape all periods for highlighting pattern (grep wildcards)
-    local hl="${search//./\\.}"
-
-    [[ -z $1 ]] && {
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
         echo "search files, commits, file/commit contents, or PATH"
         echo "usage: f location search [sudo]"
         echo
@@ -416,13 +409,20 @@ function f() {
         echo "    in (find in file contents)"
         echo "    commit (find a commit with message matching string)"
         echo "    patch (find a patch containing change matching string/regexp)"
-        echo "    patchfull (find a patch containing change matching string/regexp, and show full context)"
+        echo "    patchfull (find a patch containing change matching string/regexp, and show function context)"
         echo
         echo "f in string"
         echo "f in 'string with spaces'"
         echo "f in '\$pecial'"
         return
     }
+
+    local tool
+    local location="$1"
+    local search="$2"
+    local sudo="$3"
+    # escape all periods for highlighting pattern (grep wildcards)
+    local hl="${search//./\\.}"
 
     # prefer ripgrep, then silver surfer, then grep if neither are installed
     if exists rg; then
@@ -470,6 +470,8 @@ function f() {
         # display tip for patchfull
         [[ $location == "patch" ]] && echo -e "\n${GREEN}f ${*/patch/patchfull}${D} to show context (containing function)"
     else
+        # location is a real file/folder location
+
         if [[ -d $location ]]; then
             # find files
 
@@ -487,6 +489,7 @@ function f() {
             echo "searching file for string"
             $tool "$search" "$location"
         fi
+
     fi
 }
 
