@@ -1053,12 +1053,29 @@ function git_branch() {
 }
 
 function git_dirty() {
-    local dirty
-    local status=$(git status --porcelain 2> /dev/null)
+    local dirty untracked modified staged line
 
-    # echo ? for new/untracked files and ! for modified files
-    [[ $status == *'?'* ]] && dirty+="?"
-    [[ $status == *"M "* ]] && dirty+="!"
+    # pass here-string to preserve variable assignment
+    while read -r line; do
+        # exit if no files
+        [[ -z $line ]] && break
+
+        # check for untracked files first, and skip loop if so
+        [[ ${line:0:1} == "?" ]] && untracked=true && continue
+
+        # trim prepended "1 " for staged/modified lines, keep only 2 chars
+        line="${line:2:2}"
+
+        # staged can be A/M/R/etc in first column, modified is M in second
+        # simply check if each is not . which means not added, modified, etc
+        [[ ${line:0:1} != "." ]] && staged=true
+        [[ ${line:1:1} != "." ]] && modified=true
+
+    done <<< "$(git status --porcelain=v2 2> /dev/null)"
+
+    [[ $untracked ]] && dirty+="?"
+    [[ $modified ]] && dirty+="!"
+    [[ $staged ]] && dirty+="+"
 
     echo "$dirty"
 }
