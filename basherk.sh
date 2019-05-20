@@ -439,14 +439,13 @@ function f() {
         $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
     elif [[ $location == "in" ]]; then
         # search file contents
-        local args=$(echo "$@" | perl -pe 's/^in //')
 
         if [[ $tool != "grep" ]]; then
             echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool)"
-            $tool "$args"
+            $tool "$search"
         else
             echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries , .git/, vendor/)"
-            count=$($tool --color=always -Iinr "$args" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
+            count=$($tool --color=always -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
         fi
