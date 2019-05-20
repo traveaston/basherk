@@ -207,8 +207,8 @@ function alias_realpath() {
         utility="readlink"
     fi
 
-    # unset flag if not accepted
-    if [[ "$($utility $exists_flag 2>&1)" =~ (invalid|illegal) ]]; then
+    # unset flag if not accepted (use known path for compatibility check)
+    if [[ "$($utility $exists_flag "/dev" 2>&1)" != "/dev" ]]; then
         exists_flag=""
     fi
 
