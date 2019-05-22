@@ -80,15 +80,12 @@ alias l='la -go'
 # override l alias for android (busybox ls lacks -o flag)
 [[ $os == "Android" ]] && alias l='la -g'
 
-# override ls alias for FreeBSD / FreeNAS
-[[ $os == "FreeBSD" ]] && alias ls='ls -G'
+# set correct colour flag for macOS/FreeBSD/FreeNAS
+[[ $os =~ (macOS|FreeBSD) ]] && alias ls='ls -G'
 
 # Single OS aliases
 case $os in
     macOS)
-        # enable colours
-        alias ls='ls -G'
-
         alias el='now && tailf /usr/local/var/log/apache2/error_log'
         alias elm='now && tailf /var/log/mysql.log'
         alias elmnd='now && tailf /usr/local/var/log/mysqlnd.log'
