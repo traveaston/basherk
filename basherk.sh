@@ -416,7 +416,7 @@ function f() {
         return
     }
 
-    local count matches tool
+    local count matches path tool
     local location="$1"
     local search="$2"
     local sudo="$3"
@@ -433,9 +433,24 @@ function f() {
     fi
 
     if [[ $location == "path" ]]; then
-        # search path, limit depth to 1 directory
-        # shellcheck disable=SC2086 # PATH substitution needs to be unquoted to glob for find cmd
-        $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
+        # search each folder in PATH with a max depth of 1
+
+        [[ -e $search ]] && {
+            echo "warning: if you specified a wildcard (*), bash interpreted it as globbing"
+        }
+
+        # add wildcards to file search if the user hasn't specified one
+        [[ ! $search == *'*'* ]] && search="*$search*"
+
+        echo "searching dirs in ${CYAN}\$PATH${D} for files matching ${CYAN}$search${D} (case insensitive)"
+
+        local IFS=":"
+        for path in $PATH; do
+            # ignore non-existant directories in $PATH
+            [[ ! -d $path ]] && continue
+
+            $sudo find "$path" -maxdepth 1 -iname "$search" | hlp -i "$hl"
+        done
 
     elif [[ $location == "in" ]]; then
         # search file contents
