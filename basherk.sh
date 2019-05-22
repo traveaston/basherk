@@ -1,7 +1,6 @@
 # shellcheck disable=SC1090 # ignore non-constant source location warning
 # shellcheck disable=SC2119 # not a regular script, function's $1 is never script's $1
 # shellcheck disable=SC2120 # not a regular script, functions define arguments we won't use here
-# shellcheck disable=SC2164 # in both instances it doesn't matter if cd fails, it's the last command
 # basherk
 # .bashrc replacement
 
@@ -287,6 +286,7 @@ function cd() {
 }
 
 function cdfile() {
+    # shellcheck disable=SC2164 # don't worry about cd failure
     cd "$(dirname "$1")"
 }
 
@@ -326,8 +326,10 @@ function cleanup_files() {
 # wrapper for git commit
 # counts characters, checks spelling and asks to commit
 function commit() {
+    local len
     local message="$1"
-    local len=$(length -a "$message")
+
+    len=$(length -a "$message")
 
     [[ $len -gt 50 ]] && {
         echo "${RED}$len characters long${D}"
@@ -359,8 +361,8 @@ function check_commit() {
     local commit="$1"
     local message
 
-    # $commit needs to be unquoted here. Missing argument implicitly refers to the
-    # last commit, rather than an empty string that references "" and fails
+    # shellcheck disable=SC2086 # $commit needs to be unquoted to implicitly refer
+    # to the last commit, if no argument is passed to check_commit
     message=$(git log $commit -1 --pretty=%B)
 
     echo
@@ -414,7 +416,7 @@ function f() {
         return
     }
 
-    local tool
+    local count matches tool
     local location="$1"
     local search="$2"
     local sudo="$3"
@@ -434,6 +436,7 @@ function f() {
         # search path, limit depth to 1 directory
         # shellcheck disable=SC2086 # PATH substitution needs to be unquoted to glob for find cmd
         $sudo find ${PATH//:/ } -maxdepth 1 -name "$search" -print | hlp "$hl"
+
     elif [[ $location == "in" ]]; then
         # search file contents
 
@@ -446,9 +449,11 @@ function f() {
 
             echo "$count matches"
         fi
+
     elif [[ $location == "commit" ]]; then
         # find a commit with message matching string
         graphall -10000 | grep -i "$search"
+
     elif [[ $location == patch* ]]; then
         # find a patch containing change matching string/regexp
 
@@ -459,12 +464,13 @@ function f() {
             git log -1 "$commit" --format="%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(20,trunc)%cr%Creset %C(yellow)%d"
 
             # git grep the commit for the search, remove hash from each line as we echo it pretty above
-            local matches=$(git grep --color=always -n $context "$search" "$commit")
+            matches=$(git grep --color=always -n $context "$search" "$commit")
             echo "${matches//$commit:/}"
         done
 
         # display tip for patchfull
         [[ $location == "patch" ]] && echo -e "\n${GREEN}f ${*/patch/patchfull}${D} to show context (containing function)"
+
     else
         # location is a real file/folder location
 
@@ -640,6 +646,8 @@ function mkcd() {
     [[ -z $1 ]] && echo "make a directory and cd into it, must provide an argument" && return
 
     mkdir -pv "$@"
+
+    # shellcheck disable=SC2164 # don't worry about cd failure
     cd "$@"
 }
 
@@ -731,7 +739,8 @@ function set_title() {
 }
 
 function showrepo() {
-    local url=$(git remote get-url origin)
+    local url
+    url=$(git remote get-url origin)
 
     # reformat url from ssh to https if necessary
     [[ $url != http* ]] && url=$(echo "$url" | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')
@@ -741,7 +750,7 @@ function showrepo() {
 
 function _source_bash_completions() {
     local -a paths absolutes
-    local absolute_path filecount limit=250
+    local absolute_path file filecount path limit=250
 
     if [[ $1 == "--help" ]]; then
         echo "Source all completion files from valid paths"
@@ -918,7 +927,8 @@ function tm() {
 
 if exists tmux; then
     function tmucks() {
-        local status=$(tmux attach 2>&1)
+        local status
+        status=$(tmux attach 2>&1)
 
         # when there's already a tmux session, $() doesn't capture output,
         # it just attaches, so we only need to check if it doesn't work
@@ -958,6 +968,7 @@ function totalcommits() {
 
 # update basherk on another machine (or localhost if none specified)
 function ubash() {
+    local actual_path
     local dest="$1"
     local src="$basherk_src"
 
@@ -973,7 +984,8 @@ function ubash() {
         }
 
         [[ -L $src ]] && {
-            local actual_path=$(_realpath "$src")
+            actual_path=$(_realpath "$src")
+
             echo "basherk is a symlink, updating it"
             la "$src"
 
@@ -1002,7 +1014,9 @@ function ubash() {
 # extend information provided by which
 function which() {
     local app="$1"
-    local location=$(command which "$app")
+    local location
+
+    location=$(command which "$app")
 
     echo "$location" # lol, i'm a bat
 
