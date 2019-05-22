@@ -961,7 +961,7 @@ function ubash() {
     local dest="$1"
     local src="$basherk_src"
 
-    [[ -z $1 ]] && {
+    [[ -z $dest ]] && {
         # update localhost
 
         [[ -n "$(command cd "$basherk_dir" && git_in_repo)" ]] && {
