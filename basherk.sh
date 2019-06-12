@@ -64,9 +64,6 @@ os=$(uname)
 [[ $HOSTNAME =~ (Zen|Obsidian) ]] && os="Windows"
 [[ $BASH == *termux* ]] && os="Android"
 
-# Functions that require defining first
-[[ $os != "Android" ]] && alias grep='grep --color=auto'
-
 [[ $os =~ (Linux|Windows) ]] && {
     alias vwmod='stat --format "%a"'
     alias linver='cat /etc/*-release'
@@ -141,6 +138,10 @@ alias weigh='du -sch'
 if ! exists tailf; then alias tailf='tail -f'; fi
 
 if ! exists aspell; then alias aspell='hunspell'; fi
+
+if echo x | grep --color=auto x >/dev/null 2>&1; then
+    alias grep='grep --color=auto'
+fi
 
 if exists ip; then
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
@@ -468,7 +469,7 @@ function f() {
             $tool "$search"
         else
             echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries , .git/, vendor/)"
-            count=$($tool --color=always -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
+            count=$($tool -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
         fi
@@ -573,8 +574,7 @@ function hlp() {
         regex+="|$pattern"
     done
 
-    # escape grep to ensure color=always
-    \grep --color=always $flags "$regex"
+    grep $flags "$regex"
 }
 
 function ipdrop() {
@@ -653,14 +653,14 @@ function listening() {
 
     if [[ $os == "macOS" ]]; then
         # show full info with ps and grep for ports (and COMMAND to show header)
-        sudo lsof -iTCP -sTCP:LISTEN -nP | command grep --color=always -E "COMMAND|$pattern"
+        sudo lsof -iTCP -sTCP:LISTEN -nP | grep -E "COMMAND|$pattern"
     else
         # show full info with ps and grep for ports (and UID to show header)
         # -tu show both tcp and udp
         # -l display listening sockets
         # -p display PID/Program name
         # -n don't resolve ports to names (80 => http, can't grep for port number)
-        netstat -tulpn | command grep --color=always -E "Active|Proto|$pattern"
+        netstat -tulpn | grep -E "Active|Proto|$pattern"
     fi
 }
 
@@ -944,7 +944,7 @@ function tm() {
     processes=$(array_join "|" "$@")
 
     # show full info with ps and grep for processes (and UID to show header)
-    ps -aef | command grep --color=always -E "UID|$processes"
+    ps -aef | grep -E "UID|$processes"
 }
 
 if exists tmux; then
