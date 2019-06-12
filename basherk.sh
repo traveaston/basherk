@@ -81,10 +81,14 @@ elif ls -G -d . >/dev/null 2>&1; then
 fi
 
 alias la='ls -Ahl'
-alias l='la -go'
 
-# override l alias for android (busybox ls lacks -o flag)
-[[ $os == "Android" ]] && alias l='la -g'
+# set appropriate l alias (hide owner/group if possible)
+if ls -dgo . >/dev/null 2>&1; then
+    alias l='la -go'
+else
+    # busybox ls
+    alias l='la -g'
+fi
 
 # Single OS aliases
 case $os in
