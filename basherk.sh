@@ -72,15 +72,19 @@ os=$(uname)
     alias linver='cat /etc/*-release'
 }
 
-alias ls='ls --color=auto'
+# set appropriate ls color flag
+if ls --color -d . >/dev/null 2>&1; then
+    alias ls='ls --color=auto'
+elif ls -G -d . >/dev/null 2>&1; then
+    # macOS/FreeBSD/FreeNAS
+    alias ls='ls -G'
+fi
+
 alias la='ls -Ahl'
 alias l='la -go'
 
 # override l alias for android (busybox ls lacks -o flag)
 [[ $os == "Android" ]] && alias l='la -g'
-
-# set correct colour flag for macOS/FreeBSD/FreeNAS
-[[ $os =~ (macOS|FreeBSD) ]] && alias ls='ls -G'
 
 # Single OS aliases
 case $os in
