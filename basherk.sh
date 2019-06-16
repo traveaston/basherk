@@ -943,8 +943,8 @@ function tm() {
     local processes
     processes=$(array_join "|" "$@")
 
-    # show full info with ps and grep for processes (and UID to show header)
-    ps -aef | grep -E "UID|$processes"
+    # show full info with ps and grep for processes (and PID to show header)
+    ps -aef | grep -E "PID|$processes"
 }
 
 if exists tmux; then
