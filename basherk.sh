@@ -685,11 +685,12 @@ function mvln() {
 
     if ! new_location=$(mv -iv "$old_location" "$new_location"); then
         # return before symlinking if move fails
+        echo "failed: $new_location"
         return
     fi
 
     # capture actual final move location from first line of output, and remove quotes
-    new_location=$(echo "$new_location" | head -n1 | tr -d \'\")
+    new_location=$(echo "$new_location" | head -n1 | tr -d \'\"\‘\’)
     # remove everything before "-> "
     new_location="${new_location##*-> }"
 
