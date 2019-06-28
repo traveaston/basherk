@@ -865,6 +865,76 @@ export -f sshl
 # if ssh-add exists start ssh agent(keychain or legacy) and list keys
 if exists ssh-add; then sshl; fi
 
+function stash() {
+    [[ $1 == "--help" ]] && {
+        echo "stash:"
+        echo "  Wrapper / logic function for either stashing changes via patch or stashing the current stage"
+        echo
+        echo "usage: stash [message]"
+        return
+    }
+
+    local default_message message="$1"
+    local patch_fail="
+    ${D}Patch failed to complete (most likely overlapping patches preventing the stashed changes from being removed)
+    See: https://stackoverflow.com/questions/5047366/why-does-git-stash-p-sometimes-fail
+    Please review the resulting stash (${BLUE}stashcontents${D}) and remove from work tree manually (${BLUE}discardpatch${D})"
+
+    default_message="WIP on $(git_branch): $(git rev-parse --short HEAD) $(git log -1 --pretty=%s)"
+
+    [[ -z $message ]] && message="$default_message"
+
+    # ask the user for a stash message first, it's harder to add one later
+    echo "${CYAN}$message${D}"
+    read -r -p "Type stash message, or continue with the above? (default: continue) " choice
+    [[ -z $choice ]] || {
+        message="$choice"
+    }
+
+    if git diff --quiet --exit-code --cached; then
+        echo "${CYAN}Stage is empty, reverting to patch mode${D}"
+
+        if ! git stash push --patch -m "$message"; then
+            echo "$patch_fail"
+        fi
+
+        return
+    fi
+
+    read -r -p "[p]atch in changes to stash, or stash [s]taged changes? [p/s] " function
+    if [[ $function == "p" ]]; then
+        git stash push --patch
+    elif [[ $function == "s" ]]; then
+        _stashstage "$message"
+    else
+        echo "Aborted"
+        return
+    fi
+}
+
+# git stash only what is currently staged and leave everything else
+# credit: https://stackoverflow.com/a/39644782
+function _stashstage() {
+    local message="$1"
+
+    [[ -z $message ]] && echo "message is required, exiting" && return
+
+    # stash everything but only keep staged files
+    git stash --keep-index
+
+    # stash staged files with requested message
+    git stash push -m "$message"
+
+    # apply the original stash to get us back to where we started
+    git stash apply "stash@{1}"
+
+    # create a temporary patch to reverse the originally staged changes and apply it
+    git stash show -p | git apply -R
+
+    # delete the temporary stash
+    git stash drop "stash@{1}"
+}
+
 function strpos() {
     [[ -z $1 ]] && echo "usage: strpos haystack needle" && return
 
