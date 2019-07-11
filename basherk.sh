@@ -969,13 +969,15 @@ function strpos() {
         }
 
         local commands=()
-        local path="$PWD"
+        local path="$PWD" path_test
         local exec_set_title exec_commands user_command
 
-        # if first argument is directory or symlink to exising directory
-        if [[ -d $1 ]] || [[ -L $1 && -d "$(_realpath "$1")" ]]; then
-            # capture path in variable and remove from arguments array
-            path=$(command cd "$1"; pwd)
+        # test if we can cd into $1, and capture as $path if so.
+        # this way we can handle cases where you're inside a symlinked folder,
+        # but [[ -d ../foo ]] actaully references the literal parent folder
+        path_test=$(if command cd "$1" >/dev/null 2>&1; then pwd; fi;)
+        if [[ -n $path_test ]]; then
+            path="$path_test"
             shift
         fi
 
