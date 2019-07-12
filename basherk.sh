@@ -1064,7 +1064,10 @@ function totalcommits() {
 
     # reference initial commit if override is absent
     [[ -z $ref ]] && {
-        ref=$(git rev-list --max-parents=0 --abbrev-commit HEAD)
+        # TODO: find out why rev-list returns 2 hashes for SELinuxProject/selinux
+        #   both the same # of commits away from HEAD
+        # pipe through head to provide a single commit for calculation, for now
+        ref=$(git rev-list --max-parents=0 --abbrev-commit HEAD | head -1)
         override="initial"
     }
 
