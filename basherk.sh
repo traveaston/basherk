@@ -1016,17 +1016,20 @@ EOF
 }
 
 function tm() {
-    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
+    [[ $1 == "--help" ]] && {
         echo "Find running processes by name (task manager)"
         echo "Usage:"
-        echo "    tm [--help]      Show this screen"
-        echo "    tm p1 [p2, etc]  Show processes with name matching p#"
+        echo "    tm               Show all processes"
+        echo "    tm [foo bar...]  Search for processes matching foo, bar"
         return
     }
 
     # join params with logical OR for regex
     local processes
     processes=$(array_join "|" "$@")
+
+    # if no args passed, show all processes (match end of line)
+    [[ -z $1 ]] && processes="$"
 
     # show full info with ps and grep for processes (and PID to show header)
     ps -aef | grep -E "PID|$processes"
