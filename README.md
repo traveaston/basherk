@@ -57,9 +57,10 @@ If you aren't using the repo, `basherk --update` or `ubash` will download the la
 * Variables for if switches (eg. `[[ -z $foo ]]`) shouldn't be quoted, except:
   * Variables concatentated with strings should be quoted
 * Variable assignment should be quoted (`foo="bar"`), except:
-  * When assigning subshell output `foo=$(cat bar)`
-  * When assigning an integer
-  * When assigning a boolean `bar=false`
+  * When assigning subshell output, don't quote `foo=$(curl ifconfig.me)`
+  * When assigning subshell + strings, quote `foo="user@$(curl ifconfig.me)"`
+  * When assigning an integer, don't quote `bar=256`
+  * When assigning a boolean, don't quote `bar=false`
 * Simple regexes can be inline if it is clean but more complex expressions should be passed by variable
   * Also when containing special characters, especially `space`, should be passed by variable
 
