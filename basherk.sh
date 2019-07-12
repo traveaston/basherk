@@ -8,8 +8,8 @@
 [[ -z $PS1 ]] && return
 
 # basherk specific
-basherk_ver=132
-basherk_date="26 March 2019"
+basherk_ver=133
+basherk_date="12 July 2019"
 basherk_src="${BASH_SOURCE[0]}"
 basherk_dir=$(dirname "$basherk_src")
 basherk_url="https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh"
