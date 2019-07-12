@@ -207,7 +207,7 @@ function alias_realpath() {
     local utility="realpath"
     local exists_flag="-e"
 
-    # overwrite default if non-existant
+    # overwrite default if non-existent
     if ! exists realpath; then
         utility="readlink"
     fi
@@ -331,9 +331,9 @@ function cleanup_files() {
     find . \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -ivrf
 }
 
-# commit
 # wrapper for git commit
 # counts characters, checks spelling and asks to commit
+# requires aspell/hunspell
 function commit() {
     local len
     local message="$1"
@@ -455,7 +455,7 @@ function f() {
 
         local IFS=":"
         for path in $PATH; do
-            # ignore non-existant directories in $PATH
+            # ignore non-existent directories in $PATH
             [[ ! -d $path ]] && continue
 
             $sudo find "$path" -maxdepth 1 -iname "$search" | hlp -i "$hl"
@@ -465,10 +465,10 @@ function f() {
         # search file contents
 
         if [[ $tool != "grep" ]]; then
-            echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool)"
+            echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool)"
             $tool "$search"
         else
-            echo "searching ${CYAN}$(pwf)${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries , .git/, vendor/)"
+            echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries , .git/, vendor/)"
             count=$($tool -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
@@ -512,7 +512,7 @@ function f() {
             $sudo find "$location" -iname "$search" | hlp -i "$hl"
         elif [[ -f $location ]]; then
             # find a string within a single file
-            echo "searching file for string"
+            echo "searching ${CYAN}$location${D} contents for '${CYAN}$search${D}' (using $tool)"
             $tool "$search" "$location"
         fi
 
@@ -807,7 +807,7 @@ function _source_bash_completions() {
     )
 
     for path in "${paths[@]}"; do
-        # ignore non-existant directories
+        # ignore non-existent directories
         [[ ! -d $path ]] && continue
 
         # uniquify via absolute paths
