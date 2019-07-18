@@ -1152,16 +1152,19 @@ function iTermSH() {
 # ~/dev/repos/basherk/test => basherk repo/test
 function echo_working_dir() {
     local dir="$1"
-    local gitrepo subfolder
+    local gitrepo gitroot subfolder
 
-    # return input if not in a git repo
-    [[ -z "$(git_in_repo)" ]] && echo "$1" && return
+    gitroot=$(git_root 2> /dev/null) || {
+        # return input if not in a git repo
+        echo "$1"
+        return
+    }
 
     gitrepo=$(git_repo_name)
     subfolder=$(git rev-parse --show-prefix)
 
-    # return input if repo name is blank
-    [[ -z $gitrepo ]] && echo "$1" && return
+    # use git root folder name if git remote is blank
+    [[ -z $gitrepo ]] && gitrepo="${gitroot##*/}"
 
     # manually build subfolder if inside .git since show-prefix returns blank
     [[ $dir == *.git* ]] && subfolder=".git${dir##*.git}"
