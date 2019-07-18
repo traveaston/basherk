@@ -598,7 +598,7 @@ function ipscan() {
 
     [[ -z $ip ]] && {
         # scan subnet using local ip address with /24 subnet mask
-        ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')/24"
+        ip="$(ifconfig | sed -En 's/127.0.0.1//; s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p;')/24"
     }
 
     # if only subnet was given, build a complete address
@@ -1175,7 +1175,7 @@ function echo_working_dir() {
 }
 
 function git_branch() {
-    git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+    git branch --no-color 2> /dev/null | sed '/^[^*]/d; s/* \(.*\)/\1/;'
 }
 
 function git_dirty() {
@@ -1211,7 +1211,7 @@ function git_in_repo() {
 }
 
 function git_repo_name() {
-    git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//'
+    git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///; s/\.git//;'
 }
 
 function git_root() {
