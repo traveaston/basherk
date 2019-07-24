@@ -41,7 +41,7 @@ alias basherk='. "$basherk_src"'
 # usage: if exists apt-get; then apt-get update; fi
 # hoisted due to use in this script
 function exists() {
-    command -v "$1" >/dev/null 2>&1
+    command -v "$1" &>/dev/null
 }
 
 # history options
@@ -70,9 +70,9 @@ os=$(uname)
 }
 
 # set appropriate ls color flag
-if ls --color -d . >/dev/null 2>&1; then
+if ls --color -d . &>/dev/null; then
     alias ls='ls --color=auto'
-elif ls -G -d . >/dev/null 2>&1; then
+elif ls -G -d . &>/dev/null; then
     # macOS/FreeBSD/FreeNAS
     alias ls='ls -G'
 fi
@@ -80,7 +80,7 @@ fi
 alias la='ls -Ahl'
 
 # set appropriate l alias (hide owner/group if possible)
-if ls -dgo . >/dev/null 2>&1; then
+if ls -dgo . &>/dev/null; then
     alias l='la -go'
 else
     # busybox ls
@@ -139,7 +139,7 @@ if ! exists tailf; then alias tailf='tail -f'; fi
 
 if ! exists aspell; then alias aspell='hunspell'; fi
 
-if echo x | grep --color=auto x >/dev/null 2>&1; then
+if echo x | grep --color=auto x &>/dev/null; then
     alias grep='grep --color=auto'
 fi
 
@@ -975,7 +975,7 @@ function strpos() {
         # test if we can cd into $1, and capture as $path if so.
         # this way we can handle cases where you're inside a symlinked folder,
         # but [[ -d ../foo ]] actaully references the literal parent folder
-        path_test=$(if command cd "$1" >/dev/null 2>&1; then pwd; fi;)
+        path_test=$(if command cd "$1" &>/dev/null; then pwd; fi;)
         if [[ -n $path_test ]]; then
             path="$path_test"
             shift
@@ -1154,7 +1154,7 @@ function echo_working_dir() {
     local dir="$1"
     local gitrepo gitroot subfolder
 
-    gitroot=$(git_root 2> /dev/null) || {
+    gitroot=$(git_root 2>/dev/null) || {
         # return input if not in a git repo
         echo "$1"
         return
@@ -1178,7 +1178,7 @@ function echo_working_dir() {
 }
 
 function git_branch() {
-    git branch --no-color 2> /dev/null | sed '/^[^*]/d; s/* \(.*\)/\1/;'
+    git branch --no-color 2>/dev/null | sed '/^[^*]/d; s/* \(.*\)/\1/;'
 }
 
 function git_dirty() {
@@ -1200,7 +1200,7 @@ function git_dirty() {
         [[ ${line:0:1} != "." ]] && staged=true
         [[ ${line:1:1} != "." ]] && modified=true
 
-    done <<< "$(git status --porcelain=v2 2> /dev/null)"
+    done <<< "$(git status --porcelain=v2 2>/dev/null)"
 
     [[ $untracked ]] && dirty+="?"
     [[ $modified ]] && dirty+="!"
