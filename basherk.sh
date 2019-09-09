@@ -48,7 +48,7 @@ function exists() {
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
 export HISTFILESIZE=100000              # 100kb max history size
-export HISTIGNORE=" *:* --version:changed*:clear:countsize:df:f:find:gd:gds:gl:gla:graph:graphall:gs:h:h *:history:la:ls:mc:open .:ps:pwd:staged*:stashes:suho:test:time *:ubash:ubashall"
+export HISTIGNORE=" *:* --version:changed*:clear:countsize:df:f:find:gd:gds:gl:gla:graph:graphall:gs:h:h *:history:la:ls:mc:open .:ps:pwd:staged*:stashes:suho:test:time *:ubash:ubashall:gitinfo*"
 export HISTTIMEFORMAT="+%Y-%m-%d.%H:%M:%S "
 shopt -s histappend                     # append to history, don't overwrite
 shopt -s checkwinsize                   # check the window size after each command
