@@ -509,7 +509,15 @@ function f() {
             [[ ! $search == *'*'* ]] && search="*$search*"
 
             echo "searching ${CYAN}$(command cd "$location" && pwd)${D} for files matching ${CYAN}$search${D} (case insensitive)"
-            $sudo find "$location" -iname "$search" | hlp -i "$hl"
+
+            # capture find errors in global var basherk_f_errors
+            # https://stackoverflow.com/a/56577569
+            { basherk_f_errors="$( { $sudo find "$location" -iname "$search" | hlp -i "$hl"; } 2>&1 1>&3 3>&- )"; } 3>&1;
+
+            # tell user if there are hidden errors
+            [[ -n $basherk_f_errors ]] && \
+                echo "${CYAN}$(echo "$basherk_f_errors" | wc -l | awk '{print $1}')${D} find errors hidden (${CYAN}echo \"\$basherk_f_errors\"${D})"
+
         elif [[ -f $location ]]; then
             # find a string within a single file
             echo "searching ${CYAN}$location${D} contents for '${CYAN}$search${D}' (using $tool)"
