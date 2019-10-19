@@ -278,6 +278,11 @@ function define_wsl_commands() {
     # open files directly from terminal using Windows' default program, like macOS
     alias open='cmd.exe /C start'
 
+    # cdwsl "C:\Program Files" -> "/mnt/c/Program Files"
+    function cdwsl() {
+        cd "$(wslpath "$@")"
+    }
+
 }
 
 if exists wslpath; then
