@@ -273,6 +273,18 @@ function in_array() {
     fi
 }
 
+function define_wsl_commands() {
+
+    # open files directly from terminal using Windows' default program, like macOS
+    alias open='cmd.exe /C start'
+
+}
+
+if exists wslpath; then
+    define_wsl_commands
+fi
+unset define_wsl_commands # avoid pollution
+
 function cd() {
     local old_dir="$PWD"
     local new_dir="$1"
