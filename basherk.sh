@@ -114,7 +114,7 @@ case $os in
         ;;
 esac
 
-alias gitinfo='graphall -10 && totalcommits && echo "open repo url in browser with ${GREEN}showrepo${D}" && gs'
+alias gitinfo='graphall -10 && totalcommits && echo "Repo URL: ${GREEN}$(get_repo_url)${D}" && echo && gs'
 
 # Redefine builtin commands
 alias cp='cp -iv' # interactive and verbose
@@ -544,6 +544,16 @@ function f() {
     fi
 }
 
+function get_repo_url() {
+    local url
+    url=$(git remote get-url origin)
+
+    # reformat url from ssh to https if necessary
+    [[ $url != http* ]] && url=$(echo "$url" | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')
+
+    echo "$url"
+}
+
 function h() {
     [[ -z $1 ]] && history && return
 
@@ -797,16 +807,6 @@ function show_fingerprints() {
         ssh-keygen -E sha256 -lf "$file" 2>/dev/null && \
         echo
     done
-}
-
-function showrepo() {
-    local url
-    url=$(git remote get-url origin)
-
-    # reformat url from ssh to https if necessary
-    [[ $url != http* ]] && url=$(echo "$url" | perl -pe 's/:/\//g;' -e 's/^git@/https:\/\//i;' -e 's/\.git$//i;')
-
-    open "$url"
 }
 
 function _source_bash_completions() {
