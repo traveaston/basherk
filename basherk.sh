@@ -386,14 +386,38 @@ function commit() {
 function check_commit() {
     local commit="$1"
     local message
+    local linenum=0 summary=0 longestline=0
 
     # shellcheck disable=SC2086 # $commit needs to be unquoted to implicitly refer
     # to the last commit, if no argument is passed to check_commit
     message=$(git log $commit -1 --pretty=%B)
 
-    echo
-    echo "${PINK}$message${D}"
-    echo
+    while read -r line; do
+        if [[ $linenum -eq 0 ]]; then
+            summary=${#line}
+        else
+            [[ ${#line} -gt $longestline ]] && longestline=${#line}
+        fi
+
+        ((linenum++))
+    done <<< "$message"
+
+    if [[ $summary -gt 50 ]]; then
+        echo -n "Summary is ${RED}$summary characters long${D}"
+    else
+        echo -n "Summary is ${GREEN}$summary characters long${D}"
+    fi
+
+    if [[ $longestline -gt 72 ]]; then
+        echo -n ", and longest line in body is ${RED}$longestline characters long${D}"
+    else
+        # only echo body length if non-zero
+        [[ $longestline -ne 0 ]] && echo -n ", and longest line in body is ${GREEN}$longestline characters long${D}"
+    fi
+
+    # echo newlines to compensate for their omission above
+    echo -e "\n\n${PINK}$message${D}\n"
+
     echo "$message" | aspell -a
 
     echo "If necessary, amend commit with: ${BLUE}git commit --amend${D}"
