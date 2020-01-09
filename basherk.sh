@@ -130,6 +130,7 @@ alias fuck='sudo $(history -p \!\!)' # Redo last command as sudo
 alias lessf='less +F'
 alias now='date +"%c"'
 alias pwf='echo "${PWD##*/}"'
+alias sudo='sudo ' # pass aliases through sudo https://serverfault.com/a/178956
 alias vollist='echo && echo "pvs" && pvs && echo && echo "vgs" && vgs && echo && echo "lvs" && lvs'
 alias voldisp='echo && echo "pvdisplay" && pvdisplay && echo && echo "vgdisplay" && vgdisplay && echo && echo "lvdisplay" && lvdisplay'
 alias weigh='du -sch'
