@@ -3,6 +3,8 @@
 # shellcheck disable=SC2120 # not a regular script, functions define arguments we won't use here
 # basherk
 # .bashrc replacement
+#
+# tab breaks iTerm insertion character break pointer thing
 
 # If not running interactively, don't do anything
 [[ -z $PS1 ]] && return
@@ -57,6 +59,9 @@ shopt -s cdspell                        # autocorrect for cd
 # Check for interactive shell (to avoid problems with scp/rsync)
 # and disable XON/XOFF to enable Ctrl-s (forward search) in bash reverse search
 [[ $- == *i* ]] && stty -ixon
+
+[[ -z $LANGUAGE ]] && export LANGUAGE=$LANG
+[[ -z $LC_ALL ]] && export LC_ALL=$LANG
 
 os=$(uname)
 
@@ -219,6 +224,29 @@ function alias_realpath() {
         exists_flag=""
     fi
 
+    if [[ "$($utility $exists_flag "/dev" 2>&1)" != "/dev" ]]; then
+        # check if it works again - this should only fire on macOS without GNU coreutils
+        _basherk_realpath() {
+            # https://stackoverflow.com/a/18443300
+
+            local OURPWD LINK REALPATH
+            OURPWD=$PWD
+
+            command cd "$(dirname "$1")"
+
+            LINK=$(readlink "$(basename "$1")")
+
+            while [ "$LINK" ]; do
+                command cd "$(dirname "$LINK")"
+                LINK=$(readlink "$(basename "$1")")
+            done
+            REALPATH="$PWD/$(basename "$1")"
+            command cd "$OURPWD"
+            echo "$REALPATH"
+        }
+        utility="_basherk_realpath"
+    fi
+
     # shellcheck disable=SC2139 # unconventionally use double quotes to expand variables
     alias _realpath="$utility $exists_flag"
 }
@@ -248,10 +276,10 @@ function array_join() {
     printf "%s" "${@/#/$delimiter}"
 }
 
-# function built around this solution https://stackoverflow.com/a/15394738
 # usage: if in_array "foo" "${bar[@]}"; then echo "array contains element"; fi
 function in_array() {
     [[ -z $1 ]] || [[ $1 == "--help" ]] && {
+        echo "\$1 is empty: '$1'"
         echo "Search array for matching element"
         echo "Usage:"
         echo "    in_array [--help]"
@@ -259,20 +287,21 @@ function in_array() {
         return
     }
 
+    local positional
+
     # capture element/needle in variable and remove from arguments array
     local element="$1"
     shift
 
-    # shellcheck disable=SC2076 # use regex but literally to acceptably match part of the array string
-    # search for " element " to ensure we don't false match part of another element
-    # concat array, and append/prepend space for matching outer elements
-    if [[ " $* " =~ " $element " ]]; then
-        # return true
-        return 0
-    else
-        # return false
-        return 1
-    fi
+    # loop positional parameters (array) and return true if present
+    for positional; do
+        if [[ "$positional" == "$element" ]]; then
+            return 0
+        fi
+    done
+
+    # return false
+    return 1
 }
 
 function define_wsl_commands() {
@@ -283,6 +312,74 @@ function define_wsl_commands() {
     # cdwsl "C:\Program Files" -> "/mnt/c/Program Files"
     function cdwsl() {
         cd "$(wslpath "$@")"
+    }
+
+    # either install sublime text to the default location, or
+    # choose a custom install location and symlink it into path so we can detect it
+    function sublime() {
+        local sublime_which_path=$(command which sublime)
+        local sublime_default_path="/mnt/c/Program Files/Sublime Text 3/subl.exe"
+        local sublime_path
+        local sublime_command
+        local path="$@"
+
+        if [[ -z $sublime_which_path ]]; then
+            # sublime is not symlinked in path, check default install location
+            if [[ -e $sublime_default_path ]]; then
+                # sublime is installed to default location
+                sublime_path="$sublime_default_path"
+            else
+                # can't find sublime, unset this function & stop polluting the shell
+                echo "can't find sublime, unset this function & stop polluting the shell"
+                unset sublime
+            fi
+        else
+            # sublime is symlinked in path, wrap the symlink in a function for windows path compatibility
+            sublime_path="$sublime_which_path"
+        fi
+
+        # open sublime with no arguments if none passed
+        if [[ -z $path ]]; then
+            echo path empty
+            $sublime_path
+        else
+            if [[ $(wslpath -w "$(realpath "$path")" 2>&1) == *Invalid* ]]; then
+                echo "Windows is not able to open this file, it's in the linux file system"
+                return
+            elif [[ $(dirname "$path") == "." ]]; then
+                echo "dirname is . so just running string with path"
+                # cmd.exe /C "$(wslpath -w "$sublime_path")" "$path"
+                "$sublime_path" "$path"
+            else
+                echo $(
+                    unset sublime
+                    command cd "$(dirname "$path")"
+                    # cmd.exe /C "$(wslpath -w "$sublime_path")" "$(basename "$path")"
+                    sublime "$(basename "$path")"
+                )
+            fi
+        fi
+        return
+
+        # cdfile "$path" && cmd.exe /C \"$(wslpath -w "$sublime_path")\" \"$path\" &
+        # "$(wslpath -w "$path")"
+        # cmd.exe /C "C:\Program Files\Sublime Text 3\subl.exe" "C:\Users\travz\downloads\kodi.crash.windows.log"
+        # I think we need to $(cdfile "$@" && $runwincmd) since spaces in pwd don't matter
+    }
+
+    function map_drives() {
+        local share letter
+
+        for share in /srv/*; do
+            letter="${share:5:1}"
+            letter="${letter^}:"
+
+            # avoid unnecessary remounts
+            if ! mount | grep "$letter on $share" >/dev/null; then
+                mount -t drvfs "$letter" "$share"
+            fi
+
+        done
     }
 
 }
@@ -448,6 +545,8 @@ function cpmod() {
     chmod "$(vwmod "$1")" "$2"
 }
 
+# make f file search use tool
+# reverse patch search, latest should be at the bottom, fresher in my memory for what I'm looking for
 # custom find command to handle searching files, commits, file/commit contents, or PATH
 function f() {
     [[ -z $1 ]] || [[ $1 == "--help" ]] && {
@@ -508,7 +607,7 @@ function f() {
         # search file contents
 
         if [[ $tool != "grep" ]]; then
-            echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool)"
+            echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (case sensitive, using $tool)"
             $tool "$search"
         else
             echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries , .git/, vendor/)"
@@ -570,7 +669,248 @@ function f() {
     fi
 }
 
+function format_date() {
+    local input=$1
+    local date
+
+    if [[ -z $input ]]; then
+        date=$(date +"%a, %h %d, %Y, %r")
+    elif [[ $input =~ [0-9] ]]; then
+        if [[ $os == "macOS" ]]; then
+            date=$(date -r "$input" +"%a, %h %d, %Y, %r")
+        else
+            date=$(date -d @$input +"%a, %h %d, %Y, %r")
+        fi
+    else
+        echo "input is not a number, sort this path out"
+    fi
+
+    echo "$date"
+}
+
+##########
+# function gamex() {
+#     local archive
+#     local compressed_file
+#     local path
+
+#     if [[ -z $1 ]]; then
+#         echo "Extract and show extracted games"
+#         echo "Usage:"
+#         echo "    gamex [PATH]  Extract game from PATH to dir_name.ext"
+#         echo "    gamex -l      List extracted games"
+#         return
+#     elif [[ $1 == "-l" ]]; then
+#         shift;
+#         echo "placeholder: we should list folders in this directory that have been extracted"
+#         return 0
+#     fi
+
+#     path="${1%/}" # trim trailing slash
+
+#     archives=( "$path"/*.rar )
+
+#     [[ -z ${archives[0]} ]] && {
+#         echo "can't find archive"
+#         return 0
+#     }
+
+#     archive=$(_realpath "${archives[0]}")
+#     compressed_file=$(unrar lb "${archives[0]}")
+
+#     unrar e "$archive" "/tmp/" && \
+#     mv "/tmp/$compressed_file" "$path.${compressed_file##*.}"
+# }
+##########
+# function gamex() {
+#     local archive compressed_file source destination
+
+#     if [[ -z $1 ]]; then
+#         echo "Extract and show extracted games"
+#         echo "Usage:"
+#         echo "    gamex [source]  Extract game from source to dir_name.ext"
+#         echo "    gamex -l      List extracted games"
+#         return
+#     elif [[ $1 == "-l" ]]; then
+#         shift;
+#         echo "placeholder: we should list folders in this directory that have been extracted"
+#         return 0
+#     fi
+
+#     # trim trailing slash
+#     source="${1%/}"
+#     destination="${2%/}"
+
+#     [[ -z $destination ]] && $destination="."
+
+#     archives=( "$source"/*.rar )
+
+#     [[ -z ${archives[0]} ]] && {
+#         echo "can't find archive"
+#         return 0
+#     }
+
+#     archive=$(_realpath "${archives[0]}")
+#     compressed_file=$(unrar lb "${archives[0]}")
+
+#     unrar e "$archive" "$destination/" && \
+#     mv "$destination/$compressed_file" "$destination/$source.${compressed_file##*.}"
+# }
+##########
+#
+# Problem dump:
+# ...         Clue The Classic Mystery Game [010029400CA20000][v0].nsp  99%
+
+# Extracting from /srv/downloads/games/_switch/Clue.The.Classic.Mystery.Game.eShop.NSW-LiGHTFORCE/lfc-cluetheclassicmysterygame.r14
+
+# ...         Clue The Classic Mystery Game [010029400CA20000][v0].nsp  OK
+# Extracting  /mnt/e/switch/Clue The Classic Mystery Game [Clue Season Pass] [010029400CA21001][v0].nsp  OK
+# All OK
+# File(s) extracted to /mnt/e/switch/
+# Archived file: "Clue" -> "Clue.The.Classic.Mystery.Game.eShop.NSW-LiGHTFORCE.1.Clue"
+# mv: cannot stat '/mnt/e/switch/Clue': No such file or directory
+# Archived file: "The" -> "Clue.The.Classic.Mystery.Game.eShop.NSW-LiGHTFORCE.2.The"
+# mv: cannot stat '/mnt/e/switch/The': No such file or directory
+# Archived file: "Classic" -> "Clue.The.Classic.Mystery.Game.eShop.NSW-LiGHTFORCE.3.Classic"
+# mv: cannot stat '/mnt/e/switch/Classic': No such file or directory
+# Archived file: "Mystery" -> "Clue.The.Classic.Mystery.Game.eShop.NSW-LiGHTFORCE.4.Mystery"
+# mv: cannot stat '/mnt/e/switch/Mystery': No such file or directory
+# Archived file: "Game" -> "Clue.The.Classic.Mystery.Game.eShop.NSW-LiGHTFORCE.5.Game"
+# mv: cannot stat '/mnt/e/switch/Game': No such file or directory
+# Archived file: "[010029400CA20000][v0].nsp" -> "Clue.The.Classic.Mystery.Game.eShop.NSW-LiGHTFORCE.6.nsp"
+# mv: cannot stat '/mnt/e/switch/[010029400CA20000][v0].nsp': No such file or directory
+
+function extract() {
+    local archive file file_new_name source source_name destination
+    local -a archives files
+
+    if [[ -z $1 ]]; then
+        echo "Extract and rename file(s) from archives inside a folder to the folder name"
+        echo "    This will extract MyFile/rar.r00, MyFile/rar.r01... and rename the containing file(s) to MyFile.ext"
+        echo "    A common scenario is needing to extract a file (or a couple) from an archive on a NAS, onto a USB or"
+        echo "    external hard drive. Folders containing the rar files are named based on the contents, but the"
+        echo "    contents may be generically named (random.file.txt instead of MyFile.txt like the folder)"
+        echo "    If using 7zip or WinRAR, you have to open the folder and archive, wait for it to read/load, drag and"
+        echo "    drop, and rename each file. This may copy the archives to a temp folder on C:\, extract the file(s)"
+        echo "    to a temp folder on C:\, then move them to the destination."
+        echo "    We avoid that by extracting directly from the NAS to the destination, then renames it automatically"
+        echo "Usage:"
+        echo "    extract [source]  Extract file(s) from source to dir_name.ext"
+        echo "    extract -l        List contained file(s)"
+        return
+    elif [[ $1 == "-l" ]]; then
+        shift;
+        echo "placeholder: we should list folders in this directory that have been extracted"
+        return 0
+    fi
+
+    if ! exists unrar; then
+        echo "requires unrar" >&2
+        return
+    fi
+
+    # trim trailing slashes
+    source="${1%/}"
+    destination="${2%/}"
+    source_name="${source##*/}"
+
+    [[ -z $destination ]] && destination="."
+
+    # ensure write permissions on destination
+    # TODO: this is broken, WSL says you have write permission in C:\Program Files, but touch test = Permission denied
+    if [[ ! -w $destination ]]; then
+        echo "directory ${RED}$folder${D} is not writable, exiting"
+        return 1
+    fi
+
+    archives=( "$source"/*.rar )
+
+    [[ -z ${archives[0]} ]] && {
+        echo "can't find archive"
+        return
+    }
+
+    archive=$(_realpath "${archives[0]}")
+    files=( $(unrar lb "${archives[0]}") )
+
+    unrar e "$archive" "$destination/" && \
+    {
+        echo "File(s) extracted to ${CYAN}$destination/${D}"
+
+        if [[ ${#files[@]} == 1 ]]; then
+            file=${files[0]}
+
+            echo "Archived file: \"$file\" -> \"$source_name.${file##*.}\""
+            mv "$destination/$file" "$destination/$source_name.${file##*.}"
+            return
+        fi
+
+        local counter=1
+
+        for file in ${files[@]}; do
+            echo "Archived file: \"$file\" -> \"$source_name.$counter.${file##*.}\""
+            mv "$destination/$file" "$destination/$source_name.$counter.${file##*.}"
+
+            ((counter++))
+        done
+    }
+}
+
+# http://xahlee.info/comp/unicode_computing_symbols.html
+# generate_keycode shift cmd L
+function generate_keycode() {
+    local input="$*" output
+
+    # replace dash with space
+    input="${input//-/ }"
+
+    # replace plus with space
+    input="${input//+/ }"
+
+    # test unquoted runs the for loop on each word since it's a string array separated by space
+    for char in $input; do
+        case $char in
+            shift)
+                output+="⇧"
+                ;;
+            cmd|command)
+                output+="⌘"
+                ;;
+            opt|option)
+                output+="⌥"
+                ;;
+            left)
+                output+="⬅"
+                ;;
+            right)
+                output+="➡"
+                ;;
+            *)
+                # usually a key character - uppercase
+                output+="${char^}"
+                ;;
+        esac
+
+        # echo spaces between chars for readability
+        # Unicode 8->9 changed the widths of a bunch of codepoints https://gitlab.com/gnachman/iterm2/issues/6337
+        # it seems macOS Catalina handles unicode spaces properly too, maybe I'll continue echoing both for compatibility
+        output+=" "
+    done
+
+    echo "raw   : ${output// /}"
+    echo "spaced: $output"
+}
+
 function get_repo_url() {
+    # fix bitbucket links
+    # ssh://git@bitbucket.org/statewidebearings/scheduled-scripts.git
+    # returns
+    # ssh///git@bitbucket.org/statewidebearings/scheduled-scripts
+    #
+    # Also amend get_repo_url to a different day to spread contributions
+    #
+    # Also don't return 'Repo URL:' if there's no repo
+    # fatal: No such remote 'origin'
     local url
     url=$(git remote get-url origin)
 
@@ -581,9 +921,22 @@ function get_repo_url() {
 }
 
 function h() {
+    # extend this to search ~/.bash_history?* too
+    # the ? ensures there's a character after y and therefore:
+    # ~/.bash_history: ignored
+    # ~/.bash_history.old.zeus: matched
     [[ -z $1 ]] && history && return
 
-    history | grep "$@"
+    # prefer ripgrep, then silver surfer, then grep if neither are installed
+    if exists rg; then
+        tool="rg"
+    elif exists ag; then
+        tool="ag"
+    else
+        tool="grep"
+    fi
+
+    history | $tool "$@"
 }
 
 # _have and have are required by some bash_completion scripts
@@ -604,16 +957,30 @@ fi
 # Highlight Pattern
 # Works like grep but shows all lines
 # -i for case insensitive
+# did I fuck up ipas by allowing hlp to highlight multiple things? YES
+# add -E flag back to it and skip multiplexing code
+#
+# Check other hlp funtions and test them
+# also every time I modify a funtion i should search the file and test each function that uses it
 function hlp() {
-    local args
-    local regex
-    local flags="-E"
+    local args=("$@")
+    local regex flags="-E"
 
-    if [[ -z $1 ]]; then
-        echo "usage: command -params | hlp foo Bar"
-        echo "       command -params | hlp -i foo bar"
-        echo "       command -params | hlp 'foo bar'"
-        echo "       command -params | hlp '\$foobar'"
+    if [[ -z $1 ]] || [[ $1 == "--help" ]]; then
+        echo "hlp - highlight pattern:"
+        echo "  highlight a string or regex pattern from stdin"
+        echo "  see grep for more options"
+        echo
+        echo "usage: <command> | hlp [options...] [pattern]"
+        echo "  options:"
+        echo "    -i            case-insensitive matching"
+        # echo "    -E            force regex matching"
+        echo
+        echo "  patterns:"
+        echo "    foo bar           match either 'foo' or 'bar'"
+        echo "    'foo bar'         match 'foo bar'"
+        echo "    '\\\$foo bar'       match '\$foo bar'"
+        echo "    '[0-9]{1,3}'      match 000 through 999"
         return
     elif [[ $1 == "-i" ]]; then
         shift;
@@ -625,17 +992,38 @@ function hlp() {
 
     # replace all asterisks with spaces
     # trim leading/trailing spaces with awk (and squash multiple into 1)
-    args=$(echo "${@//\*/ }" | awk '{$1=$1;print}')
+    args=$(echo "${@//\*/.*}" | awk '{$1=$1;print}')
 
     # replace remaining spaces with logical OR so searching for wildcards highlights correctly
-    args="${args// /|}"
+    [[ $# != 1 ]] && args="${args// /|}"
 
     # concatenate arguments with logical OR
     for pattern in $args; do
         regex+="|$pattern"
     done
 
+    # echo "args: $args"
+    # echo "regex: $regex"
+
+    # echo "grep $flags \"$regex\""
     grep $flags "$regex"
+}
+
+function install_log() {
+    local package_manager=$1
+
+    local packages_before_install=$($package_manager list)
+    local packages_after_install
+    local packages_installed
+
+    # run command passed by user
+    "$@"
+
+    packages_after_install=$($package_manager list)
+
+    echo
+    echo "Packages actually installed:"
+    echo ${packages_before_install[@]} ${packages_after_install[@]} | tr ' ' '\n' | sort | uniq -u
 }
 
 function ipdrop() {
@@ -803,6 +1191,110 @@ function rm() {
     history -s rm "${sanitized[@]}"
 }
 
+function rtfm() {
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
+        echo "rtfm:"
+        echo "  search manual/help text/google for command and arguments"
+        echo "  accepts all options/text without requiring escaping"
+        echo "  actual rtfm options are prepended with --rtfm-"
+        echo
+        echo "usage: rtfm <command> [options...] [arguments...] [raw text...] [--rtfm-options...]"
+        echo "  options:"
+        echo "    --rtfm-strict     only match from the start of the line + indentation"
+        echo "    --rtfm-para       TODO: use perl paragraph matching to get the entire option paragraph"
+        echo "    --rtfm-#          TODO: echo context"
+        echo "    --rtfm-[A|B|C]    TODO: accept grep context flags"
+        echo "    --rtfm-debug      TODO: show command used to get result"
+        return
+    }
+
+    local opts regex context=2
+    local rtfm_opt strict use_para
+    local -a long_opts raw
+
+    # remove command from argument list
+    local command_name="$1"
+    shift
+
+    while (( $# > 0 )); do
+        case "$1" in
+            --rtfm-*)
+                rtfm_opt="${1:7:99}"
+
+                if [[ $rtfm_opt == "strict" ]]; then
+                    strict=true
+                elif [[ $rtfm_opt =~ [0-9] ]]; then
+                    context=$rtfm_opt
+                elif [[ $rtfm_opt == "para" ]]; then
+                    use_para=true
+                fi
+
+                shift
+                ;;
+            --*)
+                # strip prepended --
+                long_opts+=("${1:2:99}")
+                shift
+                ;;
+            -*)
+                # strip prepended -
+                opts+="${1:1:99}"
+                shift
+                ;;
+            *)
+                raw+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    if [[ $strict ]]; then
+        echo "STRICT MODE"
+        # ignore options scattered through descriptions of other options
+        regex+="^ *-[$opts]|"
+    elif [[ -n $opts ]]; then
+        # match '[-x' or ' -x' or ',-x'
+        regex+="[[ ,]-[$opts]|"
+    fi
+
+    # add long_opts to regex if specified
+    [[ ${#long_opts[@]} -gt 0 ]] && regex+="--($(array_join "|" "${long_opts[@]}"))|"
+
+    # add raw text to regex if specified
+    [[ ${#raw[@]} -gt 0 ]] && regex+="($(array_join "|" "${raw[@]}"))|"
+
+    # strip trailing |
+    regex=${regex%?}
+
+    # ideally we would add each regex to an array and join them later, but the
+    # regex pattern itself needs to be quoted inline for grep to parse it properly
+
+    if exists man; then
+        # open manual if no search specified
+        [[ -z $regex ]] && {
+            man "$command_name"
+            return
+        }
+
+        # https://askubuntu.com/a/743536
+        if [[ $use_para ]]; then
+            echo "paragraph mode"
+            man "$command_name" | col -bx | perl -00 -ne 'print if / -a/' | hlp "\-a"
+        else
+            # pipe man through col to fix backspaces and tabs, and grep the output for our regex
+            echo "man $command_name | col -bx | grep -E -A $context -e \"$regex\""
+            man "$command_name" | col -bx | grep -E -A "$context" -e "$regex"
+        fi
+
+        # can we tee this and check for "No manual"* and move on?
+        # also instead of grep -A can we grep until \r\n\r\n is found? (end of block)
+    else
+        "$command_name" --help | grep -E "$regex"
+    fi
+
+    # open "http://www.google.com/search?q=$@"
+}
+
 # set_title $title
 # set window title to $title, or "user at host in folder" if blank
 # ensures prompt command is not overwritten
@@ -835,20 +1327,49 @@ function show_fingerprints() {
     done
 }
 
+# # The reason this function is sometimes so slow is because 1. C++, GCC, etc take 500ms to load each
+# # Second reason is a bunch of them are symlinks to the others so GCC gets run multiple times
+# # Need to maybe make a symlink only one, or somehow check if the OH
+# for link in /usr/share/compl/*; do # this will glob to be huge, use find
+#     if [[ "$(_realpath "$link" | basepath)" != /usr/share/compl/ ]]
+# done
+# # nah that'l be annoying, 2 array checks and a for loop
+# # during the add loop, add a link check before sourcing
+# [[ -l $file ]] && {
+#     [[ "$(_realpath "$file")" == "/the/current/fucking/folder/im/looping/through/"* ]] && return
+# }
 function _source_bash_completions() {
     [[ $1 == "--help" ]] && {
         echo "Source all completion files from valid paths"
         echo "Usage:"
         echo "    _source_bash_completions [options]"
-        echo "        --help               Show this screen"
-        echo "        -f, --force          Don't skip paths containing >250 files"
+        echo "        --help        Show this screen"
+        echo "        --paths       Show unique paths and exit"
         return
     }
 
     local -a absolutes paths
-    local absolute_path file filecount limit=250 path
+    local absolute_path file path
 
-    [[ $1 =~ -(f|-force) ]] && limit=10000
+    # if bash_completion2 has already been sourced, skip the rest
+    [[ $BASH_COMPLETION_VERSINFO == 2 ]] && return
+
+    # https://superuser.com/a/1393343
+    # https://discourse.brew.sh/t/bash-completion-2-vs-brews-auto-installed-bash-completions/2391/2
+    [[ -f /usr/local/etc/profile.d/bash_completion.sh ]] && {
+        source /usr/local/etc/profile.d/bash_completion.sh
+
+        # source and re-check version, if v1, continue sourcing completions
+        [[ $BASH_COMPLETION_VERSINFO == 2 ]] && return
+    }
+
+    # la /usr/local/etc/bash_completion.d/
+    # ==> Caveats
+    # Add the following to your ~/.bash_profile:
+    # [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+
+    # If you'd like to use existing homebrew v1 completions, add the following before the previous line:
+    # export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
 
     paths=(
         /etc/bash_completion.d
@@ -868,19 +1389,25 @@ function _source_bash_completions() {
         fi
     done
 
+    [[ $1 == "--paths" ]] && echo "${absolutes[@]}" && return
+
     for path in "${absolutes[@]}"; do
-        # shellcheck disable=SC2012 # ls (over find) is adequate for a quick file count
-        filecount=$(ls -1 "$path" | wc -l)
-
-        [[ $filecount -gt $limit ]] && {
-            echo "Skipping $filecount completions in $path"
-            continue
-        }
-
+        # could run 2 loops here, one for files, just source them all
+        # second for find -type s and check each one's realpath
+        # would save running a stat on each file, unless find does that anyway
+        # lets just time the difference
+        # or do a find -type f "$path"/* -print 0 | xargs private_source_function file $1
+        # or do a find -type s "$path"/* -print 0 | xargs private_source_function link $1
         for file in "$path"/*; do
-            [[ -f $file ]] && {
-                source "$file" || echo "_source_bash_completions error sourcing $file"
+            [[ -h $file ]] && {
+                # if $file is a symlink to another file in this dir, don't source it again
+                [[ "$(_realpath "$file")" == "$path"* ]] && {
+                    continue
+                }
             }
+
+            # source "$file" || echo "_source_bash_completions error sourcing $file"
+            source "$file"
         done
     done
 
@@ -901,6 +1428,9 @@ function sshl() {
             key="id_rsa"
         else
             echo "No ssh identity found."
+            # dont commit this comment but:
+            # don't eval ssh-agent if there's no identity
+            return
         fi
     }
 
@@ -1005,6 +1535,9 @@ function strpos() {
 [[ $os == "macOS" ]] && {
     # credit Justin Hileman - original (http://justinhileman.com)
     # credit Vitaly (https://gist.github.com/vitalybe/021d2aecee68178f3c52)
+    # should I add a clean flag to this then don't command cd?
+    # or command cd, clear it and duplicate cd functionality (which would hide the sshl etc)
+    # or if opening current dir, output clean, otherwise nice cd functions?
     function tab() {
         [[ $1 == "--help" ]] && {
             echo "Open new iTerm tabs from the command line"
