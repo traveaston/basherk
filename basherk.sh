@@ -150,9 +150,9 @@ if echo x | grep --color=auto x &>/dev/null; then
 fi
 
 if exists ip; then
-    alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
+    alias ipas='ip addr show | hlp -r ".*inet [0-9.]*"'
 else
-    alias ipas='ifconfig | hlp ".*inet [0-9.]*"'
+    alias ipas='ifconfig | hlp -r ".*inet [0-9.]*"'
 fi
 
 # alias repo directory automatically
@@ -964,7 +964,9 @@ fi
 # also every time I modify a funtion i should search the file and test each function that uses it
 function hlp() {
     local args=("$@")
-    local regex flags="-E"
+    local grep_flags="-E"
+    local regex
+    local match_regex # rename this
 
     if [[ -z $1 ]] || [[ $1 == "--help" ]]; then
         echo "hlp - highlight pattern:"
@@ -974,6 +976,7 @@ function hlp() {
         echo "usage: <command> | hlp [options...] [pattern]"
         echo "  options:"
         echo "    -i            case-insensitive matching"
+        echo "    -r            pass regex pattern directly"
         # echo "    -E            force regex matching"
         echo
         echo "  patterns:"
@@ -984,7 +987,10 @@ function hlp() {
         return
     elif [[ $1 == "-i" ]]; then
         shift;
-        flags="-iE"
+        grep_flags="-iE"
+    elif [[ $1 == "-r" ]]; then
+        shift;
+        match_regex=true
     fi
 
     # always grep for $ (end of line) to show all lines, by highlighting the newline character
@@ -997,16 +1003,20 @@ function hlp() {
     # replace remaining spaces with logical OR so searching for wildcards highlights correctly
     [[ $# != 1 ]] && args="${args// /|}"
 
-    # concatenate arguments with logical OR
-    for pattern in $args; do
-        regex+="|$pattern"
-    done
+    if [[ $match_regex == true ]]; then
+        regex+="|$1"
+    else
+        # concatenate arguments with logical OR
+        for pattern in $args; do
+            regex+="|$pattern"
+        done
+    fi
 
     # echo "args: $args"
     # echo "regex: $regex"
 
-    # echo "grep $flags \"$regex\""
-    grep $flags "$regex"
+    # echo "grep $grep_flags \"$regex\""
+    grep $grep_flags "$regex"
 }
 
 function install_log() {
