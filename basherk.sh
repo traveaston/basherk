@@ -925,9 +925,6 @@ function sshl() {
 }
 export -f sshl
 
-# if ssh-add exists start ssh agent(keychain or legacy) and list keys
-if exists ssh-add; then sshl; fi
-
 function stash() {
     [[ $1 == "--help" ]] && {
         echo "stash:"
@@ -1308,3 +1305,7 @@ export DISABLE_AUTO_TITLE="true"
 
 # source post-basherk definitions
 [[ -f "$basherk_dir/post-basherk.sh" ]] && . "$basherk_dir/post-basherk.sh"
+
+# run sshl last to avoid terminating basherk when cancelling ssh passkey prompt
+# if ssh-add exists start ssh agent(keychain or legacy) and list keys
+if exists ssh-add; then sshl; fi
