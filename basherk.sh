@@ -559,7 +559,12 @@ function f() {
 
             # capture find errors in global var basherk_f_errors
             # https://stackoverflow.com/a/56577569
-            { basherk_f_errors="$( { $sudo find "$location" -iname "$search" | hlp -i "$hl"; } 2>&1 1>&3 3>&- )"; } 3>&1;
+            {
+                basherk_f_errors="$( {
+                    # find files matching case-ins. search, strip leading ./ and highlight
+                    $sudo find "$location" -iname "$search" | sed -e 's/^\.\///' | hlp -i "$hl"
+                } 2>&1 1>&3 3>&- )"
+            } 3>&1
 
             # tell user if there are hidden errors
             [[ -n $basherk_f_errors ]] && \
