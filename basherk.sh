@@ -468,12 +468,16 @@ function f() {
         return
     }
 
-    local count matches path tool
+    local count hl matches path tool
     local location="$1"
     local search="$2"
     local sudo="$3"
-    # escape all periods for highlighting pattern (grep wildcards)
-    local hl="${search//./\\.}"
+
+    # escape all periods (regex wildcards), strip leading/trailing bash wildcards,
+    # and convert all other bash wildcards to regex
+    # ideally, we would also prepend a negative lookahead for / to ensure hlp
+    # only highlights matches in the basename, but macos grep doesn't support it
+    hl="$(sed -e 's/\./\\./g' -e 's/^*//' -e 's/*$//' -e 's/*/.*/g' <<< $2)"
 
     # prefer ripgrep, then silver surfer, then grep if neither are installed
     if exists rg; then
@@ -603,36 +607,39 @@ fi
 
 # Highlight Pattern
 # Works like grep but shows all lines
-# -i for case insensitive
 function hlp() {
-    local args
+    local arg
+    local flags
     local regex
-    local flags="-E"
 
-    if [[ -z $1 ]]; then
-        echo "usage: command -params | hlp foo Bar"
-        echo "       command -params | hlp -i foo bar"
-        echo "       command -params | hlp 'foo bar'"
-        echo "       command -params | hlp '\$foobar'"
+    if [[ -z $1 ]] || [[ $1 == "--help" ]]; then
+        echo "hlp - highlight pattern:"
+        echo "  highlight a string or regex pattern from stdin"
+        echo "  see grep for more options"
+        echo
+        echo "usage: <command> | hlp [options...] [pattern]"
+        echo "  options:"
+        echo "    -i            case-insensitive matching"
+        echo
+        echo "  patterns:"
+        echo "    foo bar           match either 'foo' or 'bar'"
+        echo "    'foo bar'         match 'foo bar'"
+        echo "    '\\\$foo bar'       match '\$foo bar'"
+        echo "    '[0-9]{1,3}'      match 000 through 999"
         return
     elif [[ $1 == "-i" ]]; then
-        shift;
+        shift
         flags="-iE"
+    else
+        flags="-E"
     fi
 
     # always grep for $ (end of line) to show all lines, by highlighting the newline character
     regex="$"
 
-    # replace all asterisks with spaces
-    # trim leading/trailing spaces with awk (and squash multiple into 1)
-    args=$(echo "${@//\*/ }" | awk '{$1=$1;print}')
-
-    # replace remaining spaces with logical OR so searching for wildcards highlights correctly
-    args="${args// /|}"
-
     # concatenate arguments with logical OR
-    for pattern in $args; do
-        regex+="|$pattern"
+    for arg in "$@"; do
+        regex+="|$arg"
     done
 
     grep $flags "$regex"
