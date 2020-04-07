@@ -114,8 +114,6 @@ case $os in
         ;;
 esac
 
-alias gitinfo='graphall -10 && totalcommits && echo "Repo URL: ${GREEN}$(get_repo_url)${D}" && echo && gs'
-
 # Redefine builtin commands
 alias cp='cp -iv' # interactive and verbose
 alias mv='mv -iv'
@@ -582,6 +580,33 @@ function get_repo_url() {
 
     echo "$url"
 }
+
+function gitinfo() {
+    local repourl=$(get_repo_url)
+    local unset_variables=()
+
+    [[ -z "$(git config user.name)" ]] && unset_variables+=("name")
+    [[ -z "$(git config user.email)" ]] && unset_variables+=("email")
+
+    # show 10 latest commits across all branches
+    graphall -10
+
+    # show total number of commits
+    totalcommits
+
+    if [[ -n "$repourl" ]]; then
+        echo "Repo URL: ${GREEN}$(get_repo_url)${D}"
+    fi
+
+    if [ ${#unset_variables[@]} -ne 0 ]; then
+        echo "Unset git parameters: ${PINK}$(array_join ',' ${unset_variables[@]})${D}"
+    fi
+
+    echo
+
+    git status
+}
+
 
 function h() {
     [[ -z $1 ]] && history && return
