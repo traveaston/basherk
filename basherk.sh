@@ -248,7 +248,6 @@ function array_join() {
     printf "%s" "${@/#/$delimiter}"
 }
 
-# function built around this solution https://stackoverflow.com/a/15394738
 # usage: if in_array "foo" "${bar[@]}"; then echo "array contains element"; fi
 function in_array() {
     [[ -z $1 ]] || [[ $1 == "--help" ]] && {
@@ -259,20 +258,19 @@ function in_array() {
         return
     }
 
+    local positional
+
     # capture element/needle in variable and remove from arguments array
     local element="$1"
     shift
 
-    # shellcheck disable=SC2076 # use regex but literally to acceptably match part of the array string
-    # search for " element " to ensure we don't false match part of another element
-    # concat array, and append/prepend space for matching outer elements
-    if [[ " $* " =~ " $element " ]]; then
-        # return true
-        return 0
-    else
-        # return false
-        return 1
-    fi
+    # loop positional parameters (array) and return true if present
+    for positional; do
+        [[ $positional == "$element" ]] && return 0
+    done
+
+    # return false
+    return 1
 }
 
 function define_wsl_commands() {
