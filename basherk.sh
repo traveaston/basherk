@@ -129,8 +129,6 @@ alias lessf='less +F'
 alias now='date +"%c"'
 alias pwf='echo "${PWD##*/}"'
 alias sudo='sudo ' # pass aliases through sudo https://serverfault.com/a/178956
-alias vollist='echo && echo "pvs" && pvs && echo && echo "vgs" && vgs && echo && echo "lvs" && lvs'
-alias voldisp='echo && echo "pvdisplay" && pvdisplay && echo && echo "vgdisplay" && vgdisplay && echo && echo "lvdisplay" && lvdisplay'
 alias weigh='du -sch'
 
 # conditional aliases
@@ -1202,6 +1200,45 @@ function ubash() {
         echo "${RED}basherk update failed for $dest${D}"
     fi
 }
+
+function vollist() {
+    # handle voldisplay --help => vollist -a --help
+    if [[ $1 == "--help" || $2 == "--help" ]]; then
+        echo "vollist"
+        echo "  display summary or extended info for volumes and volume groups"
+        echo "  wraps pvs/vgs/lvs (and *display), run as sudo"
+        echo
+        echo "usage: vollist [options]"
+        echo "  options:"
+        echo "    -a            show all/extended information"
+        return
+    fi
+
+    local selection
+    local command
+    local extended=(pvdisplay vgdisplay lvdisplay)
+    local summary=(pvs vgs lvs)
+
+    if [[ $1 == "-a" ]]; then
+        selection=("${extended[@]}")
+    else
+        selection=("${summary[@]}")
+    fi
+
+    for command in "${selection[@]}"; do
+        echo
+        echo "${CYAN}$command${D}"
+
+        # shellcheck disable=SC2086 # leave $command unquoted
+        sudo $command
+    done
+}
+
+if exists pvs; then
+    alias voldisplay='vollist -a'
+else
+    unset vollist
+fi
 
 # extend information provided by which
 function which() {
