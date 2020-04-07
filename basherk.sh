@@ -293,19 +293,15 @@ fi
 unset define_wsl_commands # avoid pollution
 
 function cd() {
-    local old_dir="$PWD"
     local new_dir="$1"
 
     # go home if directory not specified
     [[ -z $new_dir ]] && new_dir=~
 
-    # escape cd to avoid calling itself or other alias
-    command cd "$new_dir"
+    # escape cd to avoid calling itself or other alias, return exit status on failure
+    command cd "$new_dir" || return $?
 
-    # don't run other commands if we didn't actually change directory
-    [[ $old_dir == "$PWD" ]] && return
-
-    # print working directory and list contents
+    # print working directory, and list contents (without owner/group)
     pwd
     l
 
