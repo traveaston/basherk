@@ -1192,8 +1192,6 @@ function ubash() {
         return
     }
 
-    [[ $dest != *@* ]] && echo "Please specify user@host" && return
-
     if rsync -az "$src" "$dest":~/.basherk; then
         echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
     else
