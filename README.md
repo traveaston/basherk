@@ -10,10 +10,10 @@ The easiest way to start using basherk is to download and source the file
 `curl https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -o ~/.basherk && . ~/.basherk`
 
 To source it each session automatically  
-`echo -e "\n. ~/.basherk # source basherk" >> ~/.bashrc`
+`echo -e "\n. ~/.basherk # source basherk\n" >> ~/.bashrc`
 
 To have root source basherk from the same file  
-`sudo echo -e "\n. $(_realpath ~/.basherk) # source basherk" >> /root/.bashrc`
+`sudo echo -e "\n. $(_realpath ~/.basherk) # source basherk\n" >> /root/.bashrc`
 
 ___
 
@@ -28,11 +28,11 @@ Source it this session
 Then either symlink basherk into your home folder and source it from there  
 ```
 ln -s "$(_realpath basherk/basherk.sh)" ~/.basherk
-echo -e "\n. ~/.basherk # source basherk" >> ~/.bashrc
+echo -e "\n. ~/.basherk # source basherk\n" >> ~/.bashrc
 ```
 
 Or source it straight from the repo  
-`echo -e "\n. \"$(_realpath basherk/basherk.sh)\" # source basherk" >> ~/.bashrc`
+`echo -e "\n. \"$(_realpath basherk/basherk.sh)\" # source basherk\n" >> ~/.bashrc`
 
 ### Updating
 
