@@ -858,6 +858,7 @@ function show_fingerprints() {
     echo
 
     for file in /etc/ssh/*.pub; do
+        echo "$file"
         ssh-keygen -E md5 -lf "$file" 2>/dev/null && \
         ssh-keygen -E sha256 -lf "$file" 2>/dev/null && \
         echo
