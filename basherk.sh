@@ -513,7 +513,7 @@ function f() {
 
     elif [[ $location == "commit" ]]; then
         # find a commit with message matching string
-        graphall -10000 | grep -i "$search"
+        graphall --all --grep="$search"
 
     elif [[ $location == patch* ]]; then
         # find a patch containing change matching string/regexp
