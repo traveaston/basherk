@@ -1265,7 +1265,7 @@ function ubash() {
     }
 
     if rsync -az "$src" "$dest":~/.basherk; then
-        echo "$dest updated with basherk version $basherk_ver ($basherk_date)"
+        echo "$dest updated with $(basherk --version)"
     else
         echo "${RED}basherk update failed for $dest${D}"
     fi
