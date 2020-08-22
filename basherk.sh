@@ -25,8 +25,16 @@ ORANGE=$'\e[33;49m'
 PINK=$'\e[35;49m'
 RED=$'\e[31;49m'
 
-# show basherk version on execution
-echo "basherk $basherk_ver ($basherk_date)"
+# show basherk version (including time since modified if bleeding-edge) on execution
+if [[ $basherk_ver == *bleeding* ]]; then
+    if [[ "$(uname)" == "Darwin" ]]; then
+        echo "basherk $basherk_ver (modified $(stat -f "%Sm" -t "%a %e %b %r" "$basherk_src")," $(( $(date +%s) - $(stat -f%c "$basherk_src") )) "seconds ago)"
+    else
+        echo "basherk $basherk_ver (modified $(date "+%a %e %b %r" -r "$basherk_src")," $(( $(date +%s) - $(date +%s -r "$basherk_src") )) "seconds ago)"
+    fi
+else
+    echo "basherk $basherk_ver ($basherk_date)"
+fi
 
 [[ $1 =~ -(v|-version) ]] && return
 [[ $1 == "--update" ]] && ubash && return
