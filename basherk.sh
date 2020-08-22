@@ -491,7 +491,7 @@ function f() {
     # and convert all other bash wildcards to regex
     # ideally, we would also prepend a negative lookahead for / to ensure hlp
     # only highlights matches in the basename, but macos grep doesn't support it
-    hl="$(sed -e 's/\./\\./g' -e 's/^*//' -e 's/*$//' -e 's/*/.*/g' <<< $2)"
+    hl="$(sed -e 's/\./\\./g' -e 's/^*//' -e 's/*$//' -e 's/*/.*/g' <<< "$2")"
 
     # prefer ripgrep, then silver surfer, then grep if neither are installed
     if exists rg; then
@@ -620,8 +620,8 @@ function gitinfo() {
         echo "Repo URL: ${GREEN}$(get_repo_url)${D}"
     fi
 
-    if [ ${#unset_variables[@]} -ne 0 ]; then
-        echo "Unset git parameters: ${PINK}$(array_join ',' ${unset_variables[@]})${D}"
+    if [[ ${#unset_variables[@]} -ne 0 ]]; then
+        echo "Unset git parameters: ${PINK}$(array_join "," "${unset_variables[@]}")${D}"
     fi
 
     echo
@@ -640,14 +640,15 @@ function h() {
 if ! exists _have; then
     # This function checks whether we have a given program on the system.
     _have() {
-        PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null
+        PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type "$1" &>/dev/null
     }
 fi
 if ! exists have; then
     # Backwards compatibility redirect to _have
     have() {
         unset -v have
-        _have $1 && have=yes
+        # shellcheck disable=SC2034 # ignore "have appears unused" this is for compatibility
+        _have "$1" && have=yes
     }
 fi
 
@@ -724,8 +725,10 @@ function ipscan() {
 }
 
 function lastmod() {
-    if [[ $os == "macOS" ]]; then echo "Last modified" $(( $(date +%s) - $(stat -f%c "$1") )) "seconds ago"
-    else echo "Last modified" $(( $(date +%s) - $(date +%s -r "$1") )) "seconds ago"
+    if [[ $os == "macOS" ]]; then
+        echo "Last modified" $(( $(date +%s) - $(stat -f%c "$1") )) "seconds ago"
+    else
+        echo "Last modified" $(( $(date +%s) - $(date +%s -r "$1") )) "seconds ago"
     fi
 }
 
@@ -804,7 +807,7 @@ function mvln() {
     fi
 
     # capture actual final move location from first line of output, and remove quotes
-    new_location=$(echo "$new_location" | head -n1 | tr -d \'\"\‘\’)
+    new_location=$(echo "$new_location" | head -n1 | tr -d "\"‘’'")
     # remove everything before "-> "
     new_location="${new_location##*-> }"
 
@@ -819,7 +822,7 @@ function notify() {
     notification=$'\e]9;'
     notification+="$1"
     notification+=$'\007'
-    echo $notification
+    echo "$notification"
 }
 
 function pause() {
