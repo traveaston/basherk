@@ -921,36 +921,69 @@ function _source_bash_completions() {
 _source_bash_completions
 
 function sshl() {
+    local default_key i inherit keys_found output
     local key="$1"
+    local list_keys=true
 
-    # autodetect key if none specified
-    [[ -z $key ]] && {
-        if [[ -f ~/.ssh/id_ed25519 ]]; then
-            key="id_ed25519"
-        elif [[ -f ~/.ssh/id_rsa ]]; then
-            key="id_rsa"
-        else
-            echo "No ssh identity found."
-        fi
-    }
+    if [[ -n $key ]]; then
+        # standardise user specified key or ~/.ssh/key to absolute pathname
+        for i in $key ~/.ssh/$key; do
+            # shellcheck disable=SC2086 # key path needs to be unquoted
+            [[ -f $i ]] && key="$(_realpath $i)" && break
+        done
+    else
+        # set a default key if none specified, in order of preference
+        for i in ed25519 rsa dsa ecdsa; do
+            [[ -f ~/.ssh/id_$i ]] && default_key="$(_realpath ~/.ssh/id_$i)" && break
+        done
+    fi
 
     if exists keychain; then
-        # standard keychain only displays the first key when multiple are added
-        # so make it quiet then explicitly list all keys
-        eval "$(keychain --eval --quiet $key)"
-        keychain -l
-    else
-        echo "keychain not installed, falling back to built-in ssh-agent"
-        eval "$(ssh-agent -s)"
-
-        # allow relative or absolute key path argument
-        if [[ -f ~/.ssh/$key ]]; then
-            ssh-add ~/.ssh/$key
-        else
-            ssh-add $key
+        # tell keychain to inherit forwarded or pre-existing local agent, but
+        # only if it contains "agent"; we ignore the builtin macOS agent, and
+        # spawn a new, keychain-compatible agent which persists between shells
+        if [[ $SSH_AUTH_SOCK == *agent* ]]; then
+            inherit="--inherit any"
         fi
 
-        ssh-add -l
+        # add a default key, if there is one
+        # we do this so that keychain always adds a key, and we can do this because
+        # keychain doesn't add keys again if they're already loaded, unlike ssh-add
+        [[ -z $key && -n $default_key ]] && key="$default_key"
+
+        # shellcheck disable=SC2086 # params need to be unquoted
+        eval "$(keychain --eval $inherit $key)"
+
+        keychain -l
+    else
+        output="keychain not available, "
+
+        if [[ -z $SSH_AUTH_SOCK ]]; then
+            keys_found="$(find ~/.ssh -type f \( -iname "*id*" ! -iname "*.pub" \) -print -quit 2>/dev/null)"
+
+            # only start ssh-agent if the user specified a key, or if ~/.ssh contains a key
+            if [[ -n $keys_found || -n $key ]]; then
+                output+="spawning new ssh-agent"
+                eval "$(ssh-agent -s)"
+            else
+                output+="no keys found, not spawning ssh-agent"
+                list_keys=false
+            fi
+        else
+            output+="using forwarded ssh-agent"
+        fi
+
+        # add a default key, but only if the user hasn't specified one, we find a default, and no keys are loaded
+        if [[ -z $key && -n $default_key && "$(ssh-add -ql 2>/dev/null)" == "The agent has no identities." ]]; then
+            key=$default_key
+        fi
+
+        # shellcheck disable=SC2086 # key needs to be unquoted
+        [[ -n $key ]] && ssh-add $key
+
+        echo -e "$output\n"
+
+        [[ -n $key || $list_keys == true ]] && ssh-add -l
     fi
 }
 export -f sshl
