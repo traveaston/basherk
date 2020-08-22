@@ -215,6 +215,30 @@ function alias_realpath() {
         exists_flag=""
     fi
 
+    # if no combinations work, it's not installed so define our own function
+    # shellcheck disable=SC2086 # flag variable needs to be unquoted
+    if [[ "$($utility $exists_flag "/dev" 2>&1)" != "/dev" ]]; then
+        function _basherk_realpath() {
+            # https://stackoverflow.com/a/18443300
+
+            local OURPWD LINK REALPATH
+            OURPWD=$PWD
+
+            command cd "$(dirname "$1")"
+
+            LINK=$(readlink "$(basename "$1")")
+
+            while [ "$LINK" ]; do
+                command cd "$(dirname "$LINK")"
+                LINK=$(readlink "$(basename "$1")")
+            done
+            REALPATH="$PWD/$(basename "$1")"
+            command cd "$OURPWD"
+            echo "$REALPATH"
+        }
+        utility="_basherk_realpath"
+    fi
+
     # shellcheck disable=SC2139 # unconventionally use double quotes to expand variables
     alias _realpath="$utility $exists_flag"
 }
