@@ -1169,8 +1169,9 @@ function tm() {
     # if no args passed, show all processes (match end of line)
     [[ -z $1 ]] && processes="$"
 
-    # show full info with ps and grep for processes (and PID to show header)
-    ps -aef | grep -E "PID|$processes"
+    # grep process list (and PID to show header), without matching itself
+    # shellcheck disable=SC2009 # prefer grep over pgrep
+    ps -aef | grep -Ev "grep.*PID" | grep -E "PID|$processes"
 }
 
 if exists tmux; then
