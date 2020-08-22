@@ -7,7 +7,9 @@
 # If not running interactively, don't do anything
 [[ -z $PS1 ]] && return
 
-# basherk specific
+# if version is already set, we are re-sourcing basherk
+[[ -n $basherk_ver ]] && basherk_re_sourcing=true
+
 basherk_ver=134
 basherk_date="7 April 2020"
 basherk_src="${BASH_SOURCE[0]}"
@@ -1435,5 +1437,6 @@ export DISABLE_AUTO_TITLE="true"
 [[ -f "$basherk_dir/post-basherk.sh" ]] && . "$basherk_dir/post-basherk.sh"
 
 # run sshl last to avoid terminating basherk when cancelling ssh passkey prompt
-# if ssh-add exists start ssh agent(keychain or legacy) and list keys
-if exists ssh-add; then sshl; fi
+# don't run sshl if ssh isn't installed, or if we're re-sourcing basherk
+if ! exists ssh-add; then return; fi
+[[ -z $basherk_re_sourcing ]] && sshl
