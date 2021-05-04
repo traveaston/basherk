@@ -51,6 +51,9 @@ alias basherk='. "$basherk_src"'
 # usage: if exists apt-get; then apt-get update; fi
 # hoisted due to use in this script
 function exists() {
+    # return false if git is apple's xcode wrapper
+    [[ "$1" == "git" ]] && [[ $(cat $(command which git) | grep xcode) ]] && return 1
+
     command -v "$1" &>/dev/null
 }
 
@@ -1339,6 +1342,12 @@ function iTermSH() {
 function echo_working_dir() {
     local dir="$1"
     local gitrepo gitroot subfolder
+
+    if ! exists git; then
+        # return input if git is not installed
+        echo "$1"
+        return 0
+    fi
 
     gitroot=$(git_root 2>/dev/null) || {
         # return input if not in a git repo
