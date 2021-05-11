@@ -52,7 +52,7 @@ alias basherk='. "$basherk_src"'
 # hoisted due to use in this script
 function exists() {
     # return false if git is apple's xcode wrapper
-    [[ "$1" == "git" ]] && [[ $(cat $(command which git) | grep xcode) ]] && return 1
+    [[ "$1" == "git" ]] && [[ $(cat "$(command which git)" 2>/dev/null | grep xcode) ]] && return 1
 
     command -v "$1" &>/dev/null
 }
