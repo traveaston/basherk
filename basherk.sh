@@ -10,8 +10,8 @@
 # if version is already set, we are re-sourcing basherk
 [[ -n $basherk_ver ]] && basherk_re_sourcing=true
 
-basherk_ver=134
-basherk_date="7 April 2020"
+basherk_ver=135
+basherk_date="12 May 2021"
 basherk_src="${BASH_SOURCE[0]}"
 basherk_dir=$(dirname "$basherk_src")
 basherk_url="https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh"
