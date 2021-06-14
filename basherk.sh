@@ -462,6 +462,14 @@ function compare() {
 
 # comparefiles $file1 $file2
 function comparefiles() {
+    if [[ $os == "macOS" ]]; then
+        alias _stat_inode='stat -f%i'
+    else
+        alias _stat_inode='stat -c%i'
+    fi
+
+    [[ $(_stat_inode "$1") == $(_stat_inode "$2") ]] && echo "${ORANGE}Paths point to the same file (matching inode)${D}"
+
     check256 "$1" "$(check256 "$2")"
 
     ls -ahl "$1"
