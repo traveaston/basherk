@@ -664,11 +664,27 @@ function gitinfo() {
         echo "Unset git parameters: ${PINK}$(array_join "," "${unset_variables[@]}")${D}"
     fi
 
+    gitstats
+
     echo
 
     git status
 }
 
+function gitstats() {
+    # variables are titlecased to support bash version <4.0 lacking case manipulation
+    # shellcheck disable=SC2034 # dynamic variables
+    local Changed='git diff' Staged='git diff --staged'
+
+    for command in Staged Changed; do
+        if [[ -n "$(${!command} --stat)" ]]; then
+            echo
+            echo "$command:"
+            # run command again instead of capturing output above to preserve colour and stat output width
+            ${!command} --stat
+        fi
+    done
+}
 
 function h() {
     [[ -z $1 ]] && history && return
