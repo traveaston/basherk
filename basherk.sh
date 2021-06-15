@@ -331,6 +331,18 @@ if exists wslpath; then
 fi
 unset define_wsl_commands # avoid pollution
 
+# hoisted for use in cd()
+function iTermSH() {
+    [[ $os != "macOS" ]] && return
+
+    # Help iTerm2 Semantic History by echoing current dir
+    d=$'\e]1337;CurrentDir='
+    d+=$(pwd)
+    d+=$'\007'
+
+    echo $d
+}
+
 function cd() {
     local new_dir="$1"
 
@@ -339,6 +351,9 @@ function cd() {
 
     # escape cd to avoid calling itself or other alias, return exit status on failure
     command cd "$new_dir" || return $?
+
+    # echo dir for iTerm2 Semantic History immediately after cd
+    iTermSH
 
     # print working directory, and list contents (without owner/group)
     pwd
@@ -1342,17 +1357,6 @@ function which() {
     [[ -n $location ]] && ls -ahl "$location"
 }
 
-function iTermSH() {
-    [[ $os != "macOS" ]] && return
-
-    # Help iTerm2 Semantic History by echoing current dir
-    d=$'\e]1337;CurrentDir='
-    d+=$(pwd)
-    d+=$'\007'
-
-    echo $d
-}
-
 # return working directory with gitroot path replaced with repo name (if necessary)
 # ~/dev/repos/basherk/test => basherk repo/test
 function echo_working_dir() {
@@ -1456,7 +1460,7 @@ else
     if exists git; then prompt+='${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) '; fi
 
     # shellcheck disable=SC2016 # prompt command requires single quotes
-    prompt+='${D}$(iTermSH)\n\$ '
+    prompt+='${D}\n\$ '
 fi
 
 export PS1=$prompt
