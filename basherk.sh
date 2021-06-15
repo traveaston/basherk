@@ -39,6 +39,17 @@ fi
 [[ $1 =~ -(v|-version) ]] && return
 [[ $1 == "--update" ]] && ubash && return
 
+# this is not idempotent
+[[ $1 == "--install" ]] && {
+    # add preceeding newline if bashrc already exists
+    [[ -f ~/.bashrc ]] && basherk_install_string="\n"
+
+    basherk_install_string+=". $basherk_src # source basherk\n"
+
+    echo -e "$basherk_install_string" >> ~/.bashrc
+    return
+}
+
 # source pre-basherk definitions
 [[ -f "$basherk_dir/pre-basherk.sh" ]] && . "$basherk_dir/pre-basherk.sh"
 
