@@ -90,7 +90,8 @@ os=$(uname)
 
 [[ $os =~ (Linux|Windows) ]] && {
     alias vwmod='stat --format "%a"'
-    alias linver='cat /etc/*-release'
+    alias linver='osver'
+    alias osver='cat /etc/*-release'
 }
 
 # set appropriate ls color flag
@@ -121,6 +122,8 @@ case $os in
 
         alias fcache='sudo dscacheutil -flushcache'
         alias suho='sudo sublime /etc/hosts'
+
+        alias osver='sw_vers'
 
         alias vwmod='stat -f "%OLp"' # chmod supplement
 
