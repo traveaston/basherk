@@ -333,14 +333,14 @@ unset define_wsl_commands # avoid pollution
 
 # hoisted for use in cd()
 function iTermSH() {
-    [[ $os != "macOS" ]] && return
+    [[ $TERM_PROGRAM != *iTerm* ]] && return
 
     # Help iTerm2 Semantic History by echoing current dir
     d=$'\e]1337;CurrentDir='
     d+=$(pwd)
     d+=$'\007'
 
-    echo $d
+    echo "$d"
 }
 
 function cd() {
