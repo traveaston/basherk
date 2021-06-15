@@ -600,40 +600,36 @@ function f() {
         # display tip for patchfull
         [[ $location == "patch" ]] && echo -e "\n${GREEN}f ${*/patch/patchfull}${D} to show context (containing function)"
 
-    else
-        # location is a real file/folder location
+    elif [[ -d $location ]]; then
+        # find files within a folder
 
-        if [[ -d $location ]]; then
-            # find files
+        [[ -e $search ]] && {
+            echo "warning: if you specified a wildcard (*), bash interpreted it as globbing"
+        }
 
-            [[ -e $search ]] && {
-                echo "warning: if you specified a wildcard (*), bash interpreted it as globbing"
-            }
+        # add wildcards to file search if the user hasn't specified one
+        [[ ! $search == *'*'* ]] && search="*$search*"
 
-            # add wildcards to file search if the user hasn't specified one
-            [[ ! $search == *'*'* ]] && search="*$search*"
+        echo "searching ${CYAN}$(command cd "$location" && pwd)${D} for files matching ${CYAN}$search${D} (case insensitive)"
 
-            echo "searching ${CYAN}$(command cd "$location" && pwd)${D} for files matching ${CYAN}$search${D} (case insensitive)"
+        # capture find errors in global var basherk_f_errors
+        # https://stackoverflow.com/a/56577569
+        {
+            basherk_f_errors="$( {
+                # find files matching case-ins. search, strip leading ./ and highlight
+                $sudo find "$location" -iname "$search" | sed -e 's/^\.\///' | hlp -i "$hl"
+            } 2>&1 1>&3 3>&- )"
+        } 3>&1
 
-            # capture find errors in global var basherk_f_errors
-            # https://stackoverflow.com/a/56577569
-            {
-                basherk_f_errors="$( {
-                    # find files matching case-ins. search, strip leading ./ and highlight
-                    $sudo find "$location" -iname "$search" | sed -e 's/^\.\///' | hlp -i "$hl"
-                } 2>&1 1>&3 3>&- )"
-            } 3>&1
+        # tell user if there are hidden errors
+        [[ -n $basherk_f_errors ]] && \
+            echo "${CYAN}$(echo "$basherk_f_errors" | wc -l | awk '{print $1}')${D} find errors hidden (${CYAN}echo \"\$basherk_f_errors\"${D})"
 
-            # tell user if there are hidden errors
-            [[ -n $basherk_f_errors ]] && \
-                echo "${CYAN}$(echo "$basherk_f_errors" | wc -l | awk '{print $1}')${D} find errors hidden (${CYAN}echo \"\$basherk_f_errors\"${D})"
+    elif [[ -f $location ]]; then
+        # find a string within a single file
 
-        elif [[ -f $location ]]; then
-            # find a string within a single file
-            echo "searching ${CYAN}$location${D} contents for '${CYAN}$search${D}' (using $tool)"
-            $tool "$search" "$location"
-        fi
-
+        echo "searching ${CYAN}$location${D} contents for '${CYAN}$search${D}' (using $tool)"
+        $tool "$search" "$location"
     fi
 }
 
