@@ -152,6 +152,7 @@ alias mkdir='mkdir -pv' # Make parent directories as needed and be verbose
 # General aliases
 alias back='cd "$OLDPWD"'
 alias fuck='sudo $(history -p \!\!)' # Redo last command as sudo
+alias gitr='cd ~/dev/repos' # open main git repo directory
 alias lessf='less +F'
 alias now='date +"%c"'
 alias pwf='echo "${PWD##*/}"'
@@ -172,13 +173,6 @@ if exists ip; then
 else
     alias ipas='ifconfig | hlp ".*inet [0-9.]*"'
 fi
-
-# alias repo directory automatically
-[[ -d ~/dev/repos ]] && {
-    alias gitr='cd ~/dev/repos'
-} || {
-    alias gitr='cd /var/www/html'
-}
 
 # Custom commands
 alias travmysql='mysql -u trav -p'
