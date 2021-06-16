@@ -781,6 +781,9 @@ function ipscan() {
     local ip="$1"
     local sudo="$2"
 
+    # allow scanning local subnet with sudo without explitly passing ip
+    [[ $ip == "sudo" ]] && unset ip && sudo="sudo"
+
     [[ -z $ip ]] && {
         # scan subnet using local ip address with /24 subnet mask
         ip="$(ifconfig | sed -En 's/127.0.0.1//; s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p;')/24"
@@ -792,6 +795,8 @@ function ipscan() {
 
     echo "$sudo scanning ${CYAN}$ip${D}"
     $sudo nmap -sn -PE "$ip"
+    # shsellcheck disable=SC2086 # sudo needs to be unquoted
+    echo $sudo nmap -sn -PE "$ip"
 }
 
 function lastmod() {
