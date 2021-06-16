@@ -63,6 +63,14 @@ If you aren't using the repo, `basherk --update` or `ubash` will download the la
   * When assigning a boolean, don't quote `bar=false`
 * Simple regexes can be inline if it is clean but more complex expressions should be passed by variable
   * Also when containing special characters, especially `space`, should be passed by variable
+* Headings
+  * Main and subheadings are prepended with 2 lines
+  * Main code blocks are surrounded with Start/End headings
+  * Main headings are surrounded with 20x#
+  * Subheadings are prepended with 10x#
+  * Subheadings with no blank lines before next subheading are placed immediately above the code (see `Git diff aliases`)
+  * Subheadings containing comments or blank lines before next subheading contain an additional newline with a single # (see `Redefine builtin commands`)
+  * Aliases, functions, etc, under headings are sorted alphabetically most of the time, but not always.
 
 ## Authors
 

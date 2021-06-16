@@ -4,6 +4,9 @@
 # basherk
 # .bashrc replacement
 
+
+#################### Start basherk setup code ####################
+
 # If not running interactively, don't do anything
 [[ -z $PS1 ]] && return
 
@@ -36,6 +39,8 @@ else
     echo "basherk $basherk_ver ($basherk_date)"
 fi
 
+alias basherk='. "$basherk_src"'
+
 [[ $1 =~ -(v|-version) ]] && return
 [[ $1 == "--update" ]] && ubash && return
 
@@ -56,19 +61,11 @@ fi
 # source custom basherk user definitions
 [[ -f "$basherk_dir/custom-basherk.sh" ]] && . "$basherk_dir/custom-basherk.sh"
 
-alias basherk='. "$basherk_src"'
+#################### End basherk setup code ####################
 
-# check if a command exists
-# usage: if exists apt-get; then apt-get update; fi
-# hoisted due to use in this script
-function exists() {
-    # return false if git is apple's xcode wrapper
-    [[ "$1" == "git" ]] && [[ $(cat "$(command which git)" 2>/dev/null | grep xcode) ]] && return 1
 
-    command -v "$1" &>/dev/null
-}
+#################### History / terminal options ####################
 
-# history options
 export HISTCONTROL=ignoredups:erasedups # no duplicate entries
 export HISTSIZE=100000                  # 100k lines of history
 export HISTFILESIZE=100000              # 100kb max history size
@@ -82,91 +79,102 @@ shopt -s cdspell                        # autocorrect for cd
 # and disable XON/XOFF to enable Ctrl-s (forward search) in bash reverse search
 [[ $- == *i* ]] && stty -ixon
 
+
+#################### Aliases ####################
+
 os=$(uname)
 
 [[ $os == "Darwin" ]] && os="macOS"
 [[ $HOSTNAME =~ (Zen|Obsidian) ]] && os="Windows"
 [[ $BASH == *termux* ]] && os="Android"
 
-[[ $os =~ (Linux|Windows) ]] && {
-    alias vwmod='stat --format "%a"'
-    alias linver='osver'
-    alias osver='cat /etc/*-release'
-}
 
-# set appropriate ls color flag
-if ls --color -d . &>/dev/null; then
-    alias ls='ls --color=auto'
-elif ls -G -d . &>/dev/null; then
-    # macOS/FreeBSD/FreeNAS
-    alias ls='ls -G'
-fi
-
-alias la='ls -Ahl'
-
-# set appropriate l alias (hide owner/group if possible)
-if ls -dgo . &>/dev/null; then
-    alias l='la -go'
-else
-    # busybox ls
-    alias l='la -g'
-fi
-
-# Single OS aliases
-case $os in
-    macOS)
-        alias el='now && tailf /usr/local/var/log/apache2/error_log'
-        alias elm='now && tailf /var/log/mysql.log'
-        alias elmnd='now && tailf /usr/local/var/log/mysqlnd.log'
-        alias elpg='now && tailf /usr/local/var/log/postgres.log'
-
-        alias fcache='sudo dscacheutil -flushcache'
-        alias suho='sudo sublime /etc/hosts'
-
-        alias osver='sw_vers'
-
-        alias vwmod='stat -f "%OLp"' # chmod supplement
-
-        # When Time Mahine is backing up extremely slowly, it's usually due to throttling
-        alias tmnothrottle='sudo sysctl debug.lowpri_throttle_enabled=0'
-        alias tmthrottle='sudo sysctl debug.lowpri_throttle_enabled=1'
-        ;;
-    Linux)
-        alias cdnet='cd /etc/sysconfig/network-scripts/'
-        alias el='now && tailf /usr/local/apache2/logs/error_log'
-        ;;
-    Windows)
-        alias elp='tailf /c/xMAMP/logs/phperror.log'
-        alias suho='vi /mnt/c/Windows/System32/drivers/etc/hosts'
-        ;;
-esac
-
-# Redefine builtin commands
-alias cp='cp -iv' # interactive and verbose
-alias mv='mv -iv'
-# shellcheck disable=SC2032 # ignore warning that xargs rm in this script won't use this alias
-alias rm='rm -iv'
+########## Redefine builtin commands (interactive/verbose for file operations)
+#
+alias cp='cp -iv'
 alias df='df -h' # human readable
 alias mkdir='mkdir -pv' # Make parent directories as needed and be verbose
+alias mv='mv -iv'
+alias sudo='sudo ' # pass aliases through sudo https://serverfault.com/a/178956
 
-# General aliases
+# shellcheck disable=SC2032 # ignore warning that other functions in this script won't use this alias
+alias rm='rm -iv'
+
+
+########## General aliases
 alias back='cd "$OLDPWD"'
 alias fuck='sudo $(history -p \!\!)' # Redo last command as sudo
 alias gitr='cd ~/dev/repos' # open main git repo directory
 alias lessf='less +F'
 alias now='date +"%c"'
-alias pwf='echo "${PWD##*/}"'
-alias sudo='sudo ' # pass aliases through sudo https://serverfault.com/a/178956
+alias openports='nmap -sT -O localhost'
+alias pwf='echo "${PWD##*/}"' # print working folder
 alias weigh='du -sch'
 
-# conditional aliases
-if ! exists tailf; then alias tailf='tail -f'; fi
+
+########## Git aliases
+alias branches='git branch -a'
+alias discard='git checkout --'
+alias discardpatch='git checkout -p'
+alias gb='git branch -a'
+alias gitback='git checkout -'
+alias gitsquashlast='git rebase -i HEAD~2'
+alias gnb='git checkout -b'
+alias gs='git status'
+alias localbranches='git branch'
+alias stage='git add -p'
+alias stashcontents='git stash show -p'
+alias stashes='git stash list'
+alias unstage='git reset -q HEAD --'
+
+
+########## Git diff aliases
+alias changed='git diff'
+alias changedchars='git diff --color-words=.'
+alias changedwords='git diff --color-words'
+alias gd='git diff'
+alias gdom='git diff origin/master'
+alias staged='git diff --staged'
+alias stagedchars='git diff --staged --color-words=.'
+alias stagedwords='git diff --staged --color-words'
+
+
+########## Git log aliases
+alias gl='graph'
+alias gla='graphall' # git 2.9.3 seems to truncate SHAs to 7, rather than 2.26.2's 9
+alias graph='git log --graph -14 --format=format:"%Cgreen%h%Creset - %<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d"'
+alias graphall='git log --graph -20 --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d" --branches --remotes --tags'
+alias graphdates='git log --graph -20 --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(26,trunc)%ad%Creset %C(yellow)%d" --branches --remotes --tags'
+alias latestcommits='git log --graph -20 --date-order --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d" --branches --remotes --tags'
+alias limbs='git log --all --graph --decorate --oneline --simplify-by-decoration'
+
+
+########## Git reminder aliases / instructions
+alias gitdeleteremotebranch='echo "to delete remote branch, ${PINK}git push origin :<branchName>"'
+alias gitprune='echo "git remote prune origin" will automatically prune all branches that no longer exist'
+alias gitrebase='echo -e "usage: git checkout ${GREEN}develop${D}\n       git rebase ${PINK}master${D}\n\nRebase ${GREEN}branch${D} onto ${PINK}base${D}, which can be any kind of commit reference:\nan ID, branch name, tag or relative reference to HEAD."'
+alias gitundocommit='echo "git reset --soft HEAD^"'
+alias nevermind='echo "You will have to ${RED}git reset --hard HEAD && git clean -d -f${D} but it removes untracked things like vendor"'
+
+
+#################### Conditional aliases / functions ####################
+
+function exists() { # hoisted
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
+        echo "Check if a command exists"
+        echo "Usage:"
+        echo "    if exists apt-get; then apt-get update; fi"
+        return
+    }
+
+    # return false if git is apple's xcode wrapper
+    [[ "$1" == "git" ]] && [[ $(cat "$(command which git)" 2>/dev/null | grep xcode) ]] && return 1
+
+    command -v "$1" &>/dev/null
+}
 
 if ! exists aspell; then alias aspell='hunspell'; fi
-
-if echo x | grep --color=auto x &>/dev/null; then
-    alias grep='grep --color=auto'
-fi
+if ! exists tailf; then alias tailf='tail -f'; fi
 
 if exists ip; then
     alias ipas='ip addr show | hlp ".*inet [0-9.]*"'
@@ -174,52 +182,50 @@ else
     alias ipas='ifconfig | hlp ".*inet [0-9.]*"'
 fi
 
-# Custom commands
-alias travmysql='mysql -u trav -p'
-alias mysql_shutdown='mysqladmin -u trav -p shutdown'
-alias elmd='now && tailf /var/log/mysqld.log'
-alias openports='nmap -sT -O localhost'
+if echo x | grep --color=auto x &>/dev/null; then
+    alias grep='grep --color=auto'
+fi
 
-# Git aliases
-alias changed='git diff'
-alias changedchars='git diff --color-words=.'
-alias changedwords='git diff --color-words'
-alias gb='git branch -a'
-alias gd='git diff'
-alias gdom='git diff origin/master'
-alias gds='staged'
-alias gitback='git checkout -'
-alias gl='graph'
-alias gla='graphall'
-alias gnb='git checkout -b'
-alias gs='git status'
-alias stashes='git stash list'
-alias gsl='stashes'
-alias gitsquashlast='git rebase -i HEAD~2'
-alias graph='git log --graph -14 --format=format:"%Cgreen%h%Creset - %<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d"'
-alias graphall='git log --graph -20 --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d" --branches --remotes --tags'
-alias graphdates='git log --graph -20 --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(26,trunc)%ad%Creset %C(yellow)%d" --branches --remotes --tags'
-alias latestcommits='git log --graph -20 --date-order --format=format:"%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(14,trunc)%cr%Creset %C(yellow)%d" --branches --remotes --tags'
-alias stage='git add -p'
-alias staged='git diff --staged'
-alias stagedchars='git diff --staged --color-words=.'
-alias stagedwords='git diff --staged --color-words'
-alias stashcontents='git stash show -p'
-alias unstage='git reset -q HEAD --'
-alias discard='git checkout --'
-alias discardpatch='git checkout -p'
-alias limbs='git log --all --graph --decorate --oneline --simplify-by-decoration'
-alias nevermind='echo "You will have to ${RED}git reset --hard HEAD && git clean -d -f${D} but it removes untracked things like vendor"'
 
-# Instructions / remider aliases
-alias gitdeleteremotebranch='echo "to delete remote branch, ${PINK}git push origin :<branchName>"'
-alias gitprune='echo "git remote prune origin" will automatically prune all branches that no longer exist'
-alias gitrebase='echo "usage: git checkout ${GREEN}develop${D}" &&
-                 echo "       git rebase ${PINK}master${D}" &&
-                 echo &&
-                 echo "Rebase ${GREEN}branch${D} onto ${PINK}base${D}, which can be any kind of commit reference:" &&
-                 echo "an ID, branch name, tag or relative reference to HEAD."'
-alias gitundocommit='echo "git reset --soft HEAD^"'
+########## macOS OR Linux/WSL commands
+if [[ $os == "macOS" ]]; then
+    alias vwmod='stat -f "%OLp"'
+
+    ########## macOS only commands
+    alias fcache='sudo dscacheutil -flushcache' # flush dns
+    # When Time Mahine is backing up extremely slowly, it's usually due to throttling
+    alias tmnothrottle='sudo sysctl debug.lowpri_throttle_enabled=0'
+    alias tmthrottle='sudo sysctl debug.lowpri_throttle_enabled=1'
+else
+    alias vwmod='stat --format "%a"'
+fi
+
+
+########## Aliasing functions
+#
+
+# setup aliases for ls, la, l
+function alias_ls() {
+    # set appropriate ls color flag
+    if ls --color -d . &>/dev/null; then
+        alias ls='ls --color=auto'
+    elif ls -G -d . &>/dev/null; then
+        # macOS/FreeBSD/FreeNAS
+        alias ls='ls -G'
+    fi
+
+    alias la='ls -Ahl'
+
+    # set appropriate l alias (hide owner/group if possible)
+    if ls -dgo . &>/dev/null; then
+        alias l='la -go'
+    else
+        # busybox ls
+        alias l='la -g'
+    fi
+}
+alias_ls
+unset alias_ls # avoid pollution
 
 # alias realpath for consistency
 function alias_realpath() {
@@ -265,6 +271,10 @@ function alias_realpath() {
 }
 alias_realpath
 unset alias_realpath # avoid pollution
+
+
+########## Other hoisted functions
+#
 
 # credit: https://stackoverflow.com/a/17841619
 # this solution avoids appending/prepending delimiter to final string
@@ -342,6 +352,10 @@ function iTermSH() {
 
     echo "$d"
 }
+
+
+#################### Main functions ####################
+
 
 function cd() {
     local new_dir="$1"
@@ -881,6 +895,14 @@ function notify() {
     echo "$notification"
 }
 
+function osver() {
+    if [[ $os == "macOS" ]]; then
+        sw_vers
+    else
+        cat /etc/*-release
+    fi
+}
+
 function pause() {
     read -r -p "$*"
 }
@@ -1146,6 +1168,14 @@ function strpos() {
 
     x="${1%%$2*}"
     [[ $x = "$1" ]] && echo -1 || echo "${#x}"
+}
+
+function suho() {
+    if [[ $os == "macOS" ]]; then
+        sudo sublime /etc/hosts
+    elif [[ $os == "Windows" ]]; then
+        sudo vi /mnt/c/Windows/System32/drivers/etc/hosts
+    fi
 }
 
 [[ $os == "macOS" ]] && {
