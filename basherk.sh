@@ -942,6 +942,75 @@ function rm() {
     history -s rm "${sanitized[@]}"
 }
 
+function rtfm() {
+    [[ -z $1 ]] || [[ $1 == "--help" ]] && {
+        echo "Search manual or --help for command & arguments"
+        echo "  Accepts options/text without requiring escaping"
+        echo
+        echo "Usage: rtfm <command> [options...] [arguments...] [raw text...] [--rtfm-options...]"
+        echo "  options:"
+        echo "    --help            show this page"
+        return
+    }
+
+    local -a long_opts
+    local -a raw
+    local opts
+    local regex
+
+    # extract command from argument list
+    local command_name="$1"
+    shift
+
+    # loop through arguments
+    while (( $# > 0 )); do
+        case "$1" in
+            --*)
+                # strip prepended --
+                long_opts+=("${1:2:99}")
+                shift
+                ;;
+            -*)
+                # strip prepended -
+                opts+="${1:1:99}"
+                shift
+                ;;
+            *)
+                raw+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    if [[ -n $opts ]]; then
+        # match '[-x' or ' -x' or ',-x'
+        regex+="[[ ,]-[$opts]|"
+    fi
+
+    # add long_opts to regex if specified
+    [[ ${#long_opts[@]} -gt 0 ]] && regex+="--($(array_join "|" "${long_opts[@]}"))|"
+
+    # add raw text to regex if specified
+    [[ ${#raw[@]} -gt 0 ]] && regex+="($(array_join "|" "${raw[@]}"))|"
+
+    # strip trailing |
+    regex=${regex%?}
+
+    if ! man "$command_name" >/dev/null 2>&1; then
+        "$command_name" --help | grep -E "$regex"
+        return
+    fi
+
+    # open manual if no search specified
+    [[ -z $regex ]] && {
+        man "$command_name"
+        return
+    }
+
+    # pipe man through col to fix backspaces and tabs, and grep the output for our regex
+    man "$command_name" | col -bx | grep -E -e "$regex"
+}
+
 # set_title $title
 # set window title to $title, or "user at host in folder" if blank
 # ensures prompt command is not overwritten
