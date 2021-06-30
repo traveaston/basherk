@@ -946,17 +946,21 @@ function rtfm() {
     [[ -z $1 ]] || [[ $1 == "--help" ]] && {
         echo "Search manual or --help for command & arguments"
         echo "  Accepts options/text without requiring escaping"
+        echo "  Actual rtfm options are prepended with --rtfm-"
         echo
         echo "Usage: rtfm <command> [options...] [arguments...] [raw text...] [--rtfm-options...]"
         echo "  options:"
         echo "    --help            show this page"
+        echo "    --rtfm-#          show # lines of context after match (0-9, default: 2)"
         return
     }
 
     local -a long_opts
     local -a raw
+    local context=2
     local opts
     local regex
+    local rtfm_opt
 
     # extract command from argument list
     local command_name="$1"
@@ -965,6 +969,15 @@ function rtfm() {
     # loop through arguments
     while (( $# > 0 )); do
         case "$1" in
+            --rtfm-*)
+                rtfm_opt="${1:7:99}"
+
+                if [[ $rtfm_opt =~ [0-9] ]]; then
+                    context=$rtfm_opt
+                fi
+
+                shift
+                ;;
             --*)
                 # strip prepended --
                 long_opts+=("${1:2:99}")
@@ -1008,7 +1021,7 @@ function rtfm() {
     }
 
     # pipe man through col to fix backspaces and tabs, and grep the output for our regex
-    man "$command_name" | col -bx | grep -E -e "$regex"
+    man "$command_name" | col -bx | grep -E -A "$context" -e "$regex"
 }
 
 # set_title $title
