@@ -952,6 +952,7 @@ function rtfm() {
         echo "  options:"
         echo "    --help            show this page"
         echo "    --rtfm-#          show # lines of context after match (0-9, default: 2)"
+        echo "    --rtfm-strict     ignore options scattered through descriptions of other options by explicitly matching start of line"
         return
     }
 
@@ -961,6 +962,7 @@ function rtfm() {
     local opts
     local regex
     local rtfm_opt
+    local strict_mode
 
     # extract command from argument list
     local command_name="$1"
@@ -970,10 +972,13 @@ function rtfm() {
     while (( $# > 0 )); do
         case "$1" in
             --rtfm-*)
+                # strip prepended --rtfm-
                 rtfm_opt="${1:7:99}"
 
                 if [[ $rtfm_opt =~ [0-9] ]]; then
                     context=$rtfm_opt
+                elif [[ $rtfm_opt == "strict" ]]; then
+                    strict_mode=true
                 fi
 
                 shift
@@ -995,7 +1000,10 @@ function rtfm() {
         esac
     done
 
-    if [[ -n $opts ]]; then
+    if [[ $strict_mode ]]; then
+        echo "Strict mode: ignore options scattered through descriptions of other options"
+        regex+="^ *-[$opts]|"
+    elif [[ -n $opts ]]; then
         # match '[-x' or ' -x' or ',-x'
         regex+="[[ ,]-[$opts]|"
     fi
