@@ -952,6 +952,7 @@ function rtfm() {
         echo "  options:"
         echo "    --help            show this page"
         echo "    --rtfm-#          show # lines of context after match (0-9, default: 2)"
+        echo "    --rtfm-debug      show debugging info"
         echo "    --rtfm-strict     ignore options scattered through descriptions of other options by explicitly matching start of line"
         return
     }
@@ -959,6 +960,7 @@ function rtfm() {
     local -a long_opts
     local -a raw
     local context=2
+    local debug
     local opts
     local regex
     local rtfm_opt
@@ -977,6 +979,8 @@ function rtfm() {
 
                 if [[ $rtfm_opt =~ [0-9] ]]; then
                     context=$rtfm_opt
+                elif [[ $rtfm_opt == "debug" ]]; then
+                    debug=true
                 elif [[ $rtfm_opt == "strict" ]]; then
                     strict_mode=true
                 fi
@@ -1000,8 +1004,10 @@ function rtfm() {
         esac
     done
 
+    [[ $debug ]] && echo "${CYAN}rtfm is case-sensitive${D}"
+
     if [[ $strict_mode ]]; then
-        echo "Strict mode: ignore options scattered through descriptions of other options"
+        [[ $debug ]] && echo "${CYAN}Strict mode: ignore options scattered through descriptions of other options${D}"
         regex+="^ *-[$opts]|"
     elif [[ -n $opts ]]; then
         # match '[-x' or ' -x' or ',-x'
@@ -1018,6 +1024,11 @@ function rtfm() {
     regex=${regex%?}
 
     if ! man "$command_name" >/dev/null 2>&1; then
+        [[ $debug ]] && {
+            echo "No man found for $command_name"
+            echo "\"$command_name\" --help | grep -E \"$regex\""
+        }
+
         "$command_name" --help | grep -E "$regex"
         return
     fi
@@ -1029,6 +1040,7 @@ function rtfm() {
     }
 
     # pipe man through col to fix backspaces and tabs, and grep the output for our regex
+    [[ $debug ]] && echo "man \"$command_name\" | col -bx | grep -E -A \"$context\" -e \"$regex\""
     man "$command_name" | col -bx | grep -E -A "$context" -e "$regex"
 }
 
