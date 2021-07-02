@@ -587,8 +587,10 @@ function f() {
             echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool)"
             $tool "$search"
         else
-            echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries , .git/, vendor/)"
-            count=$($tool -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
+            echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries, .git/, vendor/)"
+
+            # force color=always as piping to tee breaks the auto detection
+            count=$($tool --color=always -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
         fi
