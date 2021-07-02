@@ -1382,12 +1382,8 @@ fi
 
 function totalcommits() {
     local override="custom"
-    local ref repo
+    local ref
     local -i commits
-
-    # get git repo name from remote, or use folder name if empty
-    repo=$(git_repo_name)
-    [[ -z $repo ]] && repo=$(pwf)
 
     # allow overriding starting commit, if you inherit a project or similar
     # set using: git config basherk.firstcommit <ref>
@@ -1408,7 +1404,7 @@ function totalcommits() {
     # increment to also include ref commit in count
     ((commits++))
 
-    echo "${D}Commits for ${CYAN}$repo${D} starting $ref ($override): ${CYAN}$commits${D}"
+    echo "${D}Commits for ${CYAN}$(git_repo_name)${D} starting $ref ($override): ${CYAN}$commits${D}"
 }
 
 # update basherk on another machine (or localhost if none specified)
@@ -1510,7 +1506,7 @@ function which() {
 # ~/dev/repos/basherk/test => basherk repo/test
 function echo_working_dir() {
     local dir="$1"
-    local gitrepo gitroot subfolder
+    local gitrepo subfolder
 
     if ! exists git; then
         # return input if git is not installed
@@ -1518,17 +1514,13 @@ function echo_working_dir() {
         return 0
     fi
 
-    gitroot=$(git_root 2>/dev/null) || {
+    gitrepo=$(git_repo_name 2>/dev/null) || {
         # return input if not in a git repo
         echo "$1"
         return
     }
 
-    gitrepo=$(git_repo_name)
     subfolder=$(git rev-parse --show-prefix)
-
-    # use git root folder name if git remote is blank
-    [[ -z $gitrepo ]] && gitrepo="${gitroot##*/}"
 
     # manually build subfolder if inside .git since show-prefix returns blank
     [[ $dir == *.git* ]] && subfolder=".git${dir##*.git}"
@@ -1578,7 +1570,16 @@ function git_in_repo() {
 }
 
 function git_repo_name() {
-    git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///; s/\.git//;'
+    local gitrepo gitroot
+
+    gitroot=$(git_root) || return # return if not in a git repo
+
+    gitrepo=$(git remote -v | head -n1 | awk '{print $2}' | sed 's/.*\///; s/\.git//;')
+
+    # return git root folder name if git remote is blank
+    [[ -z $gitrepo ]] && gitrepo="${gitroot##*/}"
+
+    echo "$gitrepo"
 }
 
 function git_root() {
