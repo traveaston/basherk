@@ -595,10 +595,15 @@ function f() {
 
     elif [[ $location == "commit" ]]; then
         # find a commit with message matching string
-        graphall --all --grep="$search"
+
+        echo "searching commits in ${CYAN}$(git_repo_name) repo${D} for messages matching ${CYAN}$search${D} (case insensitive)"
+
+        graphall --all --grep="$search" -i
 
     elif [[ $location == patch* ]]; then
         # find a patch containing change matching string/regexp
+
+        echo "searching commits in ${CYAN}$(git_repo_name) repo${D} for patches matching ${CYAN}$search${D} (case sensitive)"
 
         [[ $location == "patchfull" ]] && local context="--function-context"
 
