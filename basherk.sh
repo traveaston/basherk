@@ -685,7 +685,7 @@ function get_repo_url() {
 }
 
 function gitinfo() {
-    local repourl=$(get_repo_url)
+    local repourl
     local stashcount
     local unset_variables=()
 
@@ -698,8 +698,10 @@ function gitinfo() {
     # show total number of commits
     totalcommits
 
+    repourl=$(get_repo_url)
+
     if [[ -n "$repourl" ]]; then
-        echo "Repo URL: ${GREEN}$(get_repo_url)${D}"
+        echo "Repo URL: ${GREEN}$repourl${D}"
     fi
 
     if [[ ${#unset_variables[@]} -ne 0 ]]; then
