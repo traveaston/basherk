@@ -540,16 +540,19 @@ function f() {
         return
     }
 
-    local count hl matches path tool
+    local count debug hl matches path sudo tool
     local location="$1"
     local search="$2"
-    local sudo="$3"
+
+    [[ $3 =~ -(d|-debug) ]] && debug=true || sudo="$3"
 
     # escape all periods (regex wildcards), strip leading/trailing bash wildcards,
     # and convert all other bash wildcards to regex
     # ideally, we would also prepend a negative lookahead for / to ensure hlp
     # only highlights matches in the basename, but macos grep doesn't support it
     hl="$(sed -e 's/\./\\./g' -e 's/^*//' -e 's/*$//' -e 's/*/.*/g' <<< "$2")"
+
+    [[ $debug ]] && echo "${CYAN}highlighting with '$hl'${D}"
 
     # prefer ripgrep, then silver surfer, then grep if neither are installed
     if exists rg; then
@@ -563,9 +566,7 @@ function f() {
     if [[ $location == "path" ]]; then
         # search each folder in PATH with a max depth of 1
 
-        [[ -e $search ]] && {
-            echo "warning: if you specified a wildcard (*), bash interpreted it as globbing"
-        }
+        [[ -e $search ]] && echo "${ORANGE}Warning: if you specified a wildcard (*), bash interpreted it as globbing${D}"
 
         # add wildcards to file search if the user hasn't specified one
         [[ ! $search == *'*'* ]] && search="*$search*"
@@ -577,6 +578,7 @@ function f() {
             # ignore non-existent directories in $PATH
             [[ ! -d $path ]] && continue
 
+            [[ $debug ]] && echo "${CYAN}$sudo find \"$path\" -maxdepth 1 -iname \"$search\" | hlp -i \"$hl\"${D}"
             $sudo find "$path" -maxdepth 1 -iname "$search" | hlp -i "$hl"
         done
 
@@ -586,9 +588,15 @@ function f() {
         if [[ $tool != "grep" ]]; then
             echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool)"
 
+            [[ $debug ]] && echo "${CYAN}$tool -C 2 \"$search\"${D}"
             $tool -C 2 "$search"
         else
             echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries, .git/, vendor/)"
+
+            [[ $debug ]] && {
+                echo "${CYAN}$tool --color=always -C 2 -Iinr \"$search\" . --exclude-dir=\".git\" --exclude-dir=\"vendor\"${D}"
+                echo "${CYAN}count=\$([ABOVE COMMAND] | tee /dev/tty | wc -l) matches${D}"
+            }
 
             # force color=always as piping to tee breaks the auto detection
             count=$($tool --color=always -C 2 -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
@@ -601,6 +609,7 @@ function f() {
 
         echo "searching commits in ${CYAN}$(git_repo_name) repo${D} for messages matching ${CYAN}$search${D} (case insensitive)"
 
+        [[ $debug ]] && echo "${CYAN}graphall --all --grep=\"$search\" -i${D}"
         graphall --all --grep="$search" -i
 
     elif [[ $location == patch* ]]; then
@@ -609,6 +618,14 @@ function f() {
         echo "searching commits in ${CYAN}$(git_repo_name) repo${D} for patches matching ${CYAN}$search${D} (case sensitive)"
 
         [[ $location == "patchfull" ]] && local context="--function-context"
+
+        [[ $debug ]] && {
+            echo "${CYAN}for commit in $(git log --pretty=format:\"%h\" -G \"$search\"); do"
+            echo "    git log -1 \"$commit\" --format=\"[...]\""
+            echo "    git grep --color=always -n $context \"$search\" \"$commit\""
+            echo "done${D} (simplified)"
+
+        }
 
         for commit in $(git log --pretty=format:"%h" -G "$search"); do
             echo
@@ -625,14 +642,14 @@ function f() {
     elif [[ -d $location ]]; then
         # find files within a folder
 
-        [[ -e $search ]] && {
-            echo "warning: if you specified a wildcard (*), bash interpreted it as globbing"
-        }
+        [[ -e $search ]] && echo "${ORANGE}Warning: if you specified a wildcard (*), bash interpreted it as globbing${D}"
 
         # add wildcards to file search if the user hasn't specified one
         [[ ! $search == *'*'* ]] && search="*$search*"
 
         echo "searching ${CYAN}$(command cd "$location" && pwd)${D} for files matching ${CYAN}$search${D} (case insensitive)"
+
+        [[ $debug ]] && echo "${CYAN}$sudo find \"$location\" -iname \"$search\" | sed -e 's/^\.\///' | hlp -i \"$hl\"${D}"
 
         # capture find errors in global var basherk_f_errors
         # https://stackoverflow.com/a/56577569
@@ -651,6 +668,8 @@ function f() {
         # find a string within a single file
 
         echo "searching ${CYAN}$location${D} contents for '${CYAN}$search${D}' (using $tool)"
+
+        [[ $debug ]] && echo "${CYAN}$tool \"$search\" \"$location\"${D}"
         $tool "$search" "$location"
     fi
 }
