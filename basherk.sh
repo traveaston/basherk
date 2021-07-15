@@ -686,6 +686,7 @@ function get_repo_url() {
 
 function gitinfo() {
     local repourl=$(get_repo_url)
+    local stashcount
     local unset_variables=()
 
     [[ -z "$(git config user.name)" ]] && unset_variables+=("name")
@@ -706,6 +707,9 @@ function gitinfo() {
     fi
 
     gitstats
+
+    stashcount=$(stashes | wc -l | tr -d ' ')
+    [[ $stashcount != 0 ]] && echo -e "\nYou have ${CYAN}$stashcount${D} stashes"
 
     echo
 
