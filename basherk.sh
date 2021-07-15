@@ -813,7 +813,7 @@ function ipscan() {
 
     [[ -z $ip ]] && {
         # scan subnet using local ip address with /24 subnet mask
-        ip="$(ifconfig | sed -En 's/127.0.0.1//; s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p;')/24"
+        ip="$(ifconfig | sed -En 's/127.0.0.1//; s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p;' | head -1)/24"
     }
 
     # if only subnet was given, build a complete address
