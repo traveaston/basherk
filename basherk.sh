@@ -585,12 +585,13 @@ function f() {
 
         if [[ $tool != "grep" ]]; then
             echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool)"
-            $tool "$search"
+
+            $tool -C 2 "$search"
         else
             echo "searching ${CYAN}$(pwf)/${D} for '${CYAN}$search${D}' (using $tool, ignores: case, binaries, .git/, vendor/)"
 
             # force color=always as piping to tee breaks the auto detection
-            count=$($tool --color=always -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
+            count=$($tool --color=always -C 2 -Iinr "$search" . --exclude-dir=".git" --exclude-dir="vendor" | tee /dev/tty | wc -l)
 
             echo "$count matches"
         fi
