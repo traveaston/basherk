@@ -1635,15 +1635,16 @@ else
     # user at host
     prompt='\n${PINK}\u ${D}at ${ORANGE}\h '
 
-    # shellcheck disable=SC2016 # prompt command requires single quotes
+    # shellcheck disable=SC2016
     # working dir or repo name substitute
     prompt+='${D}in ${GREEN}$(echo_working_dir "\w") '
 
-    # shellcheck disable=SC2016 # prompt command requires single quotes
+    # shellcheck disable=SC2016
     if exists git; then prompt+='${D}$(git_in_repo) ${PINK}$(git_branch)${GREEN}$(git_dirty) '; fi
 
-    # shellcheck disable=SC2016 # prompt command requires single quotes
-    prompt+='${D}\n\$ '
+    # shellcheck disable=SC2016
+    # manually set mark to align it with the prompt, ensure it doesn't break (e.g. after re-sourcing basherk)
+    [[ $TERM_PROGRAM == *iTerm* ]] && prompt+='${D}\n\[$(iterm2_prompt_mark)\]$ ' || prompt+='${D}\n$ '
 fi
 
 export PS1=$prompt
