@@ -210,11 +210,12 @@ function alias_ls() {
     if ls --color -d . &>/dev/null; then
         alias ls='ls --color=auto'
     elif ls -G -d . &>/dev/null; then
-        # macOS/FreeBSD/FreeNAS
+        # FreeBSD/FreeNAS/legacy macOS versions
         alias ls='ls -G'
     fi
 
     alias la='ls -Ahl'
+    alias ll='ls -ahl' # don't hide . and .. as above does
 
     # set appropriate l alias (hide owner/group if possible)
     if ls -dgo . &>/dev/null; then
