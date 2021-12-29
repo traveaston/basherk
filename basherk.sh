@@ -206,9 +206,9 @@ fi
 # setup aliases for ls, la, l
 function alias_ls() {
     # set appropriate ls color flag
-    if ls --color -d . &>/dev/null; then
+    if command ls --color -d . &>/dev/null; then
         alias ls='ls --color=auto'
-    elif ls -G -d . &>/dev/null; then
+    elif command ls -G -d . &>/dev/null; then
         # FreeBSD/FreeNAS/legacy macOS versions
         alias ls='ls -G'
     fi
@@ -217,7 +217,7 @@ function alias_ls() {
     alias ll='ls -ahl' # don't hide . and .. as above does
 
     # set appropriate l alias (hide owner/group if possible)
-    if ls -dgo . &>/dev/null; then
+    if command ls -dgo . &>/dev/null; then
         alias l='la -go'
     else
         # busybox ls
