@@ -188,6 +188,7 @@ fi
 
 ########## macOS OR Linux/WSL commands
 if [[ $os == "macOS" ]]; then
+    alias _stat_inode='stat -f%i'
     alias vwmod='stat -f "%OLp"'
 
     ########## macOS only commands
@@ -196,6 +197,7 @@ if [[ $os == "macOS" ]]; then
     alias tmnothrottle='sudo sysctl debug.lowpri_throttle_enabled=0'
     alias tmthrottle='sudo sysctl debug.lowpri_throttle_enabled=1'
 else
+    alias _stat_inode='stat -c%i'
     alias vwmod='stat --format "%a"'
 fi
 
@@ -499,12 +501,6 @@ function compare() {
 
 # comparefiles $file1 $file2
 function comparefiles() {
-    if [[ $os == "macOS" ]]; then
-        alias _stat_inode='stat -f%i'
-    else
-        alias _stat_inode='stat -c%i'
-    fi
-
     [[ $(_stat_inode "$1") == $(_stat_inode "$2") ]] && echo "${ORANGE}Paths point to the same file (matching inode)${D}"
 
     check256 "$1" "$(check256 "$2")"
