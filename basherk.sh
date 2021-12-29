@@ -251,16 +251,16 @@ function alias_realpath() {
             local OURPWD LINK REALPATH
             OURPWD=$PWD
 
-            command cd "$(dirname "$1")"
+            command cd "$(dirname "$1")" || return $?
 
             LINK=$(readlink "$(basename "$1")")
 
             while [ "$LINK" ]; do
-                command cd "$(dirname "$LINK")"
+                command cd "$(dirname "$LINK")" || return $?
                 LINK=$(readlink "$(basename "$1")")
             done
             REALPATH="$PWD/$(basename "$1")"
-            command cd "$OURPWD"
+            command cd "$OURPWD" || return $?
             echo "$REALPATH"
         }
         utility="_basherk_realpath"
@@ -331,7 +331,7 @@ function define_wsl_commands() {
 
     # cdwsl "C:\Program Files" -> "/mnt/c/Program Files"
     function cdwsl() {
-        cd "$(wslpath "$@")"
+        cd "$(wslpath "$@")" || return $?
     }
 
 }
