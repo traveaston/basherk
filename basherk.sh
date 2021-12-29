@@ -106,6 +106,7 @@ alias gitr='cd ~/dev/repos' # open main git repo directory
 alias lessf='less +F'
 alias now='date +"%c"'
 alias openports='nmap -sT -O localhost'
+# shellcheck disable=SC2262 # we don't use this in the same parsing unit
 alias pwf='echo "${PWD##*/}"' # print working folder
 alias weigh='du -sch'
 
