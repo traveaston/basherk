@@ -23,3 +23,5 @@ jobs:
           SHELLCHECK_OPTS: -s bash -e SC2119 -e SC2120
           # SC2119 - our functions' $1 is never script's $1
           # SC2120 - our functions, by nature, define arguments we won't use within basherk
+        with:
+          check_together: true
