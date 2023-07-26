@@ -168,7 +168,7 @@ function exists() { # hoisted
     }
 
     # return false if git is apple's xcode wrapper
-    [[ "$1" == "git" ]] && [[ $(cat "$(command which git)" 2>/dev/null | grep xcode) ]] && return 1
+    [[ "$1" == "git" ]] && grep -q xcode "$(command which git 2>/dev/null)" 2>/dev/null && return 1
 
     command -v "$1" &>/dev/null
 }
