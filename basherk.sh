@@ -948,6 +948,7 @@ function pause() {
 
 # sanitize history by removing -f from rm command
 # this prevents you from rerunning an old command and force removing something unintended
+# shellcheck disable=SC2032 # we don't aspire to invoke this via xargs
 function rm() {
     local HISTIGNORE="$HISTIGNORE:command rm *"
     local arg process
