@@ -619,7 +619,7 @@ function f() {
         [[ $location == "patchfull" ]] && local context="--function-context"
 
         [[ $debug ]] && {
-            echo "${CYAN}for commit in $(git log --pretty=format:\"%h\" -G \"$search\"); do"
+            echo "${CYAN}for commit in \$(git log --pretty=format:\"%h\" -G \"$search\"); do"
             echo "    git log -1 \"$commit\" --format=\"[...]\""
             echo "    git grep --color=always -n $context \"$search\" \"$commit\""
             echo "done${D} (simplified)"
