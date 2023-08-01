@@ -1466,7 +1466,7 @@ function ubash() {
         }
 
         # download latest (HEAD) basherk
-        curl $basherk_url -o "$src"
+        curl "$basherk_url" -o "$src"
         clear
 
         echo "re-sourcing basherk"
