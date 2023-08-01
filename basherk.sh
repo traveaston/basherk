@@ -1,5 +1,7 @@
 # shellcheck shell=bash
 # shellcheck disable=SC1090 # ignore non-constant source location warning
+# shellcheck disable=SC1091 # ignore sourced files
+#
 # basherk
 # .bashrc replacement
 
