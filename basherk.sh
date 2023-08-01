@@ -856,11 +856,12 @@ function listening() {
         echo "Find port or process in list of listening ports"
         echo "Usage:"
         echo "    listening [--help]      Show this screen"
+        echo "    listening $             Show all ports/process (grep regex for newline char)"
         echo "    listening p1 [p2, etc]  Show ports/processes matching p#"
         return
     }
 
-    local args=("$@")
+    local -a args=( "$@" )
     local pattern
 
     # regex for int with 1-5 characters
@@ -868,7 +869,7 @@ function listening() {
 
     for (( i = 0; i < ${#args[@]}; i++ )); do
         # prepend colon to integer(port) to avoid searching PID, etc
-        [[ ${args[$i]} =~ $int_regex ]] && args[$i]=":${args[$i]}"
+        [[ ${args[$i]} =~ $int_regex ]] && args[i]=":${args[$i]}"
     done
 
     pattern=$(array_join "|" "${args[@]}")
