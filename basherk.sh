@@ -812,7 +812,8 @@ function ipscan() {
     local sudo="$2"
 
     # allow scanning local subnet with sudo without explitly passing ip
-    [[ $ip == "sudo" ]] && unset ip && sudo="sudo"
+    [[ $ip == "sudo" ]] && unset ip && sudo="sudo "
+    # by appending space to $sudo, we avoid displaying ` foo` as the executed command when sudo is unset
 
     [[ -z $ip ]] && {
         # scan subnet using local ip address with /24 subnet mask
@@ -823,10 +824,9 @@ function ipscan() {
     local re='^[0-9]{1,3}$'
     [[ $ip =~ $re ]] && ip="192.168.$ip.1/24"
 
-    echo "$sudo scanning ${CYAN}$ip${D}"
-    $sudo nmap -sn -PE "$ip"
-    # shsellcheck disable=SC2086 # sudo needs to be unquoted
-    echo $sudo nmap -sn -PE "$ip"
+    echo "${sudo}scanning ${CYAN}$ip${D}"
+    # shellcheck disable=SC2086 # sudo needs to be unquoted
+    ${sudo}nmap -sn -PE "$ip"
 }
 
 function lastmod() {
