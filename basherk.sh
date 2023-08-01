@@ -631,6 +631,7 @@ function f() {
             git log -1 "$commit" --format="%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(20,trunc)%cr%Creset %C(yellow)%d"
 
             # git grep the commit for the search, remove hash from each line as we echo it pretty above
+            # shellcheck disable=SC2086 # context/flag must be unquoted else it will eval to an empty positional argument
             matches=$(git grep --color=always -n $context "$search" "$commit")
             echo "${matches//$commit:/}"
         done
