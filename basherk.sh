@@ -1304,7 +1304,7 @@ function _stashstage() {
 function strpos() {
     [[ -z $1 ]] && echo "usage: strpos haystack needle" && return
 
-    x="${1%%$2*}"
+    x="${1%%"$2"*}"
     [[ $x = "$1" ]] && echo -1 || echo "${#x}"
 }
 
