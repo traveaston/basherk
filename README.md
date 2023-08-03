@@ -1,6 +1,6 @@
 # basherk
 
-[![CI](https://github.com/traveaston/basherk/actions/workflows/action.yaml/badge.svg)](https://github.com/traveaston/basherk/actions/workflows/action.yaml)
+[![ShellCheck](https://github.com/traveaston/basherk/actions/workflows/action.yaml/badge.svg)](https://github.com/traveaston/basherk/actions/workflows/action.yaml)
 
 (Pronounced sort of how bashrc sounds phonetically)  
 Handy aliases and functions to make your life in the terminal easier. Essentially:  

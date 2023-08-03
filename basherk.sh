@@ -1,6 +1,8 @@
 # shellcheck shell=bash
 # shellcheck disable=SC1090 # ignore non-constant source location warning
 # shellcheck disable=SC1091 # ignore sourced files
+# shellcheck disable=SC2119 # not a regular script, function's $1 is never script's $1
+# shellcheck disable=SC2120 # not a regular script, functions define arguments we won't use here
 #
 # basherk
 # .bashrc replacement
