@@ -1,6 +1,9 @@
+# shellcheck shell=bash
 # shellcheck disable=SC1090 # ignore non-constant source location warning
+# shellcheck disable=SC1091 # ignore sourced files
 # shellcheck disable=SC2119 # not a regular script, function's $1 is never script's $1
 # shellcheck disable=SC2120 # not a regular script, functions define arguments we won't use here
+#
 # basherk
 # .bashrc replacement
 
@@ -108,6 +111,7 @@ alias gitr='cd ~/dev/repos' # open main git repo directory
 alias lessf='less +F'
 alias now='date +"%c"'
 alias openports='nmap -sT -O localhost'
+# shellcheck disable=SC2262 # we don't use this in the same parsing unit
 alias pwf='echo "${PWD##*/}"' # print working folder
 alias weigh='du -sch'
 
@@ -189,6 +193,7 @@ fi
 
 ########## macOS OR Linux/WSL commands
 if [[ $os == "macOS" ]]; then
+    alias _stat_inode='stat -f%i'
     alias vwmod='stat -f "%OLp"'
 
     ########## macOS only commands
@@ -197,6 +202,7 @@ if [[ $os == "macOS" ]]; then
     alias tmnothrottle='sudo sysctl debug.lowpri_throttle_enabled=0'
     alias tmthrottle='sudo sysctl debug.lowpri_throttle_enabled=1'
 else
+    alias _stat_inode='stat -c%i'
     alias vwmod='stat --format "%a"'
 fi
 
@@ -207,9 +213,9 @@ fi
 # setup aliases for ls, la, l
 function alias_ls() {
     # set appropriate ls color flag
-    if ls --color -d . &>/dev/null; then
+    if command ls --color -d . &>/dev/null; then
         alias ls='ls --color=auto'
-    elif ls -G -d . &>/dev/null; then
+    elif command ls -G -d . &>/dev/null; then
         # FreeBSD/FreeNAS/legacy macOS versions
         alias ls='ls -G'
     fi
@@ -218,7 +224,7 @@ function alias_ls() {
     alias ll='ls -ahl' # don't hide . and .. as above does
 
     # set appropriate l alias (hide owner/group if possible)
-    if ls -dgo . &>/dev/null; then
+    if command ls -dgo . &>/dev/null; then
         alias l='la -go'
     else
         # busybox ls
@@ -252,16 +258,16 @@ function alias_realpath() {
             local OURPWD LINK REALPATH
             OURPWD=$PWD
 
-            command cd "$(dirname "$1")"
+            command cd "$(dirname "$1")" || return $?
 
             LINK=$(readlink "$(basename "$1")")
 
             while [ "$LINK" ]; do
-                command cd "$(dirname "$LINK")"
+                command cd "$(dirname "$LINK")" || return $?
                 LINK=$(readlink "$(basename "$1")")
             done
             REALPATH="$PWD/$(basename "$1")"
-            command cd "$OURPWD"
+            command cd "$OURPWD" || return $?
             echo "$REALPATH"
         }
         utility="_basherk_realpath"
@@ -332,7 +338,7 @@ function define_wsl_commands() {
 
     # cdwsl "C:\Program Files" -> "/mnt/c/Program Files"
     function cdwsl() {
-        cd "$(wslpath "$@")"
+        cd "$(wslpath "$@")" || return $?
     }
 
 }
@@ -500,12 +506,6 @@ function compare() {
 
 # comparefiles $file1 $file2
 function comparefiles() {
-    if [[ $os == "macOS" ]]; then
-        alias _stat_inode='stat -f%i'
-    else
-        alias _stat_inode='stat -c%i'
-    fi
-
     [[ $(_stat_inode "$1") == $(_stat_inode "$2") ]] && echo "${ORANGE}Paths point to the same file (matching inode)${D}"
 
     check256 "$1" "$(check256 "$2")"
@@ -621,7 +621,7 @@ function f() {
         [[ $location == "patchfull" ]] && local context="--function-context"
 
         [[ $debug ]] && {
-            echo "${CYAN}for commit in $(git log --pretty=format:\"%h\" -G \"$search\"); do"
+            echo "${CYAN}for commit in \$(git log --pretty=format:\"%h\" -G \"$search\"); do"
             echo "    git log -1 \"$commit\" --format=\"[...]\""
             echo "    git grep --color=always -n $context \"$search\" \"$commit\""
             echo "done${D} (simplified)"
@@ -633,6 +633,7 @@ function f() {
             git log -1 "$commit" --format="%Cgreen%h %Cblue<%an> %Creset%<(52,trunc)%s %C(bold blue)%<(20,trunc)%cr%Creset %C(yellow)%d"
 
             # git grep the commit for the search, remove hash from each line as we echo it pretty above
+            # shellcheck disable=SC2086 # context/flag must be unquoted else it will eval to an empty positional argument
             matches=$(git grep --color=always -n $context "$search" "$commit")
             echo "${matches//$commit:/}"
         done
@@ -816,7 +817,8 @@ function ipscan() {
     local sudo="$2"
 
     # allow scanning local subnet with sudo without explitly passing ip
-    [[ $ip == "sudo" ]] && unset ip && sudo="sudo"
+    [[ $ip == "sudo" ]] && unset ip && sudo="sudo "
+    # by appending space to $sudo, we avoid displaying ` foo` as the executed command when sudo is unset
 
     [[ -z $ip ]] && {
         # scan subnet using local ip address with /24 subnet mask
@@ -827,10 +829,9 @@ function ipscan() {
     local re='^[0-9]{1,3}$'
     [[ $ip =~ $re ]] && ip="192.168.$ip.1/24"
 
-    echo "$sudo scanning ${CYAN}$ip${D}"
-    $sudo nmap -sn -PE "$ip"
-    # shsellcheck disable=SC2086 # sudo needs to be unquoted
-    echo $sudo nmap -sn -PE "$ip"
+    echo "${sudo}scanning ${CYAN}$ip${D}"
+    # shellcheck disable=SC2086 # sudo needs to be unquoted
+    ${sudo}nmap -sn -PE "$ip"
 }
 
 function lastmod() {
@@ -860,11 +861,12 @@ function listening() {
         echo "Find port or process in list of listening ports"
         echo "Usage:"
         echo "    listening [--help]      Show this screen"
+        echo "    listening $             Show all ports/process (grep regex for newline char)"
         echo "    listening p1 [p2, etc]  Show ports/processes matching p#"
         return
     }
 
-    local args=("$@")
+    local -a args=( "$@" )
     local pattern
 
     # regex for int with 1-5 characters
@@ -872,7 +874,7 @@ function listening() {
 
     for (( i = 0; i < ${#args[@]}; i++ )); do
         # prepend colon to integer(port) to avoid searching PID, etc
-        [[ ${args[$i]} =~ $int_regex ]] && args[$i]=":${args[$i]}"
+        [[ ${args[$i]} =~ $int_regex ]] && args[i]=":${args[$i]}"
     done
 
     pattern=$(array_join "|" "${args[@]}")
@@ -948,6 +950,7 @@ function pause() {
 
 # sanitize history by removing -f from rm command
 # this prevents you from rerunning an old command and force removing something unintended
+# shellcheck disable=SC2032 # we don't aspire to invoke this via xargs
 function rm() {
     local HISTIGNORE="$HISTIGNORE:command rm *"
     local arg process
@@ -1307,7 +1310,7 @@ function _stashstage() {
 function strpos() {
     [[ -z $1 ]] && echo "usage: strpos haystack needle" && return
 
-    x="${1%%$2*}"
+    x="${1%%"$2"*}"
     [[ $x = "$1" ]] && echo -1 || echo "${#x}"
 }
 
@@ -1469,7 +1472,7 @@ function ubash() {
         }
 
         # download latest (HEAD) basherk
-        curl $basherk_url -o "$src"
+        curl "$basherk_url" -o "$src"
         clear
 
         echo "re-sourcing basherk"
