@@ -1516,7 +1516,7 @@ function vollist() {
         echo "${CYAN}$command${D}"
 
         # shellcheck disable=SC2086 # leave $command unquoted
-        if exists sudo; then
+        if [[ $USER != "root" ]]; then
             sudo $command
         else
             $command
