@@ -417,9 +417,7 @@ function check256() {
 
 # remove annoying synology, windows, macos files
 function cleanup_files() {
-    local path="$1"
-
-    [[ -z $path ]] && path="."
+    local path="${1:-.}"
 
     # shellcheck disable=SC2033 # ignore warning that xargs rm in this script won't use my rm function
     find "$path" \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -ivrf
