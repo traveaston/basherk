@@ -419,7 +419,7 @@ function check256() {
 function cleanup_files() {
     local path="${1:-.}"
 
-    # shellcheck disable=SC2033 # ignore warning that xargs rm in this script won't use my rm function
+    # shellcheck disable=SC2033 # ignore warning that xargs won't use basherk rm function # "command rm" n/a here
     find "$path" \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -ivrf
 }
 
