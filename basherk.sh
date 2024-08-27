@@ -417,8 +417,10 @@ function check256() {
 
 # remove annoying synology, windows, macos files
 function cleanup_files() {
-    # shellcheck disable=SC2033 # ignore warning that xargs rm in this script won't use my rm function
-    find . \( -iname "@eadir" -o -iname "thumbs.db" -o -iname ".ds_store" \) -print0 | xargs -0 rm -ivrf
+    local path="${1:-.}"
+
+    # shellcheck disable=SC2033 # ignore warning that xargs won't use basherk rm function # "command rm" n/a here
+    find "$path" \( -iname "@eadir" -o -iname "desktop.ini" -o -iname ".ds_store" -o -iname "thumbs.db" -o -iname ".smbdelete*" \) -print0 | xargs -0 rm -ivrf
 }
 
 # wrapper for git commit
