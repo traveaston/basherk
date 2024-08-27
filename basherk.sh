@@ -420,7 +420,7 @@ function cleanup_files() {
     local path="${1:-.}"
 
     # shellcheck disable=SC2033 # ignore warning that xargs won't use basherk rm function # "command rm" n/a here
-    find "$path" \( -iname "@eadir" -o -iname ".ds_store" -o -iname "thumbs.db" \) -print0 | xargs -0 rm -ivrf
+    find "$path" \( -iname "@eadir" -o -iname "desktop.ini" -o -iname ".ds_store" -o -iname "thumbs.db" -o -iname ".smbdelete*" \) -print0 | xargs -0 rm -ivrf
 }
 
 # wrapper for git commit
