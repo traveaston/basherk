@@ -2,43 +2,55 @@
 
 [![ShellCheck](https://github.com/traveaston/basherk/actions/workflows/action.yaml/badge.svg)](https://github.com/traveaston/basherk/actions/workflows/action.yaml)
 
-(Pronounced sort of how bashrc sounds phonetically)  
-Handy aliases and functions to make your life in the terminal easier. Essentially:  
-![alt text](https://imgs.xkcd.com/comics/automation.png "xkcd: Automation")
+_(Pronounced sort of how bashrc sounds phonetically)_
 
-### Installing
+Handy aliases and functions to make life in the terminal easier.
 
-The easiest way to start using basherk is to download and source the file  
-`curl https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh -o ~/.basherk && . ~/.basherk`
+## Installing
 
-To source it each session automatically  
-`echo -e "\n. ~/.basherk # source basherk\n" >> ~/.bashrc`
+### Standalone
 
-To have root source basherk from the same file  
-`sudo echo -e "\n. $(_realpath ~/.basherk) # source basherk\n" >> /root/.bashrc`
+The easiest way to start using basherk is to download and source the file
+```bash
+curl -Lo ~/.basherk https://raw.githubusercontent.com/traveaston/basherk/master/basherk.sh && . ~/.basherk
 
-___
+# Once sourced, you can set it to source automatically from .bashrc
+basherk --install
+```
+
+~~To have root source basherk from the same file, `sudo echo -e "\n. $(_realpath ~/.basherk) # source basherk\n" >> /root/.bashrc`~~ Security concern, not recommended
+
+
+### Clone
 
 Additionally, you can clone the repo for contributing, custom aliases, etc.
 
-Clone the repo to wherever you would like to store it  
-`git clone https://github.com/traveaston/basherk.git`
-
-Source it this session  
-`source basherk/basherk.sh`
-
-Then either symlink basherk into your home folder and source it from there  
+Clone the repo
+```bash
+git clone https://github.com/traveaston/basherk.git
 ```
+
+Source and install basherk
+```bash
+. basherk/basherk.sh
+basherk --install
+```
+
+Alternate installs:
+```bash
+# Symlink basherk into home folder
 ln -s "$(_realpath basherk/basherk.sh)" ~/.basherk
 echo -e "\n. ~/.basherk # source basherk\n" >> ~/.bashrc
-```
 
-Or source it straight from the repo  
-`echo -e "\n. \"$(_realpath basherk/basherk.sh)\" # source basherk\n" >> ~/.bashrc`
+# Source basherk directly from the repo
+echo -e "\n. \"$(_realpath basherk/basherk.sh)\" # source basherk\n" >> ~/.bashrc
+# This is the default behaviour of `basherk --install` if ~/.basherk doesn't exist
+```
 
 ### Updating
 
-If you aren't using the repo, `basherk --update` or `ubash` will download the latest revision from the master branch and re-source itself.
+If using basherk standalone, `basherk --update` will download the latest revision from the master branch and re-source itself.
+
 
 ## Contributing
 
@@ -86,5 +98,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-* Steve Losh http://stevelosh.com/blog/2009/03/candy-colored-terminal/
+* Steve Losh https://stevelosh.com/blog/2009/03/candy-colored-terminal
 * more credits peppered throughout [basherk.sh](basherk.sh)
